@@ -1,0 +1,234 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width" data-next-head=""/><link rel="apple-touch-icon" sizes="180x180" href="/infra-automation-with-tf/images/apple-touch-icon.png" data-next-head=""/><link rel="icon" type="image/png" sizes="32x32" href="/infra-automation-with-tf/images/favicon-32x32.png" data-next-head=""/><link rel="icon" type="image/png" sizes="16x16" href="/infra-automation-with-tf/images/favicon-16x16.png" data-next-head=""/><link rel="icon" type="image/png" sizes="16x16" href="/infra-automation-with-tf/images/favicon-16x16.png" data-next-head=""/><link rel="icon" type="image/x-icon" href="/infra-automation-with-tf/images/favicon.ico" data-next-head=""/><title data-next-head="">Hands-On Lab: Provisioning with Terraform &amp; Configuring with Ansible – Infrastructure Automation with Terraform</title><meta name="description" content="End-to-end hands-on lab: Provision an AWS EC2 web infrastructure stack using Terraform, then configure Nginx, system hardening, and a web app using Ansible." data-next-head=""/><meta name="keywords" content="Hands-on Lab,Terraform and Ansible Lab,Nginx Configuration,UFW Firewall,End-to-End Orchestration" data-next-head=""/><meta name="og:description" content="End-to-end hands-on lab: Provision an AWS EC2 web infrastructure stack using Terraform, then configure Nginx, system hardening, and a web app using Ansible." data-next-head=""/><meta name="og:title" content="Hands-On Lab: Provisioning with Terraform &amp; Configuring with Ansible – Infrastructure Automation with Terraform" data-next-head=""/><meta name="og:image" content="/infra-automation-with-tf/images/social-share-cover.jpg" data-next-head=""/><meta name="twitter:card" content="summary_large_image" data-next-head=""/><link rel="preload" href="/infra-automation-with-tf/_next/static/media/e49091ae4395b5b9-s.p.0cy~pv139ywr0.woff2" as="font" type="font/woff2" crossorigin="anonymous" data-next-font="size-adjust"/><link rel="preload" href="/infra-automation-with-tf/_next/static/media/cf514f5d0007dafa-s.p.0lok5zj4ubzox.woff2" as="font" type="font/woff2" crossorigin="anonymous" data-next-font="size-adjust"/><link rel="preload" href="/infra-automation-with-tf/_next/static/chunks/16yk37-xhf6._.css" as="style"/><link rel="stylesheet" href="/infra-automation-with-tf/_next/static/chunks/16yk37-xhf6._.css" data-n-g=""/><noscript data-n-css=""></noscript><script src="/infra-automation-with-tf/_next/static/chunks/0pxo0ot2x8.yt.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/chunks/0zst66v1bub3w.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/chunks/09vhnau0yi~s7.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/chunks/turbopack-01659-hvqzsi9.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/chunks/14dari8v7n7.8.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/chunks/turbopack-0jma68q2jjfsh.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/c9Y6cMZVS-uh5LhoovrVO/_buildManifest.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/c9Y6cMZVS-uh5LhoovrVO/_ssgManifest.js" defer=""></script><script src="/infra-automation-with-tf/_next/static/c9Y6cMZVS-uh5LhoovrVO/_clientMiddlewareManifest.js" defer=""></script></head><body><div id="__next"><div class="remix-app open_sans_9887aad5-module__grqYFG__variable"><header class="navbar"><h1 class="navbar-brand"><a href="/infra-automation-with-tf">Infrastructure Automation with Terraform</a></h1><div class="navbar-info"></div></header><div class="content-container"><div class="main"><div class="lesson-container"><div class="lesson"><div class="lesson-content"><h1>Hands-On Lab: Provisioning with Terraform &amp; Configuring with Ansible</h1>
+<p>In this hands-on lab, we will provision a complete cloud infrastructure stack on AWS with <strong>Terraform</strong>, then immediately configure the operating system, firewall, and an <strong>Nginx Web Server</strong> with <strong>Ansible</strong>.</p>
+<hr>
+<h2>1. Step 1: The Terraform Infrastructure Layer</h2>
+<p>Create a project directory <code>terraform-ansible-lab/</code> with <code>main.tf</code>:</p>
+<pre><code class="hljs language-hcl"># main.tf
+
+terraform {
+  required_version = &quot;&gt;= 1.5.0&quot;
+  required_providers {
+    aws = {
+      source  = &quot;hashicorp/aws&quot;
+      version = &quot;~&gt; 5.0&quot;
+    }
+    local = {
+      source  = &quot;hashicorp/local&quot;
+      version = &quot;~&gt; 2.4&quot;
+    }
+    tls = {
+      source  = &quot;hashicorp/tls&quot;
+      version = &quot;~&gt; 4.0&quot;
+    }
+  }
+}
+
+provider &quot;aws&quot; {
+  region = &quot;us-east-1&quot;
+}
+
+# 1. Generate an SSH Key Pair dynamically
+resource &quot;tls_private_key&quot; &quot;ssh_key&quot; {
+  algorithm = &quot;RSA&quot;
+  rsa_bits  = 4096
+}
+
+resource &quot;aws_key_pair&quot; &quot;generated_key&quot; {
+  key_name   = &quot;ansible-lab-key&quot;
+  public_key = tls_private_key.ssh_key.public_key_openssh
+}
+
+resource &quot;local_file&quot; &quot;private_key&quot; {
+  content         = tls_private_key.ssh_key.private_key_pem
+  filename        = &quot;${path.module}/ansible/id_rsa&quot;
+  file_permission = &quot;0400&quot; # Strict read-only permissions for SSH
+}
+
+# 2. Network &amp; Security Group
+resource &quot;aws_vpc&quot; &quot;lab_vpc&quot; {
+  cidr_block           = &quot;10.0.0.0/16&quot;
+  enable_dns_hostnames = true
+  tags = { Name = &quot;ansible-lab-vpc&quot; }
+}
+
+resource &quot;aws_subnet&quot; &quot;lab_subnet&quot; {
+  vpc_id                  = aws_vpc.lab_vpc.id
+  cidr_block              = &quot;10.0.1.0/24&quot;
+  map_public_ip_on_launch = true
+  availability_zone       = &quot;us-east-1a&quot;
+}
+
+resource &quot;aws_internet_gateway&quot; &quot;lab_gw&quot; {
+  vpc_id = aws_vpc.lab_vpc.id
+}
+
+resource &quot;aws_route_table&quot; &quot;lab_rt&quot; {
+  vpc_id = aws_vpc.lab_vpc.id
+  route {
+    cidr_block = &quot;0.0.0.0/0&quot;
+    gateway_id = aws_internet_gateway.lab_gw.id
+  }
+}
+
+resource &quot;aws_route_table_association&quot; &quot;lab_rta&quot; {
+  subnet_id      = aws_subnet.lab_subnet.id
+  route_table_id = aws_route_table.lab_rt.id
+}
+
+resource &quot;aws_security_group&quot; &quot;web_sg&quot; {
+  name   = &quot;ansible-web-sg&quot;
+  vpc_id = aws_vpc.lab_vpc.id
+
+  ingress {
+    description = &quot;Allow SSH&quot;
+    from_port   = 22
+    to_port     = 22
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  ingress {
+    description = &quot;Allow HTTP&quot;
+    from_port   = 80
+    to_port     = 80
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+}
+
+# 3. Discover Latest Ubuntu AMI
+data &quot;aws_ami&quot; &quot;ubuntu&quot; {
+  most_recent = true
+  owners      = [&quot;099720109477&quot;]
+  filter {
+    name   = &quot;name&quot;
+    values = [&quot;ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*&quot;]
+  }
+}
+
+# 4. Web Server Instance
+resource &quot;aws_instance&quot; &quot;web&quot; {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = &quot;t3.micro&quot;
+  key_name               = aws_key_pair.generated_key.key_name
+  subnet_id              = aws_subnet.lab_subnet.id
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+  tags = {
+    Name = &quot;ansible-managed-web-01&quot;
+    Role = &quot;webserver&quot;
+  }
+}
+
+# 5. Automatically Output Ansible Inventory
+resource &quot;local_file&quot; &quot;ansible_inventory&quot; {
+  filename = &quot;${path.module}/ansible/hosts.ini&quot;
+  content  = &lt;&lt;-EOT
+    [webservers]
+    web-01 ansible_host=${aws_instance.web.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=${path.module}/ansible/id_rsa ansible_ssh_common_args=&#x27;-o StrictHostKeyChecking=no&#x27;
+  EOT
+}
+
+output &quot;web_public_ip&quot; {
+  value = aws_instance.web.public_ip
+}
+</code></pre><hr>
+<h2>2. Step 2: The Ansible Configuration Layer</h2>
+<p>Create <code>ansible/playbook.yaml</code>:</p>
+<pre><code class="hljs language-yaml"><span class="hljs-comment"># ansible/playbook.yaml</span>
+<span class="hljs-meta">---</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Configure</span> <span class="hljs-string">Production</span> <span class="hljs-string">Web</span> <span class="hljs-string">Server</span> <span class="hljs-string">&amp;</span> <span class="hljs-string">Security</span> <span class="hljs-string">Hardening</span>
+  <span class="hljs-attr">hosts:</span> <span class="hljs-string">webservers</span>
+  <span class="hljs-attr">become:</span> <span class="hljs-literal">true</span>
+
+  <span class="hljs-attr">vars:</span>
+    <span class="hljs-attr">company_name:</span> <span class="hljs-string">&quot;Cloud Enterprise DevOps&quot;</span>
+
+  <span class="hljs-attr">tasks:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Wait</span> <span class="hljs-number">60</span> <span class="hljs-string">seconds</span> <span class="hljs-string">for</span> <span class="hljs-string">cloud-init</span> <span class="hljs-string">and</span> <span class="hljs-string">SSH</span> <span class="hljs-string">to</span> <span class="hljs-string">be</span> <span class="hljs-string">ready</span>
+      <span class="hljs-attr">ansible.builtin.wait_for_connection:</span>
+        <span class="hljs-attr">timeout:</span> <span class="hljs-number">120</span>
+
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Update</span> <span class="hljs-string">apt</span> <span class="hljs-string">cache</span>
+      <span class="hljs-attr">ansible.builtin.apt:</span>
+        <span class="hljs-attr">update_cache:</span> <span class="hljs-literal">true</span>
+        <span class="hljs-attr">cache_valid_time:</span> <span class="hljs-number">3600</span>
+
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Install</span> <span class="hljs-string">Nginx</span> <span class="hljs-string">and</span> <span class="hljs-string">UFW</span> <span class="hljs-string">Firewall</span>
+      <span class="hljs-attr">ansible.builtin.apt:</span>
+        <span class="hljs-attr">name:</span>
+          <span class="hljs-bullet">-</span> <span class="hljs-string">nginx</span>
+          <span class="hljs-bullet">-</span> <span class="hljs-string">ufw</span>
+          <span class="hljs-bullet">-</span> <span class="hljs-string">curl</span>
+        <span class="hljs-attr">state:</span> <span class="hljs-string">present</span>
+
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Deploy</span> <span class="hljs-string">custom</span> <span class="hljs-string">web</span> <span class="hljs-string">page</span>
+      <span class="hljs-attr">ansible.builtin.copy:</span>
+        <span class="hljs-attr">dest:</span> <span class="hljs-string">/var/www/html/index.html</span>
+        <span class="hljs-attr">owner:</span> <span class="hljs-string">www-data</span>
+        <span class="hljs-attr">group:</span> <span class="hljs-string">www-data</span>
+        <span class="hljs-attr">mode:</span> <span class="hljs-string">&#x27;0644&#x27;</span>
+        <span class="hljs-attr">content:</span> <span class="hljs-string">|
+          &lt;!DOCTYPE html&gt;
+          &lt;html&gt;
+          &lt;head&gt;
+            &lt;title&gt;{{ company_name }}&lt;/title&gt;
+            &lt;style&gt;
+              body { font-family: &#x27;Segoe UI&#x27;, sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding-top: 100px; }
+              .card { background: #1e293b; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+              h1 { color: #38bdf8; }
+              .badge { background: #0284c7; padding: 6px 12px; border-radius: 6px; font-weight: bold; }
+            &lt;/style&gt;
+          &lt;/head&gt;
+          &lt;body&gt;
+            &lt;div class=&quot;card&quot;&gt;
+              &lt;h1&gt;🚀 Infrastructure &amp; App Deployed!&lt;/h1&gt;
+              &lt;p&gt;Provisioned with &lt;span class=&quot;badge&quot;&gt;Terraform&lt;/span&gt;&lt;/p&gt;
+              &lt;p&gt;Configured &amp; Hardened with &lt;span class=&quot;badge&quot;&gt;Ansible&lt;/span&gt;&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/body&gt;
+          &lt;/html&gt;
+</span>      <span class="hljs-attr">notify:</span> <span class="hljs-string">Restart</span> <span class="hljs-string">Nginx</span>
+
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Configure</span> <span class="hljs-string">UFW</span> <span class="hljs-bullet">-</span> <span class="hljs-string">Allow</span> <span class="hljs-string">OpenSSH</span>
+      <span class="hljs-attr">community.general.ufw:</span>
+        <span class="hljs-attr">rule:</span> <span class="hljs-string">allow</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">OpenSSH</span>
+
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Configure</span> <span class="hljs-string">UFW</span> <span class="hljs-bullet">-</span> <span class="hljs-string">Allow</span> <span class="hljs-string">HTTP</span>
+      <span class="hljs-attr">community.general.ufw:</span>
+        <span class="hljs-attr">rule:</span> <span class="hljs-string">allow</span>
+        <span class="hljs-attr">port:</span> <span class="hljs-string">&#x27;80&#x27;</span>
+        <span class="hljs-attr">proto:</span> <span class="hljs-string">tcp</span>
+
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Enable</span> <span class="hljs-string">UFW</span> <span class="hljs-string">Firewall</span>
+      <span class="hljs-attr">community.general.ufw:</span>
+        <span class="hljs-attr">state:</span> <span class="hljs-string">enabled</span>
+
+  <span class="hljs-attr">handlers:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Restart</span> <span class="hljs-string">Nginx</span>
+      <span class="hljs-attr">ansible.builtin.systemd:</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span>
+        <span class="hljs-attr">state:</span> <span class="hljs-string">restarted</span>
+</code></pre><hr>
+<h2>3. Step 3: Executing the Pipeline</h2>
+<pre><code class="hljs language-bash"><span class="hljs-comment"># 1. Provision Infrastructure</span>
+terraform init
+terraform apply -auto-approve
+
+<span class="hljs-comment"># 2. Execute Configuration Management</span>
+ansible-playbook -i ansible/hosts.ini ansible/playbook.yaml
+
+<span class="hljs-comment"># 3. Test Web Response via curl</span>
+curl http://$(terraform output -raw web_public_ip)
+</code></pre><hr>
+<h2>4. Summary &amp; Next Steps</h2>
+<p>You have built an automated pipeline spanning cloud compute provisioning and operating system configuration. In <strong>Section 08: Enterprise CI/CD, Security &amp; Capstone</strong>, we will explore <strong>GitHub Actions CI/CD automation</strong>, <strong>Policy as Code with Trivy &amp; tflint</strong>, and the <strong>Production Readiness Review</strong>.</p>
+</div><div class="lesson-links"><a class="prev" href="/infra-automation-with-tf/lessons/day-4-ansible-integration-and-orchestration/connecting-terraform-and-ansible">← Previous</a><a class="next" href="/infra-automation-with-tf/lessons/day-4-enterprise-cicd-and-policy-as-code/enterprise-cicd-with-github-actions">Next →</a></div></div><div class="details-bg"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="154" height="154" viewBox="0 0 154 154"><defs><clipPath id="clip-path"><rect id="Rectangle_2238" data-name="Rectangle 2238" width="154" height="154" transform="translate(9467 350)" fill="#fff" stroke="#707070" stroke-width="1"></rect></clipPath><clipPath id="clip-corner-image-active"><rect width="154" height="154"></rect></clipPath></defs><g id="corner-image-active" clip-path="url(#clip-corner-image-active)"><g id="Corner-image-active-2" data-name="Corner-image-active" transform="translate(-9467 -350)" clip-path="url(#clip-path)"><path id="Subtraction_34" data-name="Subtraction 34" d="M-3857.365,1740.766h0l-7.07-7.07,12.89-12.89v14.142l-5.818,5.818Zm-14.142-14.142h0l-7.071-7.07,27.033-27.033v14.143l-19.96,19.96Zm-14.143-14.143h0l-7.07-7.069,41.175-41.175v14.142Zm-14.142-14.142h0l-7.07-7.069,55.317-55.317v14.142Zm-14.142-14.142h0l-7.07-7.069,69.459-69.459v14.142Zm-14.142-14.142h0l-7.07-7.069,76.739-76.739h6.862v7.28Zm-14.143-14.143h0l-7.07-7.069,62.6-62.6h14.142Zm-14.142-14.142h0l-7.07-7.069,48.454-48.454h14.142Zm-14.142-14.142h0l-7.07-7.069,34.312-34.312h14.142Zm-14.142-14.142h0l-7.07-7.069,20.17-20.17h14.142Zm-14.142-14.142h0l-7.071-7.071,6.027-6.027h14.144l-13.1,13.1Zm367.24-56.114v-.909l.455.455-.453.453Z" transform="translate(13472.546 -1236.766)" fill="var(--corner-fill)"></path></g></g></svg></div></div></div></div><footer class="footer"><ul class="socials"><li class="social"><a href="https://github.com/akiltipu"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><defs><clipPath id="clip-github-social"><rect width="32" height="32"></rect></clipPath></defs><g id="github-social" clip-path="url(#clip-github-social)"><g id="Group_272" data-name="Group 272" transform="translate(13522.5 -6994)"><path id="Subtraction_33" data-name="Subtraction 33" d="M-24967.5,8041a15.9,15.9,0,0,1-11.312-4.688A15.893,15.893,0,0,1-24983.5,8025a15.893,15.893,0,0,1,4.689-11.315A15.894,15.894,0,0,1-24967.5,8009a15.894,15.894,0,0,1,11.313,4.686A15.893,15.893,0,0,1-24951.5,8025a15.893,15.893,0,0,1-4.689,11.313A15.9,15.9,0,0,1-24967.5,8041Zm-3.781-4.571h0v3.918h7.895v-6.665a1.836,1.836,0,0,0-1.2-1.718c5.1-.617,7.467-2.975,7.467-7.424a7.176,7.176,0,0,0-1.637-4.728,6.74,6.74,0,0,0,.275-1.812,4.34,4.34,0,0,0-.52-2.452.574.574,0,0,0-.359-.1c-1.061,0-3.465,1.411-3.936,1.694a16.644,16.644,0,0,0-4.2-.489,16.379,16.379,0,0,0-3.969.445c-.846-.5-2.91-1.649-3.859-1.649a.566.566,0,0,0-.354.095,4.3,4.3,0,0,0-.521,2.452,6.7,6.7,0,0,0,.244,1.718,7.346,7.346,0,0,0-1.6,4.822,7.263,7.263,0,0,0,1.533,4.985c1.193,1.359,3.115,2.165,5.871,2.464a1.826,1.826,0,0,0-1.129,1.693v.5h0l-.006,0a7.121,7.121,0,0,1-2.033.363,2.608,2.608,0,0,1-.965-.158,4.438,4.438,0,0,1-1.836-1.881,2.361,2.361,0,0,0-1.248-1.091,3.472,3.472,0,0,0-1.217-.3.584.584,0,0,0-.545.224.282.282,0,0,0,.027.367,1.875,1.875,0,0,0,.447.307,4.732,4.732,0,0,1,.561.355,10.726,10.726,0,0,1,1.682,2.755c.043.092.078.163.105.217a3.876,3.876,0,0,0,2.42,1.185,6.036,6.036,0,0,0,.607.025c.875,0,1.988-.124,2-.125Z" transform="translate(11461 -1015)" fill="var(--footer-icons)"></path><g id="Ellipse_670" data-name="Ellipse 670" transform="translate(-13522.5 6994)" fill="none" stroke="var(--footer-icons)" stroke-width="1"><circle cx="16" cy="16" r="16" stroke="none"></circle><circle cx="16" cy="16" r="15.5" fill="none"></circle></g></g></g></svg></a></li><li class="social"><a href="https://linkedin.com/in/akiltipu"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><defs><clipPath id="clip-linkedin-social"><rect width="32" height="32"></rect></clipPath></defs><g id="linkedin-social" clip-path="url(#clip-linkedin-social)"><g id="Group_270" data-name="Group 270" transform="translate(-86.349 -633.073)"><path id="Path_375" data-name="Path 375" d="M115.789,633.073a2.324,2.324,0,0,1,1.682.676,2.194,2.194,0,0,1,.695,1.627V662.8a2.131,2.131,0,0,1-.695,1.609,2.314,2.314,0,0,1-1.646.659H88.69a2.307,2.307,0,0,1-1.646-.659,2.128,2.128,0,0,1-.695-1.609V635.376a2.19,2.19,0,0,1,.695-1.627,2.322,2.322,0,0,1,1.682-.676h27.063Zm-20.224,9.672a2.561,2.561,0,0,0,0-3.584,2.658,2.658,0,0,0-1.938-.712,2.724,2.724,0,0,0-1.957.712,2.371,2.371,0,0,0-.75,1.792,2.4,2.4,0,0,0,.731,1.792,2.605,2.605,0,0,0,1.9.713h.037A2.7,2.7,0,0,0,95.565,642.745ZM96,645.434H91.213V659.88H96Zm17.3,6.144a7.007,7.007,0,0,0-1.573-4.9,5.68,5.68,0,0,0-6.839-.769,5.663,5.663,0,0,0-1.426,1.573v-2.048H98.674q.036.841,0,7.717v6.728h4.791V651.8a3.592,3.592,0,0,1,.146-1.17,2.913,2.913,0,0,1,.878-1.206,2.429,2.429,0,0,1,1.609-.549,2.108,2.108,0,0,1,1.865.914,4.265,4.265,0,0,1,.549,2.341v7.752H113.3Z" fill="var(--footer-icons)"></path></g></g></svg></a></li><li class="social"><div class="terms"><p>Content Licensed Under CC-BY-NC-4.0</p><p>Code Samples and Exercises Licensed Under Apache 2.0</p><p>Site Designed by<!-- --> <a href="https://www.alexdanielson.com/">Alex Danielson</a></p></div></li></ul><div class="theme-icons"><button aria-label="Activate dark mode" title="Activate dark mode" class="theme-toggle"><svg xmlns="http://www.w3.org/2000/svg" width="36px" height="100%" viewBox="0 -960 960 960" fill="var(--text-footer)" role="img"><title>Dark Mode Icon</title><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Z"></path></svg></button></div></footer></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"post":{"attributes":{"title":"Hands-On Lab: Provisioning with Terraform \u0026 Configuring with Ansible","description":"End-to-end hands-on lab: Provision an AWS EC2 web infrastructure stack using Terraform, then configure Nginx, system hardening, and a web app using Ansible.","keywords":["Hands-on Lab","Terraform and Ansible Lab","Nginx Configuration","UFW Firewall","End-to-End Orchestration"]},"html":"\u003ch1\u003eHands-On Lab: Provisioning with Terraform \u0026amp; Configuring with Ansible\u003c/h1\u003e\n\u003cp\u003eIn this hands-on lab, we will provision a complete cloud infrastructure stack on AWS with \u003cstrong\u003eTerraform\u003c/strong\u003e, then immediately configure the operating system, firewall, and an \u003cstrong\u003eNginx Web Server\u003c/strong\u003e with \u003cstrong\u003eAnsible\u003c/strong\u003e.\u003c/p\u003e\n\u003chr\u003e\n\u003ch2\u003e1. Step 1: The Terraform Infrastructure Layer\u003c/h2\u003e\n\u003cp\u003eCreate a project directory \u003ccode\u003eterraform-ansible-lab/\u003c/code\u003e with \u003ccode\u003emain.tf\u003c/code\u003e:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-hcl\"\u003e# main.tf\n\nterraform {\n  required_version = \u0026quot;\u0026gt;= 1.5.0\u0026quot;\n  required_providers {\n    aws = {\n      source  = \u0026quot;hashicorp/aws\u0026quot;\n      version = \u0026quot;~\u0026gt; 5.0\u0026quot;\n    }\n    local = {\n      source  = \u0026quot;hashicorp/local\u0026quot;\n      version = \u0026quot;~\u0026gt; 2.4\u0026quot;\n    }\n    tls = {\n      source  = \u0026quot;hashicorp/tls\u0026quot;\n      version = \u0026quot;~\u0026gt; 4.0\u0026quot;\n    }\n  }\n}\n\nprovider \u0026quot;aws\u0026quot; {\n  region = \u0026quot;us-east-1\u0026quot;\n}\n\n# 1. Generate an SSH Key Pair dynamically\nresource \u0026quot;tls_private_key\u0026quot; \u0026quot;ssh_key\u0026quot; {\n  algorithm = \u0026quot;RSA\u0026quot;\n  rsa_bits  = 4096\n}\n\nresource \u0026quot;aws_key_pair\u0026quot; \u0026quot;generated_key\u0026quot; {\n  key_name   = \u0026quot;ansible-lab-key\u0026quot;\n  public_key = tls_private_key.ssh_key.public_key_openssh\n}\n\nresource \u0026quot;local_file\u0026quot; \u0026quot;private_key\u0026quot; {\n  content         = tls_private_key.ssh_key.private_key_pem\n  filename        = \u0026quot;${path.module}/ansible/id_rsa\u0026quot;\n  file_permission = \u0026quot;0400\u0026quot; # Strict read-only permissions for SSH\n}\n\n# 2. Network \u0026amp; Security Group\nresource \u0026quot;aws_vpc\u0026quot; \u0026quot;lab_vpc\u0026quot; {\n  cidr_block           = \u0026quot;10.0.0.0/16\u0026quot;\n  enable_dns_hostnames = true\n  tags = { Name = \u0026quot;ansible-lab-vpc\u0026quot; }\n}\n\nresource \u0026quot;aws_subnet\u0026quot; \u0026quot;lab_subnet\u0026quot; {\n  vpc_id                  = aws_vpc.lab_vpc.id\n  cidr_block              = \u0026quot;10.0.1.0/24\u0026quot;\n  map_public_ip_on_launch = true\n  availability_zone       = \u0026quot;us-east-1a\u0026quot;\n}\n\nresource \u0026quot;aws_internet_gateway\u0026quot; \u0026quot;lab_gw\u0026quot; {\n  vpc_id = aws_vpc.lab_vpc.id\n}\n\nresource \u0026quot;aws_route_table\u0026quot; \u0026quot;lab_rt\u0026quot; {\n  vpc_id = aws_vpc.lab_vpc.id\n  route {\n    cidr_block = \u0026quot;0.0.0.0/0\u0026quot;\n    gateway_id = aws_internet_gateway.lab_gw.id\n  }\n}\n\nresource \u0026quot;aws_route_table_association\u0026quot; \u0026quot;lab_rta\u0026quot; {\n  subnet_id      = aws_subnet.lab_subnet.id\n  route_table_id = aws_route_table.lab_rt.id\n}\n\nresource \u0026quot;aws_security_group\u0026quot; \u0026quot;web_sg\u0026quot; {\n  name   = \u0026quot;ansible-web-sg\u0026quot;\n  vpc_id = aws_vpc.lab_vpc.id\n\n  ingress {\n    description = \u0026quot;Allow SSH\u0026quot;\n    from_port   = 22\n    to_port     = 22\n    protocol    = \u0026quot;tcp\u0026quot;\n    cidr_blocks = [\u0026quot;0.0.0.0/0\u0026quot;]\n  }\n\n  ingress {\n    description = \u0026quot;Allow HTTP\u0026quot;\n    from_port   = 80\n    to_port     = 80\n    protocol    = \u0026quot;tcp\u0026quot;\n    cidr_blocks = [\u0026quot;0.0.0.0/0\u0026quot;]\n  }\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \u0026quot;-1\u0026quot;\n    cidr_blocks = [\u0026quot;0.0.0.0/0\u0026quot;]\n  }\n}\n\n# 3. Discover Latest Ubuntu AMI\ndata \u0026quot;aws_ami\u0026quot; \u0026quot;ubuntu\u0026quot; {\n  most_recent = true\n  owners      = [\u0026quot;099720109477\u0026quot;]\n  filter {\n    name   = \u0026quot;name\u0026quot;\n    values = [\u0026quot;ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*\u0026quot;]\n  }\n}\n\n# 4. Web Server Instance\nresource \u0026quot;aws_instance\u0026quot; \u0026quot;web\u0026quot; {\n  ami                    = data.aws_ami.ubuntu.id\n  instance_type          = \u0026quot;t3.micro\u0026quot;\n  key_name               = aws_key_pair.generated_key.key_name\n  subnet_id              = aws_subnet.lab_subnet.id\n  vpc_security_group_ids = [aws_security_group.web_sg.id]\n\n  tags = {\n    Name = \u0026quot;ansible-managed-web-01\u0026quot;\n    Role = \u0026quot;webserver\u0026quot;\n  }\n}\n\n# 5. Automatically Output Ansible Inventory\nresource \u0026quot;local_file\u0026quot; \u0026quot;ansible_inventory\u0026quot; {\n  filename = \u0026quot;${path.module}/ansible/hosts.ini\u0026quot;\n  content  = \u0026lt;\u0026lt;-EOT\n    [webservers]\n    web-01 ansible_host=${aws_instance.web.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=${path.module}/ansible/id_rsa ansible_ssh_common_args=\u0026#x27;-o StrictHostKeyChecking=no\u0026#x27;\n  EOT\n}\n\noutput \u0026quot;web_public_ip\u0026quot; {\n  value = aws_instance.web.public_ip\n}\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e2. Step 2: The Ansible Configuration Layer\u003c/h2\u003e\n\u003cp\u003eCreate \u003ccode\u003eansible/playbook.yaml\u003c/code\u003e:\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-yaml\"\u003e\u003cspan class=\"hljs-comment\"\u003e# ansible/playbook.yaml\u003c/span\u003e\n\u003cspan class=\"hljs-meta\"\u003e---\u003c/span\u003e\n\u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eConfigure\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eProduction\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eWeb\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eServer\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026amp;\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eSecurity\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eHardening\u003c/span\u003e\n  \u003cspan class=\"hljs-attr\"\u003ehosts:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ewebservers\u003c/span\u003e\n  \u003cspan class=\"hljs-attr\"\u003ebecome:\u003c/span\u003e \u003cspan class=\"hljs-literal\"\u003etrue\u003c/span\u003e\n\n  \u003cspan class=\"hljs-attr\"\u003evars:\u003c/span\u003e\n    \u003cspan class=\"hljs-attr\"\u003ecompany_name:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026quot;Cloud Enterprise DevOps\u0026quot;\u003c/span\u003e\n\n  \u003cspan class=\"hljs-attr\"\u003etasks:\u003c/span\u003e\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eWait\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e60\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eseconds\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003efor\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ecloud-init\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eand\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eSSH\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eto\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ebe\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eready\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003eansible.builtin.wait_for_connection:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003etimeout:\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e120\u003c/span\u003e\n\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eUpdate\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eapt\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ecache\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003eansible.builtin.apt:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003eupdate_cache:\u003c/span\u003e \u003cspan class=\"hljs-literal\"\u003etrue\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003ecache_valid_time:\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e3600\u003c/span\u003e\n\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eInstall\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eNginx\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eand\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eUFW\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eFirewall\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003eansible.builtin.apt:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e\n          \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003enginx\u003c/span\u003e\n          \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eufw\u003c/span\u003e\n          \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ecurl\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003estate:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003epresent\u003c/span\u003e\n\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eDeploy\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ecustom\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eweb\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003epage\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003eansible.builtin.copy:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003edest:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e/var/www/html/index.html\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003eowner:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ewww-data\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003egroup:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003ewww-data\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003emode:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x27;0644\u0026#x27;\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003econtent:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e|\n          \u0026lt;!DOCTYPE html\u0026gt;\n          \u0026lt;html\u0026gt;\n          \u0026lt;head\u0026gt;\n            \u0026lt;title\u0026gt;{{ company_name }}\u0026lt;/title\u0026gt;\n            \u0026lt;style\u0026gt;\n              body { font-family: \u0026#x27;Segoe UI\u0026#x27;, sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding-top: 100px; }\n              .card { background: #1e293b; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }\n              h1 { color: #38bdf8; }\n              .badge { background: #0284c7; padding: 6px 12px; border-radius: 6px; font-weight: bold; }\n            \u0026lt;/style\u0026gt;\n          \u0026lt;/head\u0026gt;\n          \u0026lt;body\u0026gt;\n            \u0026lt;div class=\u0026quot;card\u0026quot;\u0026gt;\n              \u0026lt;h1\u0026gt;🚀 Infrastructure \u0026amp; App Deployed!\u0026lt;/h1\u0026gt;\n              \u0026lt;p\u0026gt;Provisioned with \u0026lt;span class=\u0026quot;badge\u0026quot;\u0026gt;Terraform\u0026lt;/span\u0026gt;\u0026lt;/p\u0026gt;\n              \u0026lt;p\u0026gt;Configured \u0026amp; Hardened with \u0026lt;span class=\u0026quot;badge\u0026quot;\u0026gt;Ansible\u0026lt;/span\u0026gt;\u0026lt;/p\u0026gt;\n            \u0026lt;/div\u0026gt;\n          \u0026lt;/body\u0026gt;\n          \u0026lt;/html\u0026gt;\n\u003c/span\u003e      \u003cspan class=\"hljs-attr\"\u003enotify:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eRestart\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eNginx\u003c/span\u003e\n\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eConfigure\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eUFW\u003c/span\u003e \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eAllow\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eOpenSSH\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003ecommunity.general.ufw:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003erule:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eallow\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eOpenSSH\u003c/span\u003e\n\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eConfigure\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eUFW\u003c/span\u003e \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eAllow\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eHTTP\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003ecommunity.general.ufw:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003erule:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eallow\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003eport:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x27;80\u0026#x27;\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003eproto:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003etcp\u003c/span\u003e\n\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eEnable\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eUFW\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eFirewall\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003ecommunity.general.ufw:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003estate:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eenabled\u003c/span\u003e\n\n  \u003cspan class=\"hljs-attr\"\u003ehandlers:\u003c/span\u003e\n    \u003cspan class=\"hljs-bullet\"\u003e-\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eRestart\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003eNginx\u003c/span\u003e\n      \u003cspan class=\"hljs-attr\"\u003eansible.builtin.systemd:\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003ename:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003enginx\u003c/span\u003e\n        \u003cspan class=\"hljs-attr\"\u003estate:\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003erestarted\u003c/span\u003e\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e3. Step 3: Executing the Pipeline\u003c/h2\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-bash\"\u003e\u003cspan class=\"hljs-comment\"\u003e# 1. Provision Infrastructure\u003c/span\u003e\nterraform init\nterraform apply -auto-approve\n\n\u003cspan class=\"hljs-comment\"\u003e# 2. Execute Configuration Management\u003c/span\u003e\nansible-playbook -i ansible/hosts.ini ansible/playbook.yaml\n\n\u003cspan class=\"hljs-comment\"\u003e# 3. Test Web Response via curl\u003c/span\u003e\ncurl http://$(terraform output -raw web_public_ip)\n\u003c/code\u003e\u003c/pre\u003e\u003chr\u003e\n\u003ch2\u003e4. Summary \u0026amp; Next Steps\u003c/h2\u003e\n\u003cp\u003eYou have built an automated pipeline spanning cloud compute provisioning and operating system configuration. In \u003cstrong\u003eSection 08: Enterprise CI/CD, Security \u0026amp; Capstone\u003c/strong\u003e, we will explore \u003cstrong\u003eGitHub Actions CI/CD automation\u003c/strong\u003e, \u003cstrong\u003ePolicy as Code with Trivy \u0026amp; tflint\u003c/strong\u003e, and the \u003cstrong\u003eProduction Readiness Review\u003c/strong\u003e.\u003c/p\u003e\n","markdown":"\n# Hands-On Lab: Provisioning with Terraform \u0026 Configuring with Ansible\n\nIn this hands-on lab, we will provision a complete cloud infrastructure stack on AWS with **Terraform**, then immediately configure the operating system, firewall, and an **Nginx Web Server** with **Ansible**.\n\n---\n\n## 1. Step 1: The Terraform Infrastructure Layer\n\nCreate a project directory `terraform-ansible-lab/` with `main.tf`:\n\n```hcl\n# main.tf\n\nterraform {\n  required_version = \"\u003e= 1.5.0\"\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }\n    local = {\n      source  = \"hashicorp/local\"\n      version = \"~\u003e 2.4\"\n    }\n    tls = {\n      source  = \"hashicorp/tls\"\n      version = \"~\u003e 4.0\"\n    }\n  }\n}\n\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\n# 1. Generate an SSH Key Pair dynamically\nresource \"tls_private_key\" \"ssh_key\" {\n  algorithm = \"RSA\"\n  rsa_bits  = 4096\n}\n\nresource \"aws_key_pair\" \"generated_key\" {\n  key_name   = \"ansible-lab-key\"\n  public_key = tls_private_key.ssh_key.public_key_openssh\n}\n\nresource \"local_file\" \"private_key\" {\n  content         = tls_private_key.ssh_key.private_key_pem\n  filename        = \"${path.module}/ansible/id_rsa\"\n  file_permission = \"0400\" # Strict read-only permissions for SSH\n}\n\n# 2. Network \u0026 Security Group\nresource \"aws_vpc\" \"lab_vpc\" {\n  cidr_block           = \"10.0.0.0/16\"\n  enable_dns_hostnames = true\n  tags = { Name = \"ansible-lab-vpc\" }\n}\n\nresource \"aws_subnet\" \"lab_subnet\" {\n  vpc_id                  = aws_vpc.lab_vpc.id\n  cidr_block              = \"10.0.1.0/24\"\n  map_public_ip_on_launch = true\n  availability_zone       = \"us-east-1a\"\n}\n\nresource \"aws_internet_gateway\" \"lab_gw\" {\n  vpc_id = aws_vpc.lab_vpc.id\n}\n\nresource \"aws_route_table\" \"lab_rt\" {\n  vpc_id = aws_vpc.lab_vpc.id\n  route {\n    cidr_block = \"0.0.0.0/0\"\n    gateway_id = aws_internet_gateway.lab_gw.id\n  }\n}\n\nresource \"aws_route_table_association\" \"lab_rta\" {\n  subnet_id      = aws_subnet.lab_subnet.id\n  route_table_id = aws_route_table.lab_rt.id\n}\n\nresource \"aws_security_group\" \"web_sg\" {\n  name   = \"ansible-web-sg\"\n  vpc_id = aws_vpc.lab_vpc.id\n\n  ingress {\n    description = \"Allow SSH\"\n    from_port   = 22\n    to_port     = 22\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    description = \"Allow HTTP\"\n    from_port   = 80\n    to_port     = 80\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}\n\n# 3. Discover Latest Ubuntu AMI\ndata \"aws_ami\" \"ubuntu\" {\n  most_recent = true\n  owners      = [\"099720109477\"]\n  filter {\n    name   = \"name\"\n    values = [\"ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*\"]\n  }\n}\n\n# 4. Web Server Instance\nresource \"aws_instance\" \"web\" {\n  ami                    = data.aws_ami.ubuntu.id\n  instance_type          = \"t3.micro\"\n  key_name               = aws_key_pair.generated_key.key_name\n  subnet_id              = aws_subnet.lab_subnet.id\n  vpc_security_group_ids = [aws_security_group.web_sg.id]\n\n  tags = {\n    Name = \"ansible-managed-web-01\"\n    Role = \"webserver\"\n  }\n}\n\n# 5. Automatically Output Ansible Inventory\nresource \"local_file\" \"ansible_inventory\" {\n  filename = \"${path.module}/ansible/hosts.ini\"\n  content  = \u003c\u003c-EOT\n    [webservers]\n    web-01 ansible_host=${aws_instance.web.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=${path.module}/ansible/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n  EOT\n}\n\noutput \"web_public_ip\" {\n  value = aws_instance.web.public_ip\n}\n```\n\n---\n\n## 2. Step 2: The Ansible Configuration Layer\n\nCreate `ansible/playbook.yaml`:\n\n```yaml\n# ansible/playbook.yaml\n---\n- name: Configure Production Web Server \u0026 Security Hardening\n  hosts: webservers\n  become: true\n\n  vars:\n    company_name: \"Cloud Enterprise DevOps\"\n\n  tasks:\n    - name: Wait 60 seconds for cloud-init and SSH to be ready\n      ansible.builtin.wait_for_connection:\n        timeout: 120\n\n    - name: Update apt cache\n      ansible.builtin.apt:\n        update_cache: true\n        cache_valid_time: 3600\n\n    - name: Install Nginx and UFW Firewall\n      ansible.builtin.apt:\n        name:\n          - nginx\n          - ufw\n          - curl\n        state: present\n\n    - name: Deploy custom web page\n      ansible.builtin.copy:\n        dest: /var/www/html/index.html\n        owner: www-data\n        group: www-data\n        mode: '0644'\n        content: |\n          \u003c!DOCTYPE html\u003e\n          \u003chtml\u003e\n          \u003chead\u003e\n            \u003ctitle\u003e{{ company_name }}\u003c/title\u003e\n            \u003cstyle\u003e\n              body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding-top: 100px; }\n              .card { background: #1e293b; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }\n              h1 { color: #38bdf8; }\n              .badge { background: #0284c7; padding: 6px 12px; border-radius: 6px; font-weight: bold; }\n            \u003c/style\u003e\n          \u003c/head\u003e\n          \u003cbody\u003e\n            \u003cdiv class=\"card\"\u003e\n              \u003ch1\u003e🚀 Infrastructure \u0026 App Deployed!\u003c/h1\u003e\n              \u003cp\u003eProvisioned with \u003cspan class=\"badge\"\u003eTerraform\u003c/span\u003e\u003c/p\u003e\n              \u003cp\u003eConfigured \u0026 Hardened with \u003cspan class=\"badge\"\u003eAnsible\u003c/span\u003e\u003c/p\u003e\n            \u003c/div\u003e\n          \u003c/body\u003e\n          \u003c/html\u003e\n      notify: Restart Nginx\n\n    - name: Configure UFW - Allow OpenSSH\n      community.general.ufw:\n        rule: allow\n        name: OpenSSH\n\n    - name: Configure UFW - Allow HTTP\n      community.general.ufw:\n        rule: allow\n        port: '80'\n        proto: tcp\n\n    - name: Enable UFW Firewall\n      community.general.ufw:\n        state: enabled\n\n  handlers:\n    - name: Restart Nginx\n      ansible.builtin.systemd:\n        name: nginx\n        state: restarted\n```\n\n---\n\n## 3. Step 3: Executing the Pipeline\n\n```bash\n# 1. Provision Infrastructure\nterraform init\nterraform apply -auto-approve\n\n# 2. Execute Configuration Management\nansible-playbook -i ansible/hosts.ini ansible/playbook.yaml\n\n# 3. Test Web Response via curl\ncurl http://$(terraform output -raw web_public_ip)\n```\n\n---\n\n## 4. Summary \u0026 Next Steps\n\nYou have built an automated pipeline spanning cloud compute provisioning and operating system configuration. In **Section 08: Enterprise CI/CD, Security \u0026 Capstone**, we will explore **GitHub Actions CI/CD automation**, **Policy as Code with Trivy \u0026 tflint**, and the **Production Readiness Review**.\n","slug":"hands-on-provisioning-with-terraform-and-configuring-with-ansible","title":"Hands-On Lab: Provisioning with Terraform \u0026 Configuring with Ansible","section":"Day 4: Ansible Fundamentals \u0026 Orchestration","icon":"network-wired","filePath":"/home/runner/work/infra-automation-with-tf/infra-automation-with-tf/lessons/07-day-4-ansible-integration-and-orchestration/D-hands-on-provisioning-with-terraform-and-configuring-with-ansible.md","nextSlug":"/lessons/day-4-enterprise-cicd-and-policy-as-code/enterprise-cicd-with-github-actions","prevSlug":"/lessons/day-4-ansible-integration-and-orchestration/connecting-terraform-and-ansible"}},"__N_SSG":true},"page":"/lessons/[section]/[slug]","query":{"section":"day-4-ansible-integration-and-orchestration","slug":"hands-on-provisioning-with-terraform-and-configuring-with-ansible"},"buildId":"c9Y6cMZVS-uh5LhoovrVO","assetPrefix":"/infra-automation-with-tf","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>
