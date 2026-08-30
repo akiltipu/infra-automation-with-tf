@@ -1,0 +1,33 @@
+{
+  "authors": [
+    {
+      "name": "Akil Mahmod Tipu",
+      "company": "Senior DevOps Engineer",
+      "image": "akiltipu-pro.jpg"
+    }
+  ],
+  "title": "Infrastructure Automation with Terraform",
+  "subtitle": "Mastering Infrastructure as Code from Fundamentals to Enterprise Orchestration",
+  "frontendMastersLink": "",
+  "social": {
+    "linkedin": "akiltipu",
+    "github": "akiltipu",
+    "twitter": "",
+    "bluesky": ""
+  },
+  "description": "Comprehensive hands-on course covering Terraform fundamentals, HCL syntax, AWS infrastructure provisioning, state management, module creation, and enterprise CI/CD automation.",
+  "keywords": [
+    "Terraform",
+    "Infrastructure as Code",
+    "IaC",
+    "AWS",
+    "HCL",
+    "DevOps",
+    "Cloud Automation",
+    "Modules",
+    "Terraform Cloud"
+  ],
+  "productionBaseUrl": "",
+  "csvPath": "./out/lessons.csv",
+  "llmFullTextPath": "./out/llms.txt"
+}
