@@ -11,15 +11,8 @@ export default function LessonSlug({ post }) {
   const courseInfo = getCourseConfig();
   const [_, setHeader] = useContext(Context);
 
-  let nextLink, prevLink;
-  if (post.nextSlug) {
-    const shortNextSlug = post.nextSlug.replace(/^.*?\\.*?(?=\\)/, "");
-    nextLink = shortNextSlug.replace(/\\/g, "/");
-  }
-  if (post.prevSlug) {
-    const shortPrevSlug = post.prevSlug.replace(/^.*?\\.*?(?=\\)/, "");
-    prevLink = shortPrevSlug.replace(/\\/g, "/");
-  }
+  const nextLink = post.nextSlug || null;
+  const prevLink = post.prevSlug || null;
 
   useEffect(() => {
     setHeader({

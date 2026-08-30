@@ -160,7 +160,10 @@ export async function getLesson(targetDir, targetFile) {
           const filePath = path.join(lessonsPath, dirPath, slugPath);
           const file = await fs.readFile(filePath);
           const { data, content } = matter(file.toString());
-          const html = marked.parse(content);
+          let html = marked.parse(content);
+          if (process.env.BASE_URL) {
+            html = html.replace(/src="\/images\//g, `src="${process.env.BASE_URL}/images/`);
+          }
           const title = getTitle(targetFile, data.title);
           const meta = await getMeta(dirPath);
 
@@ -225,8 +228,6 @@ export async function getLesson(targetDir, targetFile) {
             prevSlug = null;
           }
 
-          const base = process.env.BASE_URL ? process.env.BASE_URL : "/";
-
           return {
             attributes: data,
             html,
@@ -236,8 +237,8 @@ export async function getLesson(targetDir, targetFile) {
             section,
             icon,
             filePath,
-            nextSlug: nextSlug ? path.join(base, "lessons", nextSlug) : null,
-            prevSlug: prevSlug ? path.join(base, "lessons", prevSlug) : null,
+            nextSlug: nextSlug ? `/lessons/${nextSlug}` : null,
+            prevSlug: prevSlug ? `/lessons/${prevSlug}` : null,
           };
         }
       }

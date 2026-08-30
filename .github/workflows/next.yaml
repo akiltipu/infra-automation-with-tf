@@ -4,21 +4,41 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+# Grant GITHUB_TOKEN permissions to deploy to gh-pages branch
+permissions:
+  contents: write
+
+concurrency:
+  group: "github-pages"
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: npm install, build
-        run: |
-          npm install
-          npm run build
-      - name: Deploy site to gh-pages branch
-        uses: crazy-max/ghaction-github-pages@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Deploy to gh-pages branch
+        uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: gh-pages
           build_dir: out
-          # fqdn: sql.holt.courses
+          # Uncomment and specify custom domain if using one (e.g. course.example.com)
+          # fqdn: course.example.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -27,7 +27,7 @@
     "Modules",
     "Terraform Cloud"
   ],
-  "productionBaseUrl": "",
+  "productionBaseUrl": "/infra-automation-with-tf",
   "csvPath": "./out/lessons.csv",
   "llmFullTextPath": "./out/llms.txt"
 }
