@@ -64,7 +64,7 @@ The S3 bucket remains running safely in AWS, but Terraform will no longer attemp
 
 ## 3. Resolving Stuck State Locks (`force-unlock`)
 
-If a CI/CD job crashes midway through an execution, the DynamoDB lock entry may remain stuck. Subsequent runs will fail with:
+If a CI/CD job crashes midway through an execution, a backend lock may remain. With the S3 backend this is normally the `.tflock` object; legacy configurations may use a DynamoDB lock entry. Subsequent runs will fail with:
 
 ```
 Error: Error acquiring the state lock
@@ -77,7 +77,8 @@ Lock Info:
 
 ### Safely Unlocking the Backend:
 1. Verify that no other teammate or pipeline is actively writing to the infrastructure.
-2. Release the lock using the unique Lock ID:
+2. Preserve the failed job logs and identify why the writer stopped.
+3. Release the lock using the unique Lock ID only after the original process is gone:
 ```bash
 terraform force-unlock a1b2c3d4-5678-90ab-cdef-1234567890ab
 ```

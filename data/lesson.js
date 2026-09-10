@@ -54,6 +54,14 @@ function slugify(inputPath) {
   };
 }
 
+function enhanceLessonHtml(html) {
+  return html.replace(
+    /<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/g,
+    (_, type) =>
+      `<blockquote class="alert alert-${type.toLowerCase()}"><p><strong class="alert-label">${type}</strong>`
+  );
+}
+
 export async function getLessons() {
   const rawDir = await fs.readdir(lessonsPath);
   const dir = rawDir.sort();
@@ -160,7 +168,7 @@ export async function getLesson(targetDir, targetFile) {
           const filePath = path.join(lessonsPath, dirPath, slugPath);
           const file = await fs.readFile(filePath);
           const { data, content } = matter(file.toString());
-          let html = marked.parse(content);
+          let html = enhanceLessonHtml(marked.parse(content));
           if (process.env.BASE_URL) {
             html = html.replace(/src="\/images\//g, `src="${process.env.BASE_URL}/images/`);
           }
@@ -188,7 +196,7 @@ export async function getLesson(targetDir, targetFile) {
             } else {
               const nextDir = (
                 await fs.readdir(path.join(lessonsPath, dir[i + 1]))
-              ).filter((str) => str.endsWith(".md"));
+              ).filter((str) => str.endsWith(".md")).sort();
               const nextDirSlug = slugify(dir[i + 1]).slug;
               const nextLessonSlug = slugify(nextDir[0]).slug.replace(
                 /\.md$/,
@@ -216,7 +224,7 @@ export async function getLesson(targetDir, targetFile) {
             } else {
               const prevDir = (
                 await fs.readdir(path.join(lessonsPath, dir[i - 1]))
-              ).filter((str) => str.endsWith(".md"));
+              ).filter((str) => str.endsWith(".md")).sort();
               const prevDirSlug = slugify(dir[i - 1]).slug;
               const prevLessonSlug = slugify(
                 prevDir[prevDir.length - 1]

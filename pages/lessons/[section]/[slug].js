@@ -47,7 +47,7 @@ export default function LessonSlug({ post }) {
         <meta name="og:title" content={title}></meta>
         <meta
           name="og:image"
-          content={`${process.env.BASE_URL}/images/social-share-cover.jpg`}
+          content={`${process.env.BASE_URL}/images/terraform-course-hero-v2.png`}
         ></meta>
         <meta name="twitter:card" content="summary_large_image"></meta>
       </Head>

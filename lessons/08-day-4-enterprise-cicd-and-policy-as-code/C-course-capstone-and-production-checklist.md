@@ -31,7 +31,7 @@ Congratulations on completing the 4-day **Infrastructure Automation with Terrafo
                       ┌────────────────────────────────────┐ ┌────────────────────────────────────┐
                       │    STAGE 1: TERRAFORM PROVISION    │ │   STAGE 2: ANSIBLE CONFIGURATION   │
                       │  - Multi-AZ VPC & Subnets          │ │  - SSH via Dynamic Inventory       │
-                      │  - S3 + DynamoDB Remote State      │ │  - Nginx Reverse Proxy & SSL       │
+                      │  - S3 Native-Locking Remote State │ │  - Nginx Reverse Proxy & SSL       │
                       │  - Security Groups & EC2 Instances │ │  - UFW Firewall & System Hardening │
                       └────────────────────────────────────┘ └────────────────────────────────────┘
 ```
@@ -74,7 +74,7 @@ Use this 15-point checklist before deploying any Terraform & Ansible workload to
 | Category | Requirement | Status |
 | :--- | :--- | :--- |
 | **State & Security** | Remote backend in S3 with KMS encryption and versioning enabled | [x] |
-| **State & Security** | DynamoDB distributed state locking table configured (`LockID`) | [x] |
+| **State & Security** | S3 native state locking enabled with `use_lockfile = true` | [x] |
 | **State & Security** | `.gitignore` excludes `*.tfstate`, `*.tfvars`, and `.terraform/` | [x] |
 | **Architecture** | Directory-based environment separation for Dev, Staging, and Production | [x] |
 | **Architecture** | Reusable child modules adhere to single responsibility | [x] |
@@ -94,7 +94,7 @@ Use this 15-point checklist before deploying any Terraform & Ansible workload to
 ## 4. Course Summary: Your 4-Day Journey
 
 - **Day 1: Terraform Foundations, Architecture & Core Workflow**: Mastered IaC history, why Terraform exists, internal engine mechanics, cross-platform installation, HCL block anatomy, and full CLI lifecycle.
-- **Day 2: State Management & Multi-Environment Architecture**: Built S3 + DynamoDB remote backends, state disaster recovery (`state mv`, `refresh-only`), brownfield imports (`import {}`), and multi-account topologies.
+- **Day 2: State Management & Multi-Environment Architecture**: Built S3 native-locking remote backends, state disaster recovery (`state mv`, `refresh-only`), brownfield imports (`import {}`), and multi-account topologies.
 - **Day 3: Reusable Modules & Advanced HCL Expressions**: Created production-grade VPC modules, versioned registries, `count` vs `for_each`, dynamic blocks, and lifecycle rules.
 - **Day 4: Ansible Integration, Enterprise CI/CD & Policy as Code**: Integrated Ansible configuration management, built hands-on orchestration pipelines, deployed GitHub Actions with OIDC, and enforced shift-left security.
 

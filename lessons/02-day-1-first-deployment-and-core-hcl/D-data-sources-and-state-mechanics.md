@@ -138,4 +138,4 @@ You have mastered the foundations of Terraform:
 - HCL block anatomy, data types, variable validation, outputs, and locals.
 - Core CLI lifecycle commands, data sources, and state mechanics.
 
-In **Day 2**, we will solve the state synchronization dilemma by building **Remote State Backends with AWS S3 and DynamoDB Distributed Locking**, mastering **State Disaster Recovery**, and designing **Multi-Environment SDLC Architecture**!
+In **Day 2**, we will solve the state synchronization dilemma by building a **Remote State Backend with Amazon S3 native locking**, mastering **State Disaster Recovery**, and designing **Multi-Environment SDLC Architecture**!

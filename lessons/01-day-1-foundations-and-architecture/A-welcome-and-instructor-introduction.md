@@ -18,19 +18,19 @@ Welcome to **Infrastructure Automation with Terraform & Ansible**! This comprehe
 
 ## 1. whoami ?
 
-<div style="display: flex; align-items: center; gap: 24px; margin: 30px 0; padding: 24px; background: var(--emphasized-bg); border: 2px solid var(--emphasized-border); border-radius: 12px;">
-  <img src="/images/akiltipu-pro.jpg" alt="Akil Mahmod Tipu" style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
-  <div>
-    <h2 style="margin: 0 0 6px 0; color: var(--text-main-headers); font-size: 26px; font-weight: bold;">Akil Mahmod Tipu</h2>
-    <p style="margin: 0 0 12px 0; font-size: 17px; font-weight: 600; color: var(--primary);">Senior DevOps Engineer & Team Lead</p>
-    <p style="margin: 0 0 14px 0; line-height: 1.6; color: var(--lesson-text);">
+<div class="instructor-card">
+  <img src="/images/akiltipu-pro.jpg" alt="Akil Mahmod Tipu" />
+  <div class="instructor-info">
+    <h2>Akil Mahmod Tipu</h2>
+    <p class="instructor-role">Senior DevOps Engineer & Team Lead</p>
+    <p>
       Specializing in Cloud Architecture, Large-Scale Infrastructure Automation, Kubernetes Orchestration, and Enterprise CI/CD Pipelines. Passionate about empowering engineering teams to design reliable, secure, and reproducible cloud platforms.
     </p>
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-      <a href="https://www.linkedin.com/in/akiltipu" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; background: #0077b5; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; text-decoration: none;">
+    <div class="instructor-links">
+      <a href="https://www.linkedin.com/in/akiltipu" target="_blank" rel="noopener noreferrer">
         <i class="fab fa-linkedin"></i> Connect on LinkedIn
       </a>
-      <a href="https://github.com/akiltipu" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; background: #24292e; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; text-decoration: none;">
+      <a href="https://github.com/akiltipu" target="_blank" rel="noopener noreferrer">
         <i class="fab fa-github"></i> Follow on GitHub
       </a>
     </div>
@@ -43,40 +43,41 @@ Welcome to **Infrastructure Automation with Terraform & Ansible**! This comprehe
 
 This course is structured into four intensive, hands-on learning days:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         4-DAY COURSE ROADMAP                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 📅 DAY 1: TERRAFORM FOUNDATIONS, ARCHITECTURE & CORE WORKFLOW               │
-│    - The Evolution of Cloud Infrastructure & Why IaC Matters                │
-│    - Why Terraform Exists & What Problems It Solves                         │
-│    - Terraform Architecture, Provider Plugins & Graph Engine Deep-Dive      │
-│    - Complete Cross-Platform Installation & AWS Environment Setup           │
-│    - HCL Syntax, First Deployment, Variables, Locals & Data Sources         │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 📅 DAY 2: STATE MANAGEMENT & MULTI-ENVIRONMENT ARCHITECTURE                 │
-│    - State File Internals, Schema, Serial & Security                        │
-│    - Remote State Storage in S3 with DynamoDB Distributed Locking           │
-│    - State Operations (state mv, state rm) & Drift Remediation              │
-│    - Greenfield vs Brownfield: Declarative import {} & Code Generation      │
-│    - Multi-Environment Isolation Patterns & AWS Organizations Assume-Role   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 📅 DAY 3: REUSABLE MODULES & ADVANCED HCL EXPRESSIONS                       │
-│    - Modular Architecture Principles & Standard Module Design               │
-│    - Building Production-Grade VPC & Networking Modules from Scratch        │
-│    - Module Registries, Git Sources & Semantic Version Pinning              │
-│    - Advanced Control Flow: count vs for_each (Index-Shift Bug Prevention)  │
-│    - Built-in Functions, Dynamic Blocks & Lifecycle Meta-Arguments          │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 📅 DAY 4: ANSIBLE INTEGRATION, ENTERPRISE CI/CD & POLICY AS CODE            │
-│    - Introducing Ansible in the Cloud Ecosystem (Provision vs Config)       │
-│    - Ansible Core Architecture, Inventories, Tasks, Modules & Playbooks     │
-│    - Connecting Terraform to Ansible (Dynamic Inventories & Outputs)        │
-│    - Hands-On Lab: Provisioning with Terraform & Configuring with Ansible   │
-│    - Enterprise CI/CD with GitHub Actions & AWS Passwordless OIDC           │
-│    - Security Scanning (tflint, Trivy), Policy as Code (OPA) & Capstone     │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+<div class="course-roadmap">
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 01</span>
+    <h3>Understand & deploy</h3>
+    <p>IaC mental model, Terraform internals, HCL anatomy, CLI workflow, variables, data sources, and your first resources.</p>
+    <span class="roadmap-output">Output: a working local stack you can inspect</span>
+  </article>
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 02</span>
+    <h3>Protect & recover</h3>
+    <p>State internals, remote backends, locking, drift, imports, recovery, environment isolation, and multi-account design.</p>
+    <span class="roadmap-output">Output: a team-safe state and recovery runbook</span>
+  </article>
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 03</span>
+    <h3>Reuse & refactor</h3>
+    <p>Module contracts, registries, versioning, composition, expressions, dynamic blocks, lifecycle, count, and for_each.</p>
+    <span class="roadmap-output">Output: a reusable module with stable addresses</span>
+  </article>
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 04</span>
+    <h3>Automate & govern</h3>
+    <p>Ansible handoff, dynamic inventory, CI/CD, OIDC, security scanning, policy as code, and an incident-driven capstone.</p>
+    <span class="roadmap-output">Output: a reviewed delivery pipeline</span>
+  </article>
+</div>
+
+### The rhythm used in every live lesson
+
+1. **Predict** what Terraform will do before running a command.
+2. **Run** one small, copyable change.
+3. **Observe** the plan, state, logs, or real infrastructure.
+4. **Break** one assumption on purpose.
+5. **Recover** safely and explain why the fix works.
+6. **Clean up** resources and capture the production lesson.
 
 ---
 

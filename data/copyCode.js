@@ -1,7 +1,7 @@
 function createDOMElements() {
   const container = document.createElement("div");
   container.innerHTML =
-    "<div class='tooltip-copy'><input type='submit' value='Copy' /></div>";
+    "<div class='tooltip-copy'><button type='button' aria-label='Copy code to clipboard'>Copy</button></div>";
   container.className = "div-copy";
   return container;
 }
@@ -19,9 +19,11 @@ function attachCopyCodeFunctionality(div) {
       copy.onclick = function copyTextToClipboard() {
         navigator.clipboard.writeText(pre.textContent);
         copy.classList.add("clicked");
+        copy.querySelector("button").textContent = "Copied";
         clearTimeout(timeout);
         timeout = setTimeout(function hidePopup() {
           copy.classList.remove("clicked");
+          copy.querySelector("button").textContent = "Copy";
         }, 1500);
       };
     });
