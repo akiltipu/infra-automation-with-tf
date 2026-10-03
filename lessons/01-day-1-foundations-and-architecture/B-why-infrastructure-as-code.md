@@ -18,38 +18,14 @@ Modern cloud engineering is rooted in software engineering rigor. To understand 
 
 ## 1. The Historical Paradigm Shift
 
-Infrastructure management has traversed four distinct eras over the last three decades:
+Infrastructure management has traversed four overlapping eras. Older approaches still exist; each newer layer reduces a different constraint.
 
-```
-+-----------------------------------------------------------------------------------+
-| 1. Bare Metal Era (1990s - 2000s)                                                 |
-|    - Physical servers racked and cabled manually in data centers.                 |
-|    - Provisioning timeline: Weeks to months per machine.                          |
-|    - High CapEx, static capacity, low developer velocity.                         |
-+-----------------------------------------------------------------------------------+
-                                         │
-                                         ▼
-+-----------------------------------------------------------------------------------+
-| 2. Virtualization Era (2000s - 2010s)                                             |
-|    - Hypervisors (VMware, Xen, KVM) partitioned physical machines into VMs.       |
-|    - Faster provisioning (hours to days), but still manual sysadmin workflows.    |
-+-----------------------------------------------------------------------------------+
-                                         │
-                                         ▼
-+-----------------------------------------------------------------------------------+
-| 3. Cloud & ClickOps Era (2010s)                                                   |
-|    - On-demand compute, storage, and networking via AWS, Azure, GCP Web Consoles. |
-|    - Provisioning took minutes, but manual clicking ("ClickOps") created errors.  |
-|    - "Snowflake" servers, undocumented configurations, zero version control.      |
-+-----------------------------------------------------------------------------------+
-                                         │
-                                         ▼
-+-----------------------------------------------------------------------------------+
-| 4. Infrastructure as Code (IaC) Era (Present)                                     |
-|    - Infrastructure defined as version-controlled, testable source code.          |
-|    - Fully automated, reproducible, multi-environment provisioning in seconds.    |
-+-----------------------------------------------------------------------------------+
-```
+<div class="course-roadmap infrastructure-timeline">
+  <article class="roadmap-day"><span class="roadmap-number">1990s–2000s</span><h3>Bare metal</h3><p>Rack, cable, install, and configure physical servers. Capacity planning and delivery often take weeks.</p><span class="roadmap-output">Constraint: physical lead time</span></article>
+  <article class="roadmap-day"><span class="roadmap-number">2000s–2010s</span><h3>Virtualization</h3><p>Hypervisors divide hardware into virtual machines. Provisioning speeds up, but workflows may remain ticket-driven.</p><span class="roadmap-output">Constraint: manual coordination</span></article>
+  <article class="roadmap-day"><span class="roadmap-number">2010s</span><h3>Cloud & ClickOps</h3><p>APIs make resources available in minutes. Console-only changes introduce drift, weak review, and inconsistent environments.</p><span class="roadmap-output">Constraint: repeatability</span></article>
+  <article class="roadmap-day"><span class="roadmap-number">Modern delivery</span><h3>Infrastructure as Code</h3><p>Versioned declarations, automated checks, plans, and controlled pipelines make change reviewable and repeatable.</p><span class="roadmap-output">New work: governance and recovery</span></article>
+</div>
 
 ---
 
@@ -74,7 +50,7 @@ Understanding the distinction between **Declarative** and **Imperative** models 
 | :--- | :--- | :--- |
 | **Focus** | *HOW* to do it (step-by-step instructions) | *WHAT* the final state should look like |
 | **Execution** | Executes sequential commands without understanding end state | Calculates delta between current reality and desired state |
-| **Idempotency** | Difficult; must write custom checks (`if exists then skip`) | Guaranteed by the underlying state engine |
+| **Idempotency** | Difficult; must write custom checks (`if exists then skip`) | Designed for repeatable convergence when providers and configuration model the resource correctly |
 | **Destruction** | Must write explicit teardown scripts in reverse order | Automatic; removes resources no longer declared in code |
 | **Complexity** | High cognitive overhead for error handling and retries | Low cognitive overhead; engine manages dependencies |
 
@@ -123,7 +99,7 @@ resource "aws_vpc" "main" {
 1. **Version Control & Peer Review**: Infrastructure changes follow the exact same pull request, code review, and automated linting pipelines as application code.
 2. **Self-Documenting Architecture**: The Git repository serves as the definitive, single source of truth for the entire architecture.
 3. **Continuous Validation**: Security scanning tools (`tfsec`, `checkov`) and cost analyzers (`infracost`) can inspect infrastructure code before any cloud resources are actually provisioned.
-4. **Disaster Recovery & Reproducibility**: Entire cloud regions can be recreated from scratch in minutes simply by executing `terraform apply` against a backup or alternate region.
+4. **Disaster Recovery & Reproducibility**: IaC can recreate declared infrastructure in another location. Data restoration, DNS cutover, external dependencies, quotas, and validation still need separate recovery plans.
 
 ---
 

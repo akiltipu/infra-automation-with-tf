@@ -20,29 +20,11 @@ To debug complex infrastructure issues and design scalable Terraform workflows, 
 
 Terraform is split into two distinct tiers: **Terraform Core** and **Provider Plugins**.
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                                TERRAFORM CORE                                    │
-│  - Configuration Parsing (HCL Engine)        - State Management & Diff Engine    │
-│  - Dependency Graph Generator (DAG)          - CLI & Command Orchestration       │
-└────────────────────────────────────────┬─────────────────────────────────────────┘
-                                         │
-                                         │  Local gRPC Protocol (RPC over IPC)
-                                         ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                            PROVIDER PLUGIN LAYER                                 │
-│  ┌───────────────────────┐  ┌───────────────────────┐  ┌──────────────────────┐  │
-│  │   AWS Provider Plugin │  │  Azure Provider Plugin│  │ GitHub / SaaS Plugin │  │
-│  │   (Go Executable)     │  │  (Go Executable)      │  │ (Go Executable)      │  │
-│  └───────────┬───────────┘  └───────────┬───────────┘  └──────────┬───────────┘  │
-└──────────────┼──────────────────────────┼─────────────────────────┼──────────────┘
-               │ HTTPS                    │ HTTPS                   │ HTTPS
-               ▼                          ▼                         ▼
-┌──────────────────────────┐  ┌───────────────────────┐  ┌──────────────────────┐
-│       AWS Cloud APIs     │  │   Azure Cloud APIs    │  │   GitHub REST API    │
-│ (EC2, VPC, S3, IAM, etc) │  │  (Virtual Networks)   │  │   (Repos, Teams)     │
-└──────────────────────────┘  └───────────────────────┘  └──────────────────────┘
-```
+<div class="concept-flow">
+  <div class="concept-node"><strong>Terraform Core</strong><small>Loads HCL and state, evaluates expressions, builds the dependency graph, and decides the proposed actions. It contains no AWS-specific resource logic.</small></div>
+  <div class="concept-node"><strong>Provider plugins</strong><small>Separate processes expose resource schemas and translate planned actions. Examples: AWS, Azure, Kubernetes, and GitHub.</small></div>
+  <div class="concept-node"><strong>Remote APIs</strong><small>Providers authenticate and call service APIs. Terraform Core does not call an EC2 or GitHub endpoint directly.</small></div>
+</div>
 
 ---
 
@@ -106,12 +88,12 @@ When Terraform evaluates a directory, it does not execute sequentially line-by-l
 
 Every execution passes through four sequential phases:
 
-```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│ 1. CONFIG PARSE  │ ──► │ 2. STATE REFRESH │ ──► │ 3. GRAPH DIFF    │ ──► │ 4. API EXECUTION │
-│ Parse HCL files  │     │ Query Cloud APIs │     │ Compute Plan     │     │ CRUD via gRPC    │
-└──────────────────┘     └──────────────────┘     └──────────────────┘     └──────────────────┘
-```
+<div class="concept-flow four-steps">
+  <div class="concept-node"><strong>1 · Load</strong><small>Parse configuration and evaluate values.</small></div>
+  <div class="concept-node"><strong>2 · Refresh</strong><small>Read managed objects through providers.</small></div>
+  <div class="concept-node"><strong>3 · Plan</strong><small>Build the graph and calculate changes.</small></div>
+  <div class="concept-node"><strong>4 · Apply</strong><small>Execute approved graph operations.</small></div>
+</div>
 
 1. **Configuration Parse**: Scans all `.tf` files in the working directory, validates syntax, and builds variable/local tables.
 2. **State Refresh**: Queries cloud provider APIs to fetch the latest attributes of already managed resources (detecting out-of-band changes).

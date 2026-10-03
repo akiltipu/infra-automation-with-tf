@@ -29,6 +29,7 @@ body {
     linear-gradient(var(--bg-main) 15px, transparent 1%) center, var(--bg-dots);
   background-size: 16px 16px;
   margin: 0;
+  color: var(--lesson-text);
 }
 
 .remix-app {
@@ -100,6 +101,7 @@ header .cta-btn {
 
 .jumbotron {
   padding: 0;
+  overflow: hidden;
 }
 
 .jumbotron .courseInfo,
@@ -145,12 +147,12 @@ header .cta-btn {
     justify-content: center;
     align-items: center;
   }
-  .jumbotron .courseInfo {
-    width: 65%;
-    text-align: right;
+.jumbotron .courseInfo {
+    width: 60%;
+    text-align: left;
   }
-  .jumbotron .courseIcon {
-    width: 35%;
+.jumbotron .courseIcon {
+    width: 40%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -159,7 +161,7 @@ header .cta-btn {
   .authors {
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
     gap: 30px;
   }
@@ -173,22 +175,63 @@ header .cta-btn {
   color: var(--text-main-headers);
 }
 
+.jumbotron .courseInfo h1,
+.jumbotron .courseInfo h2,
+.jumbotron .courseInfo .author .name,
+.jumbotron .courseInfo .author .company {
+  color: #f8fafc;
+}
+
+.jumbotron .courseInfo h2 { color: #ddd6fe; }
+
 .jumbotron h1 {
   font-size: 50px;
   margin-bottom: 20px;
 }
 
 .jumbotron .courseInfo {
-  background: var(--primary);
+  background:
+    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.24), transparent 36%),
+    linear-gradient(135deg, #111936 0%, #2e1065 100%);
 }
 
 .jumbotron .courseIcon {
-  background: var(--secondary);
+  background:
+    radial-gradient(circle at center, rgba(124, 58, 237, 0.2), transparent 60%),
+    linear-gradient(145deg, #f8fafc, #eef2ff);
 }
 
 .jumbotron .courseIcon img {
-  max-width: 180px;
+  width: min(520px, 92%);
+  max-width: none;
+  filter: drop-shadow(0 24px 30px rgba(49, 46, 129, 0.2));
 }
+
+.hero-eyebrow {
+  color: #c4b5fd;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.hero-highlights span {
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 999px;
+  color: #f8fafc;
+  background: rgba(255,255,255,0.08);
+  font-size: 13px;
+}
+
+.hero-highlights i { margin-right: 6px; color: #c4b5fd; }
 
 .author .info {
   padding: 10px;
@@ -229,7 +272,7 @@ header .cta-btn {
   padding: 10px 40px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   background-color: var(--bg-lesson);
-  border-radius: 5px;
+  border-radius: 14px;
   margin-top: 40px;
 }
 
@@ -267,6 +310,11 @@ header .cta-btn {
 .lesson li {
   line-height: 180%;
 }
+
+.lesson h3 { margin-top: 26px; margin-bottom: 8px; font-weight: 700; }
+.lesson-content table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+.lesson-content th { background: var(--emphasized-bg); text-align: left; padding: 10px; }
+.lesson-content tr:nth-child(even) { background: color-mix(in srgb, var(--emphasized-bg) 48%, transparent); }
 
 .lesson-links {
   font-size: 18px;
@@ -353,6 +401,13 @@ blockquote > *:last-child {
 blockquote > *:first-child {
   margin-top: 0;
 }
+
+blockquote.alert { border-left-width: 6px; }
+blockquote.alert-tip, blockquote.alert-note { border-color: #60a5fa; }
+blockquote.alert-important { border-color: #8b5cf6; }
+blockquote.alert-warning { border-color: #f59e0b; }
+blockquote.alert-caution { border-color: #ef4444; }
+.alert-label { display: block; margin-bottom: 6px; color: var(--text-main-headers); font-size: 12px; letter-spacing: .1em; }
 
 .lesson-content img {
   max-width: 100%;
@@ -543,8 +598,8 @@ pre code {
 code,
 pre code,
 pre code.hljs {
-  background-color: var(--emphasized-bg);
-  color: #000;
+  background-color: var(--code-bg);
+  color: var(--code-text);
 }
 
 pre code,
@@ -554,7 +609,14 @@ pre code.hljs {
 
 pre {
   position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--emphasized-border);
+  border-radius: 8px;
 }
+
+.lesson-content :is(h2, h3, h4) { scroll-margin-top: 80px; }
+.lesson-content :not(pre) > code { border-radius: 4px; padding: 2px 6px; }
+.div-copy button { cursor: pointer; border: 0; border-radius: 5px; padding: 5px 9px; color: white; background: #334155; font-weight: 700; }
 
 .div-copy {
   position: absolute;
@@ -634,4 +696,124 @@ pre {
   font-weight: 700;
   color: var(--text-main-headers);
   margin: 0;
+}
+
+.day-outcome {
+  margin: 4px 0 0;
+  color: var(--lesson-text);
+  font-size: 14px;
+  opacity: 0.78;
+}
+
+/* Responsive, code-native teaching visuals used inside Markdown lessons. */
+.course-roadmap {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0 34px;
+}
+
+.roadmap-day {
+  position: relative;
+  padding: 20px 16px 18px;
+  border: 1px solid var(--emphasized-border);
+  border-radius: 14px;
+  background: linear-gradient(160deg, var(--bg-lesson), var(--emphasized-bg));
+  box-shadow: 0 10px 24px rgba(23, 37, 84, 0.08);
+}
+
+.roadmap-day:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  top: 24px;
+  right: -13px;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: white;
+  background: var(--primary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.roadmap-number { color: var(--primary); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.roadmap-day h3 { margin: 8px 0 12px; font-size: 17px; color: var(--text-main-headers); }
+.roadmap-day p { margin: 0; font-size: 14px; line-height: 1.55; }
+.roadmap-output { display: block; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--emphasized-border); font-size: 12px; font-weight: 700; color: var(--text-links); }
+
+.concept-flow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 34px;
+  margin: 24px 0;
+}
+
+.concept-flow.four-steps { grid-template-columns: repeat(4, 1fr); gap: 28px; }
+
+.concept-node {
+  position: relative;
+  padding: 18px;
+  border: 1px solid var(--emphasized-border);
+  border-radius: 12px;
+  background: var(--bg-lesson);
+  box-shadow: 0 8px 20px rgba(23,37,84,.07);
+}
+
+.concept-node:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -27px;
+  top: calc(50% - 13px);
+  color: var(--primary);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.concept-node strong { display: block; margin-bottom: 6px; color: var(--text-main-headers); }
+.concept-node small { display: block; opacity: .8; line-height: 1.5; }
+
+.lab-banner {
+  margin: 24px 0;
+  padding: 18px 20px;
+  border-left: 5px solid var(--primary);
+  border-radius: 0 12px 12px 0;
+  background: var(--emphasized-bg);
+}
+
+.lab-banner strong { color: var(--text-main-headers); }
+
+.instructor-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 30px 0;
+  padding: 24px;
+  background: var(--emphasized-bg);
+  border: 2px solid var(--emphasized-border);
+  border-radius: 12px;
+}
+
+.lesson-content .instructor-card > img { width: 140px; height: 140px; flex: 0 0 140px; margin: 0; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.lesson-content .instructor-info h2 { margin: 0 0 6px; font-size: 26px; font-weight: 700; }
+.instructor-role { margin: 0 0 12px; color: var(--primary); font-size: 17px; font-weight: 700; }
+.instructor-links { display: flex; flex-wrap: wrap; gap: 12px; }
+.instructor-links a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; color: white; background: var(--highlight); font-weight: 700; }
+
+@media (max-width: 800px) {
+  .course-roadmap { grid-template-columns: 1fr 1fr; }
+  .roadmap-day:not(:last-child)::after { display: none; }
+  .concept-flow { grid-template-columns: 1fr; gap: 12px; }
+  .concept-flow.four-steps { grid-template-columns: 1fr; gap: 12px; }
+  .concept-node:not(:last-child)::after { content: "↓"; right: auto; left: calc(50% - 8px); top: auto; bottom: -25px; }
+}
+
+@media (max-width: 560px) {
+  .content-container { padding-top: 94px; }
+  .jumbotron h1 { font-size: 36px; }
+  .course-roadmap { grid-template-columns: 1fr; }
+  .lesson { margin: 8px; padding: 10px; }
+  .instructor-card { flex-direction: column; align-items: flex-start; padding: 18px; }
+  .lesson-content .instructor-card > img { width: 96px; height: 96px; flex-basis: 96px; }
 }

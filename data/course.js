@@ -5,7 +5,7 @@ const DEFAULT_CONFIG = {
     {
       name: "An Author",
       company: "An Author's Company",
-      image: "author.jpg",
+      image: "akiltipu-pro.jpg",
     },
   ],
   title: "A Superb Course",
@@ -30,7 +30,7 @@ export default function getCourseConfig() {
   }
 
   merged.authors = merged.authors.map((author) => ({
-    image: "author.jpg",
+    image: "akiltipu-pro.jpg",
     ...author,
   }));
 

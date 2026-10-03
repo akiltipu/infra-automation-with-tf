@@ -16,6 +16,13 @@ export default function Lessons({ sections }) {
     "Day 4": "Ansible Integration, Enterprise CI/CD & Policy as Code",
   };
 
+  const dayOutcomes = {
+    "Day 1": "Read HCL, understand Terraform's engine, and deploy your first stack",
+    "Day 2": "Protect state, recover from incidents, and isolate environments",
+    "Day 3": "Design reusable modules and refactor safely with advanced HCL",
+    "Day 4": "Join Terraform, Ansible, CI/CD, security, and policy into one workflow",
+  };
+
   const groupedDaysMap = new Map();
   sections.forEach((section) => {
     const day = section.day || "Day 1";
@@ -29,6 +36,7 @@ export default function Lessons({ sections }) {
     ([day, daySections]) => ({
       day,
       title: dayTitles[day] || day,
+      outcome: dayOutcomes[day] || "Build and verify the day's practical outcome",
       sections: daySections,
     })
   );
@@ -43,7 +51,7 @@ export default function Lessons({ sections }) {
         <meta name="og:title" content={courseInfo.title}></meta>
         <meta
           name="og:image"
-          content={`${process.env.BASE_URL}/images/social-share-cover.jpg`}
+          content={`${process.env.BASE_URL}/images/terraform-course-hero-v2.png`}
         ></meta>
         <meta name="twitter:card" content="summary_large_image"></meta>
       </Head>
@@ -52,7 +60,13 @@ export default function Lessons({ sections }) {
           <div className="courseInfo">
             <div className="courseInfo-inner">
               <h1>{courseInfo.title}</h1>
+              <p className="hero-eyebrow">4-day live, hands-on course</p>
               <h2>{courseInfo.subtitle}</h2>
+              <div className="hero-highlights" aria-label="Course highlights">
+                <span><i className="fas fa-terminal" /> Paste-and-run labs</span>
+                <span><i className="fas fa-triangle-exclamation" /> Failure scenarios</span>
+                <span><i className="fas fa-building-shield" /> Production patterns</span>
+              </div>
               <div className="authors">
                 {courseInfo.authors.map((author) => (
                   <div className="author" key={author.name}>
@@ -74,8 +88,8 @@ export default function Lessons({ sections }) {
           </div>
           <div className="courseIcon">
             <img
-              src={`${process.env.BASE_URL}/images/course-icon.png`}
-              alt="course icon"
+              src={`${process.env.BASE_URL}/images/terraform-course-hero-v2.png`}
+              alt="Infrastructure blocks connected to cloud, servers, code, and a database"
             />
           </div>
         </div>
@@ -87,11 +101,14 @@ export default function Lessons({ sections }) {
         <div className="main-card">
           <h1 className="lesson-title">Table of Contents</h1>
           <div className="lesson-content">
-            {groupedDays.map(({ day, title: dayTitle, sections: daySections }) => (
+            {groupedDays.map(({ day, title: dayTitle, outcome, sections: daySections }) => (
               <div key={day} className="day-group">
                 <div className="day-header">
                   <span className="day-badge">{day}</span>
-                  <h2 className="day-title">{dayTitle}</h2>
+                  <div>
+                    <h2 className="day-title">{dayTitle}</h2>
+                    <p className="day-outcome">{outcome}</p>
+                  </div>
                 </div>
                 <ol className="sections-name">
                   {daySections.map((section) => (

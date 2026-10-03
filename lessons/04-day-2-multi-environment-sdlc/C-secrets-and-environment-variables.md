@@ -85,7 +85,7 @@ resource "aws_db_instance" "database" {
 
 You have completed **Day 2: State Management & Multi-Environment SDLC Architecture**:
 - Understood state JSON internals, serial counters, and lineage tracking.
-- Built an encrypted S3 remote backend with DynamoDB distributed state locking.
+- Built an encrypted, versioned S3 remote backend with native lockfile state locking.
 - Mastered state refactoring with `state mv`, unmanaged resources with `state rm`, and resolved drift with `refresh-only`.
 - Imported brownfield resources with declarative `import {}` blocks and automatic code generation.
 - Designed multi-environment directory layouts, multi-account topologies with `assume_role`, and secure secrets handling.
