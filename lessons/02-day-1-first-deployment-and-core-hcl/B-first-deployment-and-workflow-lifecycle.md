@@ -12,6 +12,8 @@ keywords:
 
 # First Deployment & The Complete Terraform Lifecycle
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Initialize, validate, review a saved plan, and clean up a sandbox.</p></div>
+
 Let us build our first working infrastructure stack while dissecting each command in the standard Terraform workflow lifecycle.
 
 ---
@@ -69,24 +71,34 @@ resource "aws_internet_gateway" "gw" {
     Name = "course-main-gw"
   }
 }
+
+# 4. A public subnet needs a route to the internet gateway.
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.app_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public_subnet_1.id
+  route_table_id = aws_route_table.public.id
+}
 ```
 
 ---
 
 ## 2. The Core 6-Command Lifecycle
 
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│  1. fmt      │ ──► │ 2. validate  │ ──► │  3. init     │
-│ Canonicalize │     │ Static Check │     │ Fetch Binary │
-└──────────────┘     └──────────────┘     └──────┬───────┘
-                                                 │
-                                                 ▼
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│  6. destroy  │ ◄── │  5. apply    │ ◄── │  4. plan     │
-│ Safe Cleanup │     │ Execute Live │     │ Speculative  │
-└──────────────┘     └──────────────┘     └──────────────┘
-```
+<ol class="workflow-steps">
+  <li><strong>Format</strong><span>Normalize HCL.</span></li>
+  <li><strong>Initialize</strong><span>Install providers and configure state.</span></li>
+  <li><strong>Validate</strong><span>Check the initialized configuration.</span></li>
+  <li><strong>Plan</strong><span>Save and review proposed actions.</span></li>
+  <li><strong>Apply</strong><span>Execute that saved plan.</span></li>
+  <li><strong>Clean up</strong><span>Review a sandbox destroy.</span></li>
+</ol>
 
 ### Step 1: Canonical Formatting (`terraform fmt`)
 Ensures all code across your entire team adheres to standard indentation and alignment:
@@ -94,14 +106,7 @@ Ensures all code across your entire team adheres to standard indentation and ali
 terraform fmt -recursive
 ```
 
-### Step 2: Static Syntax Validation (`terraform validate`)
-Checks your configuration for syntactical correctness, attribute name errors, and type mismatches without making any network calls:
-```bash
-terraform validate
-# Success! The configuration is valid.
-```
-
-### Step 3: Initialization (`terraform init`)
+### Step 2: Initialization (`terraform init`)
 Prepares the working directory:
 - Downloads the AWS provider plugin matching version `~> 5.0`.
 - Creates the local hidden `.terraform/` directory.
@@ -115,15 +120,24 @@ terraform init
 > **The Dependency Lock File (`.terraform.lock.hcl`)**:
 > This file records the exact version and cryptographic checksums (`zh:...`, `h1:...`) of all downloaded provider plugins. **Always commit `.terraform.lock.hcl` to Git** to ensure that every teammate and CI/CD runner uses identical provider binaries.
 
-### Step 4: Speculative Planning (`terraform plan`)
+### Step 3: Static Syntax Validation (`terraform validate`)
+Checks your configuration for syntactical correctness, attribute name errors, and type mismatches without making any network calls:
+```bash
+terraform validate
+# Success! The configuration is valid.
+```
+
+### Step 4: Saved Planning (`terraform plan`)
 Reads current state, queries AWS APIs, and prints the proposed execution delta:
 ```bash
 terraform plan -out=tfplan
 ```
 The output indicates:
-`Plan: 3 to add, 0 to change, 0 to destroy.`
+`Plan: 5 to add, 0 to change, 0 to destroy.`
 
 ### Step 5: Live Execution (`terraform apply`)
+Review the saved actions with `terraform show tfplan`. Applying a saved plan executes without an additional confirmation prompt; possession of the plan is not a substitute for approval. Plans may contain secrets.
+
 Applies the plan against real AWS APIs:
 ```bash
 terraform apply tfplan
@@ -139,6 +153,18 @@ terraform destroy
 Terraform automatically computes the **reverse dependency graph**: it deletes the Subnet and Internet Gateway first, and only deletes the VPC after its dependent children are removed.
 
 ---
+
+
+## Apply the idea: read the plan before approval
+
+For this stack, the VPC precedes the subnet and internet gateway. The route table references the gateway; the association references both the subnet and route table. Expect five managed resources. A public IP alone is insufficient for internet access: routing, security groups, and network ACLs also matter.
+
+<details class="knowledge-check">
+<summary>Check your understanding: You edit main.tf after saving tfplan. Does applying tfplan use the edit?</summary>
+<p>No. A saved plan carries the previously planned configuration and actions. Discard it and generate a new plan when intent changes; do not approve one configuration and execute another.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/cli/commands/plan).
 
 ## 3. Summary & Next Steps
 

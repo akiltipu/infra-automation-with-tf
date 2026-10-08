@@ -11,6 +11,8 @@ keywords:
 
 # Remote State with Amazon S3 Native Locking
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Separate state storage, writer coordination, and recovery history.</p></div>
+
 For team use, Terraform state needs shared storage, controlled access, recovery history, and protection from concurrent writers. The Amazon S3 backend can provide storage and **native state locking** with `use_lockfile = true`.
 
 > [!IMPORTANT]
@@ -202,6 +204,18 @@ If Terraform reports that the state is locked:
 5. Run a fresh plan after unlocking.
 
 Never delete a lock merely because it is inconvenient. A mistaken force-unlock can allow two writers and corrupt the workflow you added locking to protect.
+
+
+## Apply the idea: diagnose a lock failure
+
+A runner may read the .tfstate object successfully yet fail to create or delete its .tflock sibling. Check permissions for both paths, not just the bucket. Versioning helps recover a damaged snapshot; it does not recreate a deleted database or recover its application data.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Can one client use only S3 locking while an older client uses only DynamoDB locking?</summary>
+<p>They do not coordinate through a shared lock. Use a controlled overlap configuration during migration, upgrade and verify all writers, then retire the old mechanism.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/backend/s3).
 
 ## 8. Summary
 

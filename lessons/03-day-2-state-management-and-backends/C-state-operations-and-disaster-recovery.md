@@ -12,6 +12,8 @@ keywords:
 
 # Advanced State Operations & Disaster Recovery
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose between address migration, unmanagement, and drift reconciliation.</p></div>
+
 As infrastructure scales, you will inevitably need to refactor code, move resources into modules, untrack legacy assets, and recover from stuck state locks or out-of-band configuration drift.
 
 ---
@@ -58,7 +60,7 @@ terraform state rm aws_s3_bucket.legacy_data
 # Output:
 # Successfully removed aws_s3_bucket.legacy_data from state.
 ```
-The S3 bucket remains running safely in AWS, but Terraform will no longer attempt to update or delete it.
+The bucket remains in AWS. Remove its configuration too if you intend to stop management; otherwise the next plan proposes creating a new binding and may fail on a name collision. For a reviewed handoff on Terraform 1.7+, consider a `removed` block with `destroy = false`.
 
 ---
 
@@ -89,11 +91,8 @@ terraform force-unlock a1b2c3d4-5678-90ab-cdef-1234567890ab
 
 Configuration drift happens when an engineer modifies a resource directly in the AWS Console (e.g., manually changing a Security Group rule).
 
-```
-┌────────────────────────┐      ┌────────────────────────┐      ┌────────────────────────┐
-│ 1. HCL Code (Port 80)  │  !=  │ 2. State (Port 80)     │  !=  │ 3. AWS Console (Pt 443)│
-└────────────────────────┘      └────────────────────────┘      └────────────────────────┘
-```
+![Intent and refreshed state converge in a reviewed plan](/images/lesson-diagrams/reconcile.svg)
+
 
 ### Detecting Drift:
 Run a refresh-only plan to inspect the drift:
@@ -104,14 +103,27 @@ Terraform queries AWS APIs and reports that AWS has drifted from `terraform.tfst
 
 ### Reconciling Drift:
 ```bash
-# Option A: Accept cloud changes and update local state file to match AWS
+# Option A: Record observed cloud changes in the configured backend
 terraform apply -refresh-only
+# Also update HCL if the change is intentional; refresh-only does not edit code.
 
 # Option B: Overwrite the console changes and force AWS back to matching the HCL code
 terraform apply
 ```
 
 ---
+
+
+## Apply the idea: choose the recovery operation
+
+For a resource rename, keep the object and migrate its address, preferably with a reviewed moved block. For intentional console drift, update the HCL and inspect a fresh normal plan. For a corrupt state snapshot, pause writers and follow the backend recovery runbook. These are different incidents with different fixes.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does apply -refresh-only permanently accept a console change?</summary>
+<p>It updates state to observed reality, but leaves HCL unchanged. A later normal plan may propose reverting the console change until code expresses the new intent.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/cli/commands/plan#planning-modes).
 
 ## 5. Summary & Next Steps
 

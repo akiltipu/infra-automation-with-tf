@@ -12,26 +12,21 @@ keywords:
 
 # Security Scanning, Linting & Policy as Code
 
-Catching security vulnerabilities and compliance violations before `terraform apply` executes is known as **Shifting Security Left**.
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish formatting, schema checks, misconfiguration scans, and policy.</p></div>
+
+Catching security misconfigurations and policy violations before `terraform apply` executes is known as **Shifting Security Left**.
 
 ---
 
 ## 1. The 3 Tiers of Infrastructure Security
 
-```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                    SHIFT-LEFT SECURITY PYRAMID                             │
-├─────────────────────────┬──────────────────────────────────────────────────┤
-│ TIER 3: Policy as Code  │ Open Policy Agent (OPA), Checkov, Sentinel       │
-│                         │ (Enforces organizational guardrails & compliance)│
-├─────────────────────────┼──────────────────────────────────────────────────┤
-│ TIER 2: Static Analysis │ Trivy, tfsec                                     │
-│                         │ (Scans for CVEs, unencrypted disks, open ports)  │
-├─────────────────────────┼──────────────────────────────────────────────────┤
-│ TIER 1: HCL Linting     │ tflint                                           │
-│                         │ (Detects deprecated syntax, invalid instance IDs)│
-└─────────────────────────┴──────────────────────────────────────────────────┘
-```
+
+| Gate | What it checks | What it cannot prove |
+| :--- | :--- | :--- |
+| Linting | Provider-aware style and validation rules | Runtime authorization or health |
+| IaC security scan | Known configuration misconfigurations | Installed package vulnerabilities |
+| Policy | Organization-specific plan constraints | Every operational failure mode |
+
 
 ---
 
@@ -66,10 +61,12 @@ rule "aws_instance_invalid_type" {
 `Trivy` scans your code for common security misconfigurations:
 
 ```bash
-trivy config ./
+trivy config --exit-code 1 --severity HIGH,CRITICAL ./
 ```
 
-### Common Vulnerabilities Caught:
+### Example misconfigurations:
+
+Rule IDs and coverage depend on the installed scanner version. IaC scanning does not scan the packages running inside an instance.
 - S3 bucket without server-side encryption (`AVD-AWS-0088`).
 - Security group allowing `0.0.0.0/0` on SSH port 22 (`AVD-AWS-0107`).
 - EC2 instance with IMDSv1 enabled (vulnerable to SSRF attacks) (`AVD-AWS-0028`).
@@ -80,18 +77,29 @@ trivy config ./
 
 With **Policy as Code**, compliance teams write enforceable rules in **Rego**:
 
+This Rego v1 example deliberately scopes the rule to S3 buckets and EC2 instances, which support tags. It requires both tags, skips pure deletions, and treats unknown required tag values as a reason to defer approval. Expand the allowlist with resource-specific tests.
+
 ```rego
 # policy/enforce_tags.rego
-package terraform.security
+package main
 
-# Deny any AWS resource that lacks a mandatory 'Environment' and 'Owner' tag
-deny[msg] {
+import rego.v1
+
+deny contains msg if {
   resource := input.resource_changes[_]
   resource.mode == "managed"
-  tags := resource.change.after.tags
+  resource.type in {"aws_s3_bucket", "aws_instance"}
+  resource.change.after != null
+  some key in {"Environment", "Owner"}
+  tags := object.get(resource.change.after, "tags_all", {})
+  not valid_tag(tags, key)
+  msg := sprintf("%s requires a known non-empty %s tag", [resource.address, key])
+}
 
-  not tags.Environment
-  msg := sprintf("Resource '%v' is missing mandatory tag: 'Environment'", [resource.address])
+valid_tag(tags, key) if {
+  value := tags[key]
+  is_string(value)
+  trim_space(value) != ""
 }
 ```
 
@@ -101,12 +109,24 @@ deny[msg] {
 terraform show -json tfplan > plan.json
 
 # Evaluate plan against Rego policies
-conftest test plan.json -p policy/
+conftest test plan.json -p policy/ # package main is the default namespace
 # FAIL - Resource 'aws_s3_bucket.data' is missing mandatory tag: 'Environment'
 ```
 
 ---
 
+
+## Apply the idea: test a policy as code
+
+A useful policy has passing and failing fixtures. Test a resource with both required tags, one with an absent tag, one with an unknown planned tag, and a deletion. Unknown values require an explicit decision; silently treating them as approved undermines the guardrail.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Will trivy config scan installed packages for CVEs?</summary>
+<p>No. This command scans infrastructure configuration for misconfiguration. Image/filesystem vulnerability scans use other Trivy modes. Each gate proves a different property, and exit status must be configured to block delivery.</p>
+</details>
+
+**Read further:** [Official documentation](https://www.openpolicyagent.org/docs/policy-language).
+
 ## 5. Summary & Next Steps
 
-Integrating linters, scanners, and policy as code prevents insecure infrastructure from ever reaching cloud environments. In the final lesson, we review the **Course Capstone, Cost Optimization with Infracost, and the Production Readiness Scorecard**.
+Linters, scanners, and policy checks reduce risk when failures block deployment. Their coverage is limited; they do not replace runtime controls or operational review. In the final lesson, we review the **Course Capstone, Cost Optimization with Infracost, and the Production Readiness Scorecard**.

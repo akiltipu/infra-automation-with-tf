@@ -12,6 +12,8 @@ keywords:
 
 # Terraform Architecture & Core Engine Deep Dive
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain dependency ordering and diagnose a provider failure.</p></div>
+
 To debug complex infrastructure issues and design scalable Terraform workflows, engineers must understand what happens under the hood when a command like `terraform plan` or `terraform apply` is executed.
 
 ---
@@ -21,7 +23,7 @@ To debug complex infrastructure issues and design scalable Terraform workflows, 
 Terraform is split into two distinct tiers: **Terraform Core** and **Provider Plugins**.
 
 <div class="concept-flow">
-  <div class="concept-node"><strong>Terraform Core</strong><small>Loads HCL and state, evaluates expressions, builds the dependency graph, and decides the proposed actions. It contains no AWS-specific resource logic.</small></div>
+  <div class="concept-node"><strong>Terraform Core</strong><small>Loads HCL and state, evaluates expressions, builds the dependency graph, and decides the proposed actions. It contains no AWS resource schemas; backend integrations such as S3 are a separate concern.</small></div>
   <div class="concept-node"><strong>Provider plugins</strong><small>Separate processes expose resource schemas and translate planned actions. Examples: AWS, Azure, Kubernetes, and GitHub.</small></div>
   <div class="concept-node"><strong>Remote APIs</strong><small>Providers authenticate and call service APIs. Terraform Core does not call an EC2 or GitHub endpoint directly.</small></div>
 </div>
@@ -51,7 +53,7 @@ Each provider implements the **Terraform Provider Schema**:
   - `Delete()`: Sends DELETE requests when resources are removed from code.
 
 ### C. The gRPC Inter-Process Communication Layer
-Terraform Core and the Provider Plugins run as separate operating system processes. They communicate using **gRPC** (Google Remote Procedure Calls) over local domain sockets or loopback TCP. This separation provides stability: if a provider crashes or leaks memory, Terraform Core remains protected.
+Terraform Core and the Provider Plugins run as separate operating system processes. They communicate using **gRPC** (Google Remote Procedure Calls) over local domain sockets or loopback TCP. Process isolation separates provider implementation from Core. A provider crash can still fail a run and leave partially completed changes that require inspection.
 
 ---
 
@@ -59,34 +61,19 @@ Terraform Core and the Provider Plugins run as separate operating system process
 
 When Terraform evaluates a directory, it does not execute sequentially line-by-line. It constructs a **Directed Acyclic Graph (DAG)**:
 
-```
-                  ┌───────────────────┐
-                  │    aws_vpc.main   │
-                  └─────────┬─────────┘
-                            │
-              ┌─────────────┴─────────────┐
-              ▼                           ▼
-    ┌──────────────────┐        ┌──────────────────┐
-    │ aws_subnet.pub_1 │        │ aws_subnet.pub_2 │
-    └─────────┬────────┘        └─────────┬────────┘
-              │                           │
-              └─────────────┬─────────────┘
-                            ▼
-                  ┌───────────────────┐
-                  │ aws_instance.web  │
-                  └───────────────────┘
-```
+![VPC dependency graph with two parallel subnets](/images/lesson-diagrams/dependencies.svg)
+
 
 ### Key Graph Execution Properties:
 - **Topological Sorting**: Terraform calculates the mathematical topological order of all nodes.
-- **Automatic Parallelism**: Non-dependent nodes (such as `aws_subnet.pub_1` and `aws_subnet.pub_2` above) are provisioned simultaneously across parallel worker routines (controlled by the `-parallelism=N` flag, default is `10`).
-- **Cycle Detection**: If resource A references resource B, and resource B references resource A, the graph engine throws a `Cycle error` before executing any network calls.
+- **Automatic Parallelism**: Non-dependent nodes (such as `aws_subnet.a` and `aws_subnet.b` above) are provisioned simultaneously across parallel worker routines (controlled by the `-parallelism=N` flag, default is `10`).
+- **Cycle Detection**: If resource A references resource B, and resource B references resource A, the graph engine throws a `Cycle error` before applying the cyclic resource operations.
 
 ---
 
 ## 4. The 4 Stages of the Terraform Lifecycle
 
-Every execution passes through four sequential phases:
+A typical plan/apply workflow includes these responsibilities; `plan` stops before execution, and commands such as `fmt` do not refresh infrastructure:
 
 <div class="concept-flow four-steps">
   <div class="concept-node"><strong>1 · Load</strong><small>Parse configuration and evaluate values.</small></div>
@@ -101,6 +88,18 @@ Every execution passes through four sequential phases:
 4. **API Execution**: Upon approval (`terraform apply`), executes CRUD operations against cloud APIs in strict dependency graph order.
 
 ---
+
+
+## Apply the idea: read a dependency graph
+
+If two subnets reference one VPC, both wait for the VPC and can then be created in parallel. An EC2 instance that references only subnet A need not wait for subnet B. Extra depends_on edges reduce concurrency and can defer values until apply; add them only for a real hidden dependency.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does an API permission error mean the HCL parser failed?</summary>
+<p>No. Parsing, graph construction, authentication, and API authorization are different failure layers. Start with the failing resource and provider diagnostic, then check the caller identity and denied action.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/internals/graph).
 
 ## 5. Summary & Next Steps
 

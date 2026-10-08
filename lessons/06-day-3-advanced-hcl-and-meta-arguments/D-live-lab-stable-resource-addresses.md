@@ -11,6 +11,10 @@ keywords:
 
 # Live Lab: Stable Resource Addresses
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Migrate addresses and prove object identity is preserved.</p></div>
+
+![Count shifts index identity while for_each preserves named keys](/images/lesson-diagrams/addresses.svg)
+
 <div class="lab-banner"><strong>Scenario:</strong> a team manages three named services with <code>count</code>. Removing the middle item causes addresses to shift. We will first see the dangerous plan, then refactor to stable keys without recreating objects.</div>
 
 This provider-free lab requires Terraform 1.4 or later.
@@ -141,6 +145,8 @@ Use `terraform state mv` mainly for exceptional operator-led repair. Prefer `mov
 
 ## 7. Failure drills
 
+Run these drills **before applying the migration in step 4**, while state still uses indexed addresses. After the migration is applied, omitting a move no longer demonstrates the same failure. For a repeat session, use a fresh lab directory and repeat steps 2–3.
+
 ### Drill A — omit one move
 
 Temporarily remove the `billing` moved block while all three names exist. The plan should propose destroying the old indexed instance and creating the keyed instance. Restore the block before applying.
@@ -158,3 +164,14 @@ cd ..
 
 Choose `for_each` when instances have durable names. Choose `count` when instances are truly positional or interchangeable. Never choose based only on which syntax is shorter.
 
+
+## Apply the idea: compare before and after
+
+Capture terraform state show for each original index and record its ID. After applying the moved blocks, inspect the keyed addresses and compare IDs. The meaningful success criterion is unchanged object identity and no create/delete actions, not merely a green command exit.
+
+<details class="knowledge-check">
+<summary>Check your understanding: When must the omit-a-move drill be run?</summary>
+<p>Before applying the migration, while state still contains indexed addresses. After migration, omitting an old move will not recreate the original failure because state already uses the new addresses.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/modules/develop/refactoring).

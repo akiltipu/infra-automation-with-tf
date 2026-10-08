@@ -12,11 +12,13 @@ keywords:
 
 # Resource Lifecycle Management & Meta-Arguments
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain the limits of lifecycle rules before relying on them.</p></div>
+
 By default, when a resource property requires recreation, Terraform **destroys the existing resource first, then creates the new one**. This causes downtime. With the **`lifecycle` block**, you can fine-tune resource replacement, protect production databases from deletion, and ignore non-critical drift.
 
 ---
 
-## 1. Zero-Downtime Updates: `create_before_destroy`
+## 1. Replacement Ordering: `create_before_destroy`
 
 When updating an ASG Launch Template, Auto Scaling Group, or Security Group, you want the new resource online before the old one is terminated:
 
@@ -32,11 +34,13 @@ resource "aws_security_group" "web" {
 ```
 
 > [!NOTE]
-> When using `create_before_destroy = true` with resources that have name constraints (like Security Groups or IAM roles), use `name_prefix` instead of `name` to avoid naming collisions while both resources coexist.
+> When using `create_before_destroy = true` with resources that have name constraints (like Security Groups or IAM roles), use a provider-supported unique-name strategy such as `name_prefix` where available. Also allow overlap in quotas and cost; this setting alone does not guarantee healthy traffic cutover or zero downtime.
 
 ---
 
 ## 2. Preventing Accidental Deletion: `prevent_destroy`
+
+This protection disappears if you remove the resource block. It cannot stop console/API deletion. Combine it with service deletion protection, IAM, and tested backups. The resource examples here illustrate lifecycle settings and omit required surrounding configuration.
 
 Protect critical production stateful resources (such as production RDS databases or primary S3 data lakes):
 
@@ -47,7 +51,7 @@ resource "aws_db_instance" "production_db" {
   instance_class    = "db.r6g.xlarge"
 
   lifecycle {
-    prevent_destroy = true # Throws an immediate error if terraform destroy is attempted
+    prevent_destroy = true # Rejects a planned destroy while this rule remains in configuration
   }
 }
 ```
@@ -70,8 +74,7 @@ resource "aws_autoscaling_group" "web_asg" {
   lifecycle {
     # Ignore changes to desired_capacity so Terraform doesn't revert Auto Scaling events
     ignore_changes = [
-      desired_capacity,
-      tags["k8s.io/cluster-autoscaler/enabled"]
+      desired_capacity
     ]
   }
 }
@@ -104,11 +107,23 @@ resource "aws_eks_node_group" "main" {
 
 ---
 
+
+## Apply the idea: design a replacement
+
+Creating a replacement before destroying the old object requires two objects to coexist. Unique names, capacity quotas, dependency updates, and service health must all permit that overlap. A database still needs a separate data-migration and recovery strategy; ordering alone cannot preserve its contents.
+
+<details class="knowledge-check">
+<summary>Check your understanding: If the resource block is removed, does prevent_destroy still protect it?</summary>
+<p>No. The rule is part of the configuration you removed. Keep cloud deletion protection, scoped IAM, approvals, and verified backups as independent controls.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle).
+
 ## 5. Day 3 Wrap-up & Transition to Day 4
 
 You have completed **Day 3: Reusable Modules & Advanced HCL Expressions**:
 - Designed clean root and child module contracts adhering to single responsibility and encapsulation.
-- Built a production-grade AWS VPC networking module with dynamic subnet calculations.
+- Built a reusable AWS public-network teaching module with dynamic subnet calculations.
 - Mastered module sources, semantic version pinning, and public/private registries.
 - Explored Flat vs Nested composition patterns and Platform Engineering Golden Paths.
 - Mastered `count` vs `for_each`, built-in functions, comprehension expressions, and `dynamic` blocks.

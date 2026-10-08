@@ -12,6 +12,8 @@ keywords:
 
 # Input Variables, Custom Validation Rules, Outputs & Locals
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Trace input precedence and distinguish redaction from secret storage.</p></div>
+
 Hardcoded values make infrastructure code fragile and non-reusable. To build enterprise-grade configurations, we use **Input Variables**, **Outputs**, and **Local Values**.
 
 ---
@@ -56,7 +58,7 @@ variable "environment" {
 variable "database_password" {
   type        = string
   description = "Master password for RDS database"
-  sensitive   = true # Prevents value from being printed in CLI logs or plans
+  sensitive   = true # Redacts normal display; does not remove it from state
 }
 ```
 
@@ -66,17 +68,16 @@ variable "database_password" {
 
 When the same variable is defined in multiple places, Terraform resolves the final value using this strict **precedence hierarchy** (highest priority wins):
 
-```
-1. CLI Arguments: terraform apply -var="environment=prod"              (HIGHEST)
-   ▲
-2. Variable files: *.auto.tfvars or *.auto.tfvars.json
-   ▲
-3. Default variable file: terraform.tfvars or terraform.tfvars.json
-   ▲
-4. Environment Variables: export TF_VAR_environment="prod"
-   ▲
-5. Default value in variable declaration: default = "dev"               (LOWEST)
-```
+| Priority (highest first) | Source | Tie-breaking rule |
+| :--- | :--- | :--- |
+| 1 | Explicit `-var` and `-var-file` arguments | Later command-line arguments win |
+| 2 | `*.auto.tfvars` and `*.auto.tfvars.json` | Loaded in lexical filename order |
+| 3 | `terraform.tfvars.json` | Overrides `terraform.tfvars` |
+| 4 | `terraform.tfvars` | Overrides environment values |
+| 5 | `TF_VAR_name` | Overrides the variable default |
+| 6 | `default` in the variable declaration | Used only if no higher source supplies a value |
+
+This describes local CLI runs; HCP Terraform variable sets add their own precedence rules.
 
 ---
 
@@ -139,7 +140,7 @@ output "db_connection_string" {
 
 ### Accessing Outputs via CLI:
 ```bash
-# Query all outputs in JSON format
+# JSON includes sensitive outputs in plaintext; do not publish or log it
 terraform output -json
 
 # Query a specific output directly
@@ -147,6 +148,18 @@ terraform output -raw vpc_id
 ```
 
 ---
+
+
+## Apply the idea: predict the winning input
+
+Assume default = "dev", TF_VAR_environment=staging, terraform.tfvars sets environment="prod", and the command adds -var="environment=dev". The effective value is dev because the explicit CLI argument wins. A file named prod.tfvars is not automatically loaded unless passed with -var-file.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does sensitive = true make terraform output -json safe to publish?</summary>
+<p>No. JSON and raw output can expose sensitive values, as can state and saved plans. Print only the non-secret output needed by the next step.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/values/variables).
 
 ## 5. Summary & Next Steps
 

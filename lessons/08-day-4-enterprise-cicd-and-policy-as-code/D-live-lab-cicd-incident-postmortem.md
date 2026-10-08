@@ -11,6 +11,8 @@ keywords:
 
 # Live Lab: CI/CD Failure, Recovery & Postmortem
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Reproduce a failed gate and distinguish stale-state rejection from review validity.</p></div>
+
 <div class="lab-banner"><strong>Scenario:</strong> a pull request passes review but contains an invalid Terraform reference. We will build the smallest useful quality gate, watch it fail, fix it, then analyze a more serious stale-plan incident.</div>
 
 ## 1. What a Terraform pipeline must prove
@@ -177,10 +179,18 @@ The apply job ran `terraform apply -auto-approve` with no saved plan argument. A
 
 ## 7. Clean up
 
-```bash
-terraform destroy -auto-approve
-cd ..
-```
+This quality-gate lab only initializes and validates, so it creates no infrastructure. Return to the parent directory with `cd ..`. If you independently applied the provider-free example, initialize normally and destroy those local resources first.
 
 The course endpoint is not “Terraform ran.” It is a delivery system where intent is reviewable, identity is short-lived, changes are reproducible, and recovery has been rehearsed.
 
+
+## Apply the idea: explain the stale-plan timeline
+
+If run B changes state after run A planned, run A may be rejected as stale. That is helpful, but not a universal drift detector: out-of-band changes may not yet be reflected in state. Expire old plans and regenerate after relevant changes instead of treating the lock as approval.
+
+<details class="knowledge-check">
+<summary>Check your understanding: What is a useful corrective action beyond “be more careful”?</summary>
+<p>Require the apply job to consume the saved plan from its own reviewed run and commit, with environment approval and serialized deployment. Verify the control by trying a missing artifact or wrong commit in a sandbox.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/cli/commands/plan).

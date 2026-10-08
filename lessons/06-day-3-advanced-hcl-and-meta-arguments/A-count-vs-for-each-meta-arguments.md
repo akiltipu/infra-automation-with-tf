@@ -1,10 +1,10 @@
 ---
 title: "Advanced Control Flow: count vs for_each Meta-Arguments"
-description: "A comprehensive deep dive into iteration in Terraform, understanding the index-shift destruction bug of count, and when to use for_each on sets and maps."
+description: "A comprehensive deep dive into iteration in Terraform, understanding the index-shift identity risk of count, and when to use for_each on sets and maps."
 keywords:
   - count
   - for_each
-  - Index Shifting Bug
+  - Index Shifting Risk
   - Conditional Creation
   - each.key
   - each.value
@@ -12,11 +12,15 @@ keywords:
 
 # Advanced Control Flow: `count` vs `for_each` Meta-Arguments
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose durable resource keys and predict index-shift consequences.</p></div>
+
+![Count shifts index identity while for_each preserves named keys](/images/lesson-diagrams/addresses.svg)
+
 Terraform provides two meta-arguments for creating multiple instances of a resource: **`count`** and **`for_each`**. Choosing the wrong one can cause unintentional destruction of production infrastructure.
 
 ---
 
-## 1. The Mechanics of `count` & The Index Shifting Bug
+## 1. The Mechanics of `count` & The Index Shifting Risk
 
 `count` accepts an integer and creates resources referenced by an **array index (`[0]`, `[1]`, `[2]`)**:
 
@@ -46,7 +50,7 @@ BEFORE REMOVAL:               AFTER REMOVING "bob":
 [2] = charlie                 [2] = DELETED! (Terraform terminates charlie!)
 ```
 > [!CAUTION]
-> If these were RDS databases or EC2 instances, removing an item from the middle of the list causes Terraform to **destroy and recreate every subsequent resource in the list**!
+> If these were RDS databases or EC2 instances, removing a middle item shifts later identities. Attributes may update in place or require replacement depending on the resource schema, and the final index is removed. Inspect the plan; replacement is not universal.
 
 ---
 
@@ -88,7 +92,7 @@ Removing `"bob"` only removes `aws_iam_user.team["bob"]`!
 
 ## 3. When is `count` Still Appropriate?
 
-The primary valid use case for `count` in production is **Conditional Resource Creation (Boolean Switch)**:
+One useful case for `count` is **Conditional Resource Creation (Boolean Switch)**:
 
 ```hcl
 variable "enable_monitoring" {
@@ -112,6 +116,18 @@ resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
 
 ---
 
+
+## Apply the idea: compare identity, not syntax
+
+With count, removing bob shifts charlie from index 2 to index 1. Terraform sees changed attributes at [1] and a removed [2]; the provider determines whether changed attributes update or replace. With for_each, removing the bob key leaves the charlie address stable.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Can a newly created resource ID be a for_each key in the same plan?</summary>
+<p>Keys must be known before apply. Prefer stable configuration keys such as service names; computed IDs can be values. Sensitive values are also unsuitable as exposed instance keys.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/meta-arguments/for_each).
+
 ## 4. Summary & Next Steps
 
-Use `for_each` for collections of named resources and reserve `count` for boolean toggles. In the next lesson, we will master **Expressions, Built-in Functions, and Dynamic Blocks**.
+Use `for_each` for durable named identities; `count` is also suitable for conditional or genuinely interchangeable instances. In the next lesson, we will master **Expressions, Built-in Functions, and Dynamic Blocks**.

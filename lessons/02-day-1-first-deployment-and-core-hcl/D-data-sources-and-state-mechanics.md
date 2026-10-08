@@ -11,6 +11,8 @@ keywords:
 
 # Data Sources, Provider Configuration & Local State Mechanics
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain when a data source reads an object without owning it.</p></div>
+
 Real-world cloud architectures rarely exist in a vacuum. You frequently need to reference existing cloud assets (such as official Ubuntu AMIs, standard VPCs, or DNS zones) without managing their lifecycle in your current Terraform code.
 
 ---
@@ -19,14 +21,12 @@ Real-world cloud architectures rarely exist in a vacuum. You frequently need to 
 
 A **Data Source** allows Terraform to read metadata from the cloud provider at runtime. Unlike `resource` blocks, Terraform will **never create, modify, or destroy** resources defined in a `data` block.
 
-```
-┌─────────────────────────────────┐
-│ resource "aws_instance" "web"   │ ──► CREATE, UPDATE, DELETE (Managed)
-└─────────────────────────────────┘
-┌─────────────────────────────────┐
-│ data "aws_ami" "ubuntu"         │ ──► READ-ONLY QUERY (Unmanaged)
-└─────────────────────────────────┘
-```
+
+| Declaration | Operation | Ownership |
+| :--- | :--- | :--- |
+| resource "aws_instance" "web" | Create/read/update/delete | This state manages the instance. |
+| data "aws_ami" "ubuntu" | Read/query | The image lifecycle is owned elsewhere. |
+
 
 ### Finding the Latest Ubuntu 22.04 LTS AMI Dynamically:
 Instead of hardcoding brittle AMI IDs like `ami-0c55b159cbfafe1f0`, use a data source:
@@ -92,7 +92,7 @@ resource "aws_s3_bucket" "dr_bucket" {
 
 ## 3. Local State Mechanics & Limitations
 
-When you execute `terraform apply`, Terraform creates `terraform.tfstate` in your working directory.
+With the default local backend and workspace, Terraform writes `terraform.tfstate` in your working directory after an apply that persists state.
 
 ### Inside `terraform.tfstate` (JSON):
 ```json
@@ -123,11 +123,23 @@ When you execute `terraform apply`, Terraform creates `terraform.tfstate` in you
 ```
 
 ### Why Local State Fails in Teams:
-1. **Concurrency Conflicts**: If two engineers run `terraform apply` simultaneously, their local state files overwrite each other, causing corrupted state.
+1. **Concurrency Conflicts**: Local state supports locking on the same filesystem, but separate laptop copies can diverge and manage overlapping objects without a shared lock.
 2. **Secrets in Plaintext**: State files contain sensitive database passwords and private keys in clear text JSON. Storing them locally on laptops or checking them into Git is a critical security vulnerability.
 3. **No Centralized History**: Teammates cannot see recent infrastructure changes made by others.
 
 ---
+
+
+## Apply the idea: make ami selection deliberate
+
+A most_recent AMI query can resolve to a new image on a later plan even when your HCL is unchanged. Because changing an EC2 AMI generally requires replacement, review this as an image rollout. For controlled releases, promote a reviewed AMI ID per region through environment inputs.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Will deleting the aws_ami data block delete the AMI?</summary>
+<p>No. A data source does not own that image lifecycle. However, removing a reference or changing its result can change the resources that consume it.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/data-sources).
 
 ## 4. Day 1 Wrap-up & Transition to Day 2
 

@@ -11,6 +11,10 @@ keywords:
 
 # Terraform State Internals & Schema Deep Dive
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain resource identity, state snapshots, and secret exposure.</p></div>
+
+![Configuration, state, and observed infrastructure inform the plan](/images/lesson-diagrams/reconcile.svg)
+
 The **state file** is Terraform's durable record of which resource address is bound to which real object, plus the latest known attributes. It is essential, but calling it the only “source of truth” hides an important idea: Terraform constantly reconciles three views.
 
 <div class="concept-flow">
@@ -198,6 +202,18 @@ cd ..
 > 3. **Restrict IAM access** to the backend storage bucket to authorized CI/CD roles only.
 
 ---
+
+
+## Apply the idea: interpret a state change
+
+An address identifies the configuration instance; the stored ID identifies the remote object. A new serial records a new snapshot, not necessarily a new cloud object. Lineage distinguishes state histories. A copied state file is not a safe way to clone infrastructure because both copies may claim the same objects.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Why does state rm followed by plan propose creation?</summary>
+<p>The binding is gone while the desired resource remains in code. For real infrastructure, re-import an existing object or complete a deliberate ownership handoff; do not create a duplicate blindly.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/state).
 
 ## 6. Summary & Next Steps
 

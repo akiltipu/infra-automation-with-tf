@@ -12,6 +12,8 @@ keywords:
 
 # Managing Secrets & Environment Variables Securely
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Keep secrets out of Git and identify where Terraform can persist them.</p></div>
+
 Hardcoded secrets in infrastructure code represent one of the most critical security vulnerabilities in cloud engineering. Let us explore how to manage variables and secrets securely across environments.
 
 ---
@@ -51,7 +53,9 @@ terraform plan
 
 ## 3. Dynamic Secrets from AWS Secrets Manager & SSM
 
-The most secure pattern is to store secrets in a managed vault (AWS Secrets Manager or AWS Systems Manager Parameter Store) and read them dynamically via Data Sources:
+A secret manager keeps values out of Git. However, ordinary Terraform data sources and resource password arguments can still persist those values in state and saved plans. `sensitive = true` redacts normal CLI display; it does not encrypt or omit stored values.
+
+The following is an **illustrative fragment**, not a complete database deployment. Prefer application runtime secret retrieval, service-managed credentials, or supported ephemeral/write-only provider features when secret material must stay out of state:
 
 ```hcl
 # Read Database Password from AWS Secrets Manager
@@ -75,11 +79,23 @@ resource "aws_db_instance" "database" {
   instance_class    = "db.t3.micro"
   username          = local.db_credentials.username
   password          = local.db_credentials.password # Sensitive
-  skip_final_snapshot = true
+  skip_final_snapshot = false # Supply a unique final_snapshot_identifier in the full configuration
 }
 ```
 
 ---
+
+
+## Apply the idea: follow a secret through the system
+
+Passing a secret via TF_VAR avoids hardcoding, but an ordinary resource argument can still put it in state. Reading it from a secret-manager data source has the same persistence concern. Prefer passing a secret ARN to the application, which retrieves the value at runtime with its own scoped role when the architecture permits.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Which feature merely redacts display: sensitive or ephemeral?</summary>
+<p>sensitive redacts normal display. Ephemeral values require Terraform 1.10+ and supported contexts; managed-resource write-only arguments require Terraform 1.11+ and provider support. They are not drop-in options for every argument.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ## 4. Day 2 Wrap-up & Transition to Day 3
 

@@ -9,7 +9,8 @@
     "start": "next start",
     "csv": "node csv/index.js",
     "seo": "node summary/index.js",
-    "llm-text": "node summary/generateFullText.js"
+    "llm-text": "node summary/generateFullText.js",
+    "check:lessons": "node --test tests/lessons.test.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.2.0",

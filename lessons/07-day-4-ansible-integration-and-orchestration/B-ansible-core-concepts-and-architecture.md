@@ -12,29 +12,20 @@ keywords:
 
 # Ansible Architecture & Core Fundamentals
 
-Ansible operates using a straightforward, agentless architecture. Let us break down its core building blocks and write our first production playbook.
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain tasks, handlers, host selection, and repeat-run behavior.</p></div>
+
+Ansible operates using a straightforward, agentless architecture. Let us break down its core building blocks and write a small Ubuntu teaching playbook.
 
 ---
 
 ## 1. High-Level Architecture
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                    CONTROL NODE (Laptop / CI)              │
-│  - Ansible Engine installed                                │
-│  - Playbooks (.yaml)                                       │
-│  - Inventory file (hosts)                                  │
-└─────────────────────────────┬──────────────────────────────┘
-                              │
-                              │ SSH Connection (Port 22)
-                              │ Using SSH Key Pair
-                              ▼
-┌────────────────────────────────────────────────────────────┐
-│                    MANAGED NODES (AWS EC2)                 │
-│  - Python 3 installed (standard on Ubuntu/RHEL)             │
-│  - No special background agent required!                   │
-└────────────────────────────────────────────────────────────┘
-```
+
+| Component | What it needs |
+| :--- | :--- |
+| Control node | Ansible, inventory, playbooks, credentials, network access. |
+| Managed Linux node | Verified SSH identity and Python for most modules. |
+
 
 ---
 
@@ -153,11 +144,23 @@ web-01    : ok=5    changed=3    unreachable=0    failed=0
 ```
 
 > [!NOTE]
-> If you run the command a second time with no configuration changes, Ansible will report:
+> With no drift, within the apt cache-validity interval, and with the service already started, a second run should report no changes. Exact task counts can vary; an example is:
 > `web-01 : ok=5 changed=0 unreachable=0 failed=0`
 > This demonstrates **Idempotency** in action.
 
 ---
+
+
+## Apply the idea: observe handler behavior
+
+A template task notifies its handler only when it reports a change. Repeated notifications normally lead to one handler execution per host at the handler flush point. Static HTML changes do not usually require an Nginx restart; notifying on the page is only a demonstration of the mechanism.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does check mode prove that a first deployment will succeed?</summary>
+<p>No. It depends on module support and existing remote state. A later task may depend on a package or file that check mode did not actually create. Use syntax checks, a disposable target, and a repeat run.</p>
+</details>
+
+**Read further:** [Official documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html).
 
 ## 5. Summary & Next Steps
 

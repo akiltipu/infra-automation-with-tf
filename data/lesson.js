@@ -62,6 +62,24 @@ function enhanceLessonHtml(html) {
   );
 }
 
+export function addLessonHeadings(html) {
+  const used = new Map();
+  const headings = [];
+  const entities = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
+  const enhanced = html.replace(/<h2>([\s\S]*?)<\/h2>/g, (_, content) => {
+    const text = content.replace(/<[^>]*>/g, "").replace(
+      /&(amp|lt|gt|quot|#39);/g, (_, entity) => entities[entity]
+    );
+    const base = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "section";
+    const count = (used.get(base) || 0) + 1;
+    used.set(base, count);
+    const id = count === 1 ? base : `${base}-${count}`;
+    headings.push({ id, text });
+    return `<h2 id="${id}">${content}</h2>`;
+  });
+  return { html: enhanced, headings };
+}
+
 export async function getLessons() {
   const rawDir = await fs.readdir(lessonsPath);
   const dir = rawDir.sort();
@@ -168,10 +186,14 @@ export async function getLesson(targetDir, targetFile) {
           const filePath = path.join(lessonsPath, dirPath, slugPath);
           const file = await fs.readFile(filePath);
           const { data, content } = matter(file.toString());
-          let html = enhanceLessonHtml(marked.parse(content));
+          const rendered = addLessonHeadings(enhanceLessonHtml(marked.parse(content)));
+          let html = rendered.html;
           if (process.env.BASE_URL) {
             html = html.replace(/src="\/images\//g, `src="${process.env.BASE_URL}/images/`);
           }
+          html = html.replace(/<p>\s*(<img[^>]+src="([^"]*\/lesson-diagrams\/[^"]+)"[^>]*>)\s*<\/p>/g,
+            (_, img, src) => `<figure class="lesson-diagram"><div class="diagram-viewport" role="region" aria-label="Lesson diagram; scroll horizontally on small screens" tabindex="0">${img}</div><figcaption><a href="${src}" target="_blank" rel="noopener noreferrer">Open full-size diagram (new tab)</a></figcaption></figure>`
+          );
           const title = getTitle(targetFile, data.title);
           const meta = await getMeta(dirPath);
 
@@ -239,6 +261,7 @@ export async function getLesson(targetDir, targetFile) {
           return {
             attributes: data,
             html,
+            headings: rendered.headings,
             markdown: content,
             slug: targetFile,
             title,

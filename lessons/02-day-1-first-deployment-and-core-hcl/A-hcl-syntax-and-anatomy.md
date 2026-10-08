@@ -12,6 +12,8 @@ keywords:
 
 # HashiCorp Configuration Language (HCL) Anatomy
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Identify blocks, expressions, and addresses without relying on filenames.</p></div>
+
 **HCL (HashiCorp Configuration Language)** is a declarative domain-specific language designed to be human-readable and machine-friendly. It combines the readability of YAML with the structural rigor of JSON.
 
 HCL is the **language**. A `.tf` file is a Terraform configuration file written in HCL. The names are related, but they are not interchangeable:
@@ -48,17 +50,13 @@ block_type "label_one" "label_two" {
 }
 ```
 
-```
-┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│  block_type  │ │  label_one   │ │  label_two   │
-│ (e.g.resource│ │(e.g.aws_vpc) │ │ (e.g. main)  │
-└──────┬───────┘ └──────┬───────┘ └──────┬───────┘
-       │                │                │
-       ▼                ▼                ▼
-   What kind       The provider     Your custom
-   of block is     resource type    logical name
-   being created?  definition       for reference
-```
+
+| Block element | Example | Meaning |
+| :--- | :--- | :--- |
+| Type | resource | Declare a managed object. |
+| First label | aws_vpc | Choose the provider resource type. |
+| Second label | main | Choose a logical name within this module. |
+
 
 ### Real-World Example:
 ```hcl
@@ -237,6 +235,18 @@ The result stays the same because Terraform loads the module as a whole and deri
 Change `local.students` to `local.student`. Run `terraform validate` and read the diagnostic from top to bottom: summary, source location, then explanation. Restore the correct name and validate again.
 
 ---
+
+
+## Apply the idea: trace one reference
+
+In vpc_id = aws_vpc.main.id, vpc_id is the receiving argument, aws_vpc.main is the resource address, and id is an exported attribute. The reference creates a dependency. A quoted literal such as "vpc-0123" supplies a value but does not link that VPC to another managed block.
+
+<details class="knowledge-check">
+<summary>Check your understanding: If main.tf is renamed to network.tf, does Terraform replace the VPC?</summary>
+<p>No. Files in one module are loaded together. Renaming the resource label main to core changes its address and needs a reviewed moved block if the object already exists.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/syntax/configuration).
 
 ## 6. Summary & Next Steps
 

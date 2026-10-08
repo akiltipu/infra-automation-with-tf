@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import Head from "next/head";
 import { getLesson, getLessons } from "../../../data/lesson";
 import getCourseConfig from "../../../data/course";
@@ -13,6 +13,8 @@ export default function LessonSlug({ post }) {
 
   const nextLink = post.nextSlug || null;
   const prevLink = post.prevSlug || null;
+  // Keep React from resetting the injected code controls on header updates.
+  const lessonHtml = useMemo(() => ({ __html: post.html }), [post.html]);
 
   useEffect(() => {
     setHeader({
@@ -20,10 +22,7 @@ export default function LessonSlug({ post }) {
       title: post.title,
       icon: post.icon,
     });
-    let elementsToClean = createCopyCodeFunctionality();
-    return () => {
-      elementsToClean = [];
-    };
+    return createCopyCodeFunctionality();
   }, [post.slug, post.section, post.title, post.icon, post.html]);
 
   const title = post.title
@@ -53,9 +52,19 @@ export default function LessonSlug({ post }) {
       </Head>
       <div className="lesson-container">
         <div className="lesson">
+          <nav className="lesson-toc" aria-label="On this page">
+            <details key={post.slug}>
+              <summary>On this page <span>{post.headings.length} sections</span></summary>
+              <ol>
+                {post.headings.map(({ id, text }) => (
+                  <li key={id}><a href={`#${id}`}>{text}</a></li>
+                ))}
+              </ol>
+            </details>
+          </nav>
           <div
             className="lesson-content"
-            dangerouslySetInnerHTML={{ __html: post.html }}
+            dangerouslySetInnerHTML={lessonHtml}
           />
           <div className="lesson-links">
             {prevLink ? (
