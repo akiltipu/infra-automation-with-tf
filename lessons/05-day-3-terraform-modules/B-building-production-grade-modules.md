@@ -1,6 +1,6 @@
 ---
-title: "Building Production-Grade Infrastructure Modules"
-description: "Step-by-step hands-on guide to building an enterprise-ready AWS VPC and networking module complete with public/private subnets, NAT gateways, and outputs."
+title: "Building a Reusable Networking Module"
+description: "Build a focused VPC and public-subnet module with CIDR calculations, routing, inputs, and outputs; identify production extensions."
 keywords:
   - Custom Module
   - Production Module
@@ -9,9 +9,13 @@ keywords:
   - Module Outputs
 ---
 
-# Building Production-Grade Infrastructure Modules
+# Building a Reusable Networking Module
 
-Let us construct a production-ready **AWS Networking Module** from scratch, supporting configurable CIDR blocks, multi-AZ public and private subnets, and NAT gateways.
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain CIDR subdivision and the resources that make a subnet public.</p></div>
+
+Build a **public-network teaching module** with a VPC, public subnets, an internet gateway, and route associations. It does not include private subnets, NAT gateways, flow logs, or a complete production network. Add these only after deciding egress, availability, and cost requirements.
+
+The caller supplies an AWS provider for `us-east-1`. Add `required_providers` with `hashicorp/aws` in the child and configure the provider in the root. With `newbits = 8`, use an IPv4 VPC prefix from /16 through /20 so the resulting subnets stay within AWS sizes. Keep the AZ list stable: reordering a count-based list changes address-to-subnet mappings.
 
 ---
 
@@ -26,8 +30,8 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 
   validation {
-    condition     = can(cidrnetmask(var.vpc_cidr))
-    error_message = "Must be a valid IPv4 CIDR block."
+    condition     = can(cidrnetmask(var.vpc_cidr)) && can(regex("/(1[6-9]|20)$", var.vpc_cidr))
+    error_message = "Use an IPv4 CIDR with a prefix from /16 through /20 for this example."
   }
 }
 
@@ -139,6 +143,19 @@ output "vpc_cidr_block" {
 ```hcl
 # environments/prod/main.tf
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
 module "primary_network" {
   source = "../../modules/aws-network"
 
@@ -156,6 +173,18 @@ resource "aws_security_group" "web_sg" {
 
 ---
 
+
+## Apply the idea: calculate before provisioning
+
+For cidrsubnet("10.0.0.0/16", 8, 2), adding 8 prefix bits produces /24 networks, and network number 2 is 10.0.2.0/24. The example uses indices 0 and 1 for the first two AZs. Route-table association, not a Public tag, gives each subnet its route to the internet gateway.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does this module provide private subnets or NAT?</summary>
+<p>No. Extend it with separate subnet ranges, route tables, an explicit egress design, and outputs before describing it as a full production network. Estimate NAT and cross-AZ costs separately.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/functions/cidrsubnet).
+
 ## 5. Summary & Next Steps
 
-You have built a reusable, production-grade networking module with automated CIDR calculation and standard outputs. In the next lesson, we will explore **Module Sources, the Public Terraform Registry, and Version Pinning**.
+You have built a reusable public-network teaching module with automated CIDR calculation and standard outputs. In the next lesson, we will explore **Module Sources, the Public Terraform Registry, and Version Pinning**.

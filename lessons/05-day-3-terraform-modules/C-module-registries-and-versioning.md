@@ -11,25 +11,22 @@ keywords:
 
 # Module Sources, Public Registry & Version Pinning
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish exact module versions from allowed provider ranges.</p></div>
+
 Terraform modules can be sourced from local file paths, the official **Terraform Registry**, Git repositories, or private organizational registries.
 
 ---
 
 ## 1. Supported Module Source Types
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       Supported Module Sources                              │
-├─────────────────────┬───────────────────────────────────────────────────────┤
-│ 1. Local Path       │ source = "./modules/vpc"                              │
-├─────────────────────┼───────────────────────────────────────────────────────┤
-│ 2. Public Registry  │ source = "terraform-aws-modules/vpc/aws"              │
-├─────────────────────┼───────────────────────────────────────────────────────┤
-│ 3. Git HTTPS / SSH  │ source = "git::https://github.com/org/repo.git?ref=v1"│
-├─────────────────────┼───────────────────────────────────────────────────────┤
-│ 4. Private Registry │ source = "app.terraform.io/my-org/vpc/aws"            │
-└─────────────────────┴───────────────────────────────────────────────────────┘
-```
+
+| Source | Selection mechanism |
+| :--- | :--- |
+| Local path | Version with the parent repository. |
+| Public registry | Use version for an exact release or explicit range. |
+| Git HTTPS/SSH | Use ref for a tag or immutable commit. |
+| Private registry | Use registry versions and authenticated access. |
+
 
 ---
 
@@ -37,11 +34,11 @@ Terraform modules can be sourced from local file paths, the official **Terraform
 
 The [Terraform Registry](https://registry.terraform.io) hosts thousands of community and vendor-maintained modules.
 
-### Example: Official AWS VPC Module
+### Example: Community AWS VPC Module
 ```hcl
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0" # Always pin versions!
+  version = "5.0.0" # Teaching example: select and test an exact release
 
   name = "production-vpc"
   cidr = "10.0.0.0/16"
@@ -83,6 +80,18 @@ module "database_cluster" {
 
 ---
 
+
+## Apply the idea: review an upgrade deliberately
+
+An exact registry module version chooses one release. A constraint such as ~> 5.0 permits compatible-range 5.x releases; the provider lockfile records a concrete provider choice, but does not lock modules. For a Git source, a full immutable commit reference is stronger than a movable tag.
+
+<details class="knowledge-check">
+<summary>Check your understanding: What should you inspect after init -upgrade?</summary>
+<p>Review the lockfile/provider change, module release notes and compatibility, then a plan for each consuming environment. Installing successfully does not prove that the upgrade is behaviorally safe.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/files/dependency-lock).
+
 ## 4. Summary & Next Steps
 
-Version pinning ensures reproducible, deterministic deployments across all environments. In the next lesson, we will examine **Enterprise Module Composition and Architecture Patterns**.
+The provider lockfile does not lock remote module versions. Exact registry versions and immutable Git commit references make module selection repeatable; tags may be moved. Version constraints such as `~> 5.0` permit upgrades within that range. Review module/provider compatibility and release notes before upgrading. In the next lesson, we will examine **Enterprise Module Composition and Architecture Patterns**.

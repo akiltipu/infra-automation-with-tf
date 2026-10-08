@@ -11,6 +11,8 @@ keywords:
 
 # Live Lab: Environment Isolation Game Day
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Prove isolation and record a useful incident finding.</p></div>
+
 <div class="lab-banner"><strong>Scenario:</strong> two environments use the same module. A rushed operator runs a command from the wrong directory. We will add guardrails, recreate the mistake safely with local-only resources, and turn it into a blameless postmortem.</div>
 
 This lab requires Terraform 1.4 or later and no cloud credentials.
@@ -140,7 +142,7 @@ terraform -chdir=live/prod plan
 terraform -chdir=live/prod plan -var='confirm_production=true'
 ```
 
-This precondition blocks planning when confirmation is absent, but it is not a security boundary. IAM and pipeline approvals must enforce the real boundary.
+This precondition blocks this normal plan when confirmation is absent. It is not a destroy guard: destroy planning does not evaluate resource preconditions. It is not a security boundary. IAM and pipeline approvals must enforce the real boundary.
 
 ## 5. Recover and clean up
 
@@ -203,3 +205,14 @@ The workflow relied on the operator's current directory and attention as the pri
 | Run this game day quarterly | Learn | Drill date and findings are documented |
 
 The postmortem is complete only when the actions have owners, due dates, and verification—not when the document is published.
+
+## Apply the idea: collect evidence from both roots
+
+Before the simulated mistake, record each root path, state address, and terraform_data object ID. After the destroy plan, verify the dev output remains unchanged. Identical resource addresses are expected across independent states; identical remote IDs would need investigation.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Will the confirmation precondition prevent plan -destroy?</summary>
+<p>No. It is a teaching check for normal planning, not a destroy authorization control. Restrict production roles and require trusted deployment approval. Never test a destructive guard against real production.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/expressions/custom-conditions).

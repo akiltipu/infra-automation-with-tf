@@ -12,6 +12,8 @@ keywords:
 
 # The Evolution of Cloud Infrastructure & Why IaC Matters
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish desired configuration, recorded state, and actual infrastructure.</p></div>
+
 Modern cloud engineering is rooted in software engineering rigor. To understand why tools like **Terraform** dominate the industry, we must first understand how infrastructure management evolved from physical data centers to automated, programmatic cloud provisioning.
 
 ---
@@ -37,7 +39,7 @@ When teams transition to the cloud, they often start with **ClickOps** (configur
 
 1. **Configuration Drift**: Manual changes made directly in the console cause production environments to deviate from staging and development, leading to "works in dev, fails in prod" syndrome.
 2. **Snowflake Architecture**: Every server or VPC becomes uniquely modified and impossible to replicate precisely when a disaster occurs.
-3. **No Audit Trail or Code Review**: When an engineer accidentally deletes a subnet or opens port `22` to `0.0.0.0/0`, there is no Git commit log, no pull request approval, and no historical blame trace.
+3. **No Versioned Intent or Peer Review**: When an engineer accidentally deletes a subnet or opens port `22` to `0.0.0.0/0`, there may be cloud audit events, but no reviewed Git change explaining the intended configuration.
 4. **Lack of Idempotency**: Running a shell script twice often results in duplicated resources or fatal collision errors (`ResourceAlreadyExists`).
 
 ---
@@ -64,7 +66,7 @@ aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.1.0/24
 
 ### Declarative Example (Terraform HCL):
 ```hcl
-# Declarative: You declare the target state; Terraform guarantees it
+# Declarative: You declare the target state; Terraform plans changes to converge toward it
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -78,23 +80,20 @@ resource "aws_vpc" "main" {
 ```
 
 > [!NOTE]
-> If you apply the Terraform declaration 100 times, Terraform creates the VPC on the first run and performs **0 actions** on the subsequent 99 runs because the desired state matches the real-world state. This property is known as **Idempotency**.
+> If the configuration, provider behavior, and remote system remain unchanged and no replacement triggers are present, applying the declaration creates the VPC on the first run and should then produce a no-change plan because the desired state matches the real-world state. This property is known as **Idempotency**.
 
 ---
 
 ## 4. The Core Pillars of Modern IaC
 
-```
-                      ┌────────────────────────────────────────┐
-                      │        Core Pillars of IaC             │
-                      └──────────────────┬─────────────────────┘
-             ┌───────────────────┬───────┴───────────┬───────────────────┐
-             ▼                   ▼                   ▼                   ▼
-    ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-    │ Version Control │ │ Self-Documenting│ │   Continuous    │ │ Reproducibility │
-    │   & Peer Review │ │  Architecture   │ │   Validation    │ │  & DR Recovery  │
-    └─────────────────┘ └─────────────────┘ └─────────────────┘ └─────────────────┘
-```
+
+| Practice | Why it matters |
+| :--- | :--- |
+| Version control | Review intent and retain change history. |
+| Declared architecture | Make infrastructure ownership visible. |
+| Continuous checks | Find invalid or disallowed changes early. |
+| Recovery | Recreate infrastructure and separately restore data. |
+
 
 1. **Version Control & Peer Review**: Infrastructure changes follow the exact same pull request, code review, and automated linting pipelines as application code.
 2. **Self-Documenting Architecture**: The Git repository serves as the definitive, single source of truth for the entire architecture.
@@ -102,6 +101,18 @@ resource "aws_vpc" "main" {
 4. **Disaster Recovery & Reproducibility**: IaC can recreate declared infrastructure in another location. Data restoration, DNS cutover, external dependencies, quotas, and validation still need separate recovery plans.
 
 ---
+
+
+## Apply the idea: reason about drift
+
+Suppose code declares one server, an operator changes its size in the console, and nobody updates Git. The next normal plan refreshes the remote attributes and proposes reconciling them with code. Terraform does not continuously repair drift in the background: a run must be initiated.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does committing a Terraform change alter AWS?</summary>
+<p>No. Git records intent; a separate authenticated plan/apply workflow evaluates and executes the change. Cloud audit logs record API activity, while Git review records why the change was intended.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/intro).
 
 ## 5. Summary & Next Steps
 

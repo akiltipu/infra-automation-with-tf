@@ -1,6 +1,6 @@
 ---
 title: "Enterprise CI/CD Pipelines with GitHub Actions"
-description: "Build an enterprise CI/CD pipeline using GitHub Actions, OIDC passwordless AWS authentication, automated PR speculative plan comments, and merge gates."
+description: "Separate untrusted PR validation from trusted planning, review saved plan artifacts, and apply with scoped OIDC roles and environment approval."
 keywords:
   - CI/CD Pipelines
   - GitHub Actions
@@ -12,119 +12,150 @@ keywords:
 
 # Enterprise CI/CD Pipelines with GitHub Actions
 
-In enterprise organizations, engineers do not run `terraform apply` from their local laptops. All infrastructure changes pass through automated **Continuous Integration & Continuous Deployment (CI/CD)** pipelines.
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Bind a reviewed saved plan to a trusted commit and deployment approval.</p></div>
+
+For shared production infrastructure, a controlled deployment pipeline makes identity, review, and execution auditable. Route normal infrastructure changes through automated **Continuous Integration & Continuous Deployment (CI/CD)** pipelines.
 
 ---
 
-## 1. The Enterprise CI/CD Pipeline Workflow
+## 1. Separate code validation from deployment authority
 
-```
-┌─────────────────────────┐
-│ Engineer Opens PR       │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ PULL REQUEST VALIDATION JOB (Speculative)                                   │
-│  1. terraform fmt -check (Style check)                                      │
-│  2. terraform validate   (Static validation)                                │
-│  3. Security Scan        (tfsec / Trivy)                                    │
-│  4. terraform plan       (Posts speculative diff as PR comment)             │
-└───────────────────────────┬─────────────────────────────────────────────────┘
-                            │
-                            │ Peer Code Review & PR Approval
-                            ▼
-┌─────────────────────────┐
-│ PR Merged to 'main'     │
-└───────────┬─────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ PRODUCTION DEPLOYMENT JOB (Execution)                                       │
-│  1. Environment Protection Gate (Required Senior Approver)                  │
-│  2. terraform apply -auto-approve                                           │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+A pull request is untrusted code until reviewed. It can contain executable providers, modules, and scripts, so even a plan job needs a trust boundary. Run credential-free validation on PRs; generate a deployment plan from the protected main branch after merge. Never use `pull_request_target` to check out and execute untrusted PR code with deployment credentials.
 
----
+![A PR validation path has no cloud credentials; trusted main creates a plan that passes through review before apply.](/images/lesson-diagrams/delivery.svg)
 
-## 2. Passwordless AWS Authentication with OIDC
+## 2. Prerequisites outside the workflow
 
-Never store static `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in GitHub Secrets. Use **AWS OpenID Connect (OIDC)** to dynamically assume temporary IAM roles:
+Before adopting this example, configure:
+
+- A protected `main` branch and required code review.
+- A `production` GitHub environment with required reviewers, self-review prevention where available, and main-only deployment rules. Referencing an environment in YAML does not create its protection rules.
+- An S3 backend with native locking; a committed provider lockfile; Terraform code under `environments/prod`.
+- AWS OIDC trust with audience `sts.amazonaws.com`. The plan role trusts only `repo:OWNER/REPO:ref:refs/heads/main`; the apply role trusts only `repo:OWNER/REPO:environment:production`. Replace OWNER/REPO with the actual repository.
+- A plan role scoped to required reads plus backend locking, and a separate apply role scoped to the intended resources. Put their ARNs in repository variables `AWS_PLAN_ROLE_ARN` and `AWS_APPLY_ROLE_ARN`.
+
+State and binary/JSON plans can contain secrets. The artifact example below is appropriate only in a repository with suitable restricted access. For a public infrastructure repository, use a restricted external artifact store or a controlled remote execution service rather than uploading sensitive plans to broadly readable Actions artifacts.
+
+## 3. Example workflow for a restricted deployment repository
+
+Action major-version tags keep the lesson readable. Resolve and pin reviewed full commit SHAs before production use. The Terraform version is an example course baseline; select a supported, tested release for your environment.
 
 ```yaml
-# .github/workflows/terraform.yml
-
-name: "Terraform CI/CD Pipeline"
-
+name: Reviewed Terraform deployment
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-
+  push:
+    branches: [main]
 permissions:
-  id-token: write # Required for AWS OIDC authentication
   contents: read
-  pull-requests: write # Required to comment plan diff on PR
+
+# PR checks do not occupy the production deployment group.
+concurrency:
+  group: terraform-${{ github.event_name == 'push' && 'production' || github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  terraform:
-    name: "Terraform Plan & Apply"
+  validate:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: environments/prod
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsTerraformRole
+          terraform_version: '1.10.5'
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false -lockfile=readonly
+      - run: terraform validate
+
+  plan:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: environments/prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.10.5'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
           aws-region: us-east-1
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.10.5"
-
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan (On Pull Request)
-        if: github.event_name == 'pull_request'
-        id: plan
+      - run: terraform init -input=false -lockfile=readonly
+      - run: terraform plan -input=false -lock-timeout=5m -out=tfplan
+      - name: Prepare review evidence
         run: |
-          terraform plan -no-color -out=tfplan
-          terraform show -no-color tfplan > plan_output.txt
-
-      - name: Post Plan to GitHub PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+          terraform show -no-color tfplan > plan.txt
+          sha256sum tfplan > tfplan.sha256
+          printf '%s\n' "$GITHUB_SHA" > commit.txt
+      - uses: actions/upload-artifact@v4
         with:
-          script: |
-            const fs = require('fs');
-            const plan = fs.readFileSync('plan_output.txt', 'utf8');
-            const body = `### 📋 Speculative Terraform Plan Diff\n\`\`\`hcl\n${plan.slice(0, 65000)}\n\`\`\``;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+          name: production-plan-${{ github.sha }}
+          path: |
+            environments/prod/tfplan
+            environments/prod/plan.txt
+            environments/prod/tfplan.sha256
+            environments/prod/commit.txt
+          retention-days: 1
+          if-no-files-found: error
 
-      - name: Terraform Apply (On Merge to Main)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: environments/prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.10.5'
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-plan-${{ github.sha }}
+          path: environments/prod
+      - name: Verify commit and plan integrity
+        run: |
+          test "$(cat commit.txt)" = "$GITHUB_SHA"
+          sha256sum --check tfplan.sha256
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_APPLY_ROLE_ARN }}
+          aws-region: us-east-1
+      - run: terraform init -input=false -lockfile=readonly
+      - run: terraform apply -input=false -lock-timeout=5m tfplan
 ```
 
----
+The reviewer opens `plan.txt` from this run and checks its commit and target before approving the environment job. The checksum detects corruption; it is not a signature and cannot make an untrusted producer trustworthy. Downloading without another run ID scopes retrieval to this workflow run.
+
+The concurrency group serializes this workflow's deployments. S3 locking coordinates other Terraform writers; neither mechanism blocks console edits. If state or intent changes, discard the plan and create a new reviewed run. A saved plan does not imply an application health check, so add workload-specific verification after apply.
+
+## Apply the idea: distinguish two reviews
+
+PR validation reviews code without deployment credentials. After merge, a trusted job plans from that commit against the target state. The deployment reviewer checks that exact plan; the apply job checks out the same commit and consumes the same run artifact. A stale plan must be regenerated and reviewed.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does id-token: write by itself grant AWS access?</summary>
+<p>No. It allows requesting an OIDC token. AWS role trust must validate the issuer, audience, and allowed subject; role policies define permitted AWS actions. Restrict both the GitHub environment and AWS trust.</p>
+</details>
+
+**Read further:** [Official documentation](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws).
 
 ## 3. Summary & Next Steps
 

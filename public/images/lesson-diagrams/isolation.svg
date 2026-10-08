@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+<title id="title">Isolation needs more than a folder</title><desc id="desc">Dev and production require separate state, scoped credentials, and independent deployment controls.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>
+<rect width="720" height="420" rx="18" fill="#f8fafc"/>
+<text x="28" y="38" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#172554">Isolation needs more than a folder</text>
+<path d="M260 305 L185 201" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M460 305 L535 201" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<rect x="30" y="80" width="310" height="121" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="46" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Dev root</text>
+<text x="46" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">State: dev/network</text>
+<text x="46" y="157" font-family="Arial,sans-serif" font-size="16" fill="#334155">Identity: dev deploy role</text>
+<text x="46" y="179" font-family="Arial,sans-serif" font-size="16" fill="#334155">Delivery: dev workflow</text>
+<rect x="380" y="80" width="310" height="121" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="396" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Production root</text>
+<text x="396" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">State: prod/network</text>
+<text x="396" y="157" font-family="Arial,sans-serif" font-size="16" fill="#334155">Identity: prod deploy role</text>
+<text x="396" y="179" font-family="Arial,sans-serif" font-size="16" fill="#334155">Delivery: approved workflow</text>
+<rect x="160" y="305" width="400" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="176" y="334" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Shared module source</text>
+<text x="176" y="360" font-family="Arial,sans-serif" font-size="16" fill="#334155">Reuse code, not state or authority</text>
+</svg>

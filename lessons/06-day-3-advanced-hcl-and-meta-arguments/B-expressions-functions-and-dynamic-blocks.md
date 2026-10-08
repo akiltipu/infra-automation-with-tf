@@ -12,6 +12,8 @@ keywords:
 
 # Advanced Expressions, Built-in Functions & Dynamic Blocks
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Use expressions for values and dynamic blocks for nested configuration.</p></div>
+
 HCL provides a rich suite of built-in functions, list/map comprehension expressions, and dynamic block iterators for handling complex configuration logic.
 
 ---
@@ -40,11 +42,14 @@ locals {
 
 ### B. Defensive Error Handling with `try` and `can`:
 ```hcl
-# can: Returns true if expression succeeds without error
-is_valid_cidr = can(cidrhost("10.0.0.0/16", 0))
-
-# try: Evaluates expressions in order, returning the first one that does not error
-instance_type = try(var.custom_instance_type, var.default_type, "t3.micro")
+locals {
+  is_valid_cidr = can(cidrhost("10.0.0.0/16", 0))
+  settings     = jsondecode("{}")
+  # Missing object attribute is a dynamic error that try can catch.
+  instance_type = try(local.settings.instance_type, "t3.micro")
+}
+# try does not catch undeclared variables and does not replace a valid null.
+# Use coalesce for a null/empty-string fallback when that is the intent.
 ```
 
 ---
@@ -125,6 +130,18 @@ resource "aws_security_group" "web" {
 ```
 
 ---
+
+
+## Apply the idea: separate three kinds of iteration
+
+A for expression transforms a collection into a value. Resource for_each creates separate tracked instances. A dynamic block emits nested provider blocks inside one resource; it does not create independent resource addresses for those blocks. Choose the construct by the object you need to produce.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does try(null, &quot;fallback&quot;) return fallback?</summary>
+<p>No. null is a valid result, not an evaluation error. Use an explicit null check or coalesce where appropriate; try handles dynamic evaluation errors, not undeclared names or provider API failures.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/functions/try).
 
 ## 4. Summary & Next Steps
 

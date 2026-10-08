@@ -12,25 +12,26 @@ keywords:
 
 # Why Terraform Exists & What Problems It Solves
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Select a tool by its ownership model and operational requirements.</p></div>
+
 In 2014, HashiCorp introduced **Terraform** to solve a critical dilemma in cloud computing: how do organizations manage heterogeneous cloud infrastructure reliably, predictably, and without proprietary vendor lock-in?
 
 ---
 
 ## 1. The Core Problems Terraform Solves
 
-```
-               ┌────────────────────────────────────────────────────────┐
-               │         The 5 Major Cloud Orchestration Dilemmas       │
-               └──────────────────────────┬─────────────────────────────┘
-          ┌────────────────────┬──────────┴──────────┬────────────────────┐
-          ▼                    ▼                     ▼                    ▼
-   ┌─────────────┐      ┌─────────────┐       ┌─────────────┐      ┌─────────────┐
-   │ Vendor Tool │      │ Blind Apply │       │ Sequential  │      │ Untracked   │
-   │  Lock-in    │      │ (No Dry-Run)│       │ Bottlenecks │      │ Drift       │
-   └─────────────┘      └─────────────┘       └─────────────┘      └─────────────┘
-```
+
+| Problem | Terraform contribution |
+| :--- | :--- |
+| Multiple APIs | One workflow with provider-specific resources. |
+| Unreviewed change | Plan proposed actions before execution. |
+| Dependencies | Order related operations and parallelize independent ones. |
+| Identity and drift | Map addresses to objects and refresh observations. |
+
 
 ### 1. Unified Multi-Cloud & Hybrid Orchestration
+
+A shared workflow does not make resource definitions cloud-portable: an AWS VPC configuration must be redesigned for Azure networking. OpenTofu is a separate project; check compatibility for the features and providers you use.
 Prior to Terraform, organizations using multiple cloud providers (e.g., AWS for compute, Google Cloud for BigQuery, Cloudflare for DNS/WAF, and Datadog for observability) had to maintain separate, incompatible tooling for each:
 - AWS CloudFormation for AWS
 - Azure Resource Manager (ARM) / Bicep for Azure
@@ -67,7 +68,7 @@ Terraform automatically analyzes your code and constructs a **Directed Acyclic G
 - Which resources depend on others (e.g., an EC2 instance depends on a Subnet, which depends on a VPC) and provisions them in the exact required order.
 
 ### 4. State-Driven Infrastructure Tracking
-Without state, an IaC tool must query every single cloud API on every execution, which quickly hits cloud rate limits (AWS API throttling). Terraform maintains a lightweight **State File** that records the exact mappings between code identifiers and real-world Cloud Resource IDs (e.g., mapping `aws_vpc.main` to `vpc-0a1b2c3d4e5f`).
+Terraform normally refreshes managed objects through provider APIs during planning. State is primarily an identity and metadata record, not a substitute for those reads. Terraform maintains a **State File** that records the exact mappings between code identifiers and real-world Cloud Resource IDs (e.g., mapping `aws_vpc.main` to `vpc-0a1b2c3d4e5f`).
 
 ---
 
@@ -75,13 +76,13 @@ Without state, an IaC tool must query every single cloud API on every execution,
 
 How does Terraform compare against other popular infrastructure and configuration tools in the modern DevOps landscape?
 
-| Feature / Dimension | **Terraform (HashiCorp / OpenTofu)** | **AWS CloudFormation** | **Pulumi** | **Ansible** |
+| Feature / Dimension | **Terraform** | **AWS CloudFormation** | **Pulumi** | **Ansible** |
 | :--- | :--- | :--- | :--- | :--- |
 | **Primary Domain** | Infrastructure Provisioning | AWS Provisioning | Infrastructure Provisioning | Configuration Management & App Deployment |
 | **Language** | HCL (Declarative DSL) | JSON / YAML (Declarative) | General Purpose (TS, Python, Go, C#) | YAML Playbooks (Hybrid Imperative/Declarative) |
-| **Cloud Support** | Multi-Cloud (3000+ Providers) | AWS Only (Proprietary) | Multi-Cloud | Multi-Platform / OS Configuration |
+| **Cloud Support** | Multi-cloud through provider plugins | AWS Only (Proprietary) | Multi-Cloud | Multi-Platform / OS Configuration |
 | **State Storage** | State File (Local or Remote S3/GCS/TFC) | Managed by AWS CloudFormation Service | Pulumi Service / S3 / Blob | Stateless (Queries live servers via SSH) |
-| **Execution Plan** | First-Class (`terraform plan`) | Change Sets (Complex UI) | `pulumi preview` | `--check` mode (Dry-run) |
+| **Execution Plan** | First-Class (`terraform plan`) | Change Sets | `pulumi preview` | `--check` mode (Dry-run) |
 | **Orchestration Model** | Client-Side Engine + Cloud APIs | Server-Side Cloud Engine | Client-Side Engine + Cloud APIs | Agentless SSH / WinRM Push |
 | **Best Used For** | Cloud Networks, VMs, Clusters, Storage | Pure AWS Stacks | Teams wanting full programming languages | OS Hardening, Packages, App Configuration |
 
@@ -91,20 +92,7 @@ How does Terraform compare against other popular infrastructure and configuratio
 
 A common misconception is that Terraform and Ansible are direct competitors. In enterprise production architectures, they are complementary partners:
 
-```
-+-------------------------------------------------------------------------------+
-| PHASE 1: INFRASTRUCTURE PROVISIONING (TERRAFORM)                              |
-|   Creates VPCs, Subnets, Routing Tables, IAM Roles, Security Groups, EC2 VMs. |
-+-------------------------------------------------------------------------------+
-                                         │
-                        [Hands over Public/Private IPs]
-                                         │
-                                         ▼
-+-------------------------------------------------------------------------------+
-| PHASE 2: CONFIGURATION MANAGEMENT (ANSIBLE)                                   |
-|   Connects via SSH to configure OS, install Nginx, deploy code, apply patches.|
-+-------------------------------------------------------------------------------+
-```
+
 
 > [!IMPORTANT]
 > - **Terraform's job**: Provision the raw hardware, cloud primitives, and networking.
@@ -112,6 +100,18 @@ A common misconception is that Terraform and Ansible are direct competitors. In 
 > We will master Terraform throughout Days 1–3 and integrate Ansible on **Day 4**!
 
 ---
+
+
+## Apply the idea: choose by responsibility
+
+For a VM-hosted web application, Terraform can own networking and instance identity while Ansible owns packages and configuration inside the VM. Give each setting one owner: if user data and Ansible both overwrite nginx.conf, repeat runs can fight each other.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does a shared HCL workflow make an AWS VPC portable to Azure?</summary>
+<p>No. The workflow is reusable, but provider resource types, identity, and network semantics differ. Portability requires an architecture decision, not just a provider name change.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/providers/configuration).
 
 ## 4. Summary & Next Steps
 

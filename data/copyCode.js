@@ -1,37 +1,38 @@
-function createDOMElements() {
-  const container = document.createElement("div");
-  container.innerHTML =
-    "<div class='tooltip-copy'><button type='button' aria-label='Copy code to clipboard'>Copy</button></div>";
-  container.className = "div-copy";
-  return container;
-}
-
-function attachCopyCodeFunctionality(div) {
-  const elementsToClean = [];
-  document
-    .querySelectorAll("pre")
-    .forEach(function createButtonAndAttachHandlers(pre) {
-      let timeout = null;
-      const copy = div.cloneNode(true);
-      pre.appendChild(copy);
-      elementsToClean.push(pre);
-
-      copy.onclick = function copyTextToClipboard() {
-        navigator.clipboard.writeText(pre.textContent);
-        copy.classList.add("clicked");
-        copy.querySelector("button").textContent = "Copied";
-        clearTimeout(timeout);
-        timeout = setTimeout(function hidePopup() {
-          copy.classList.remove("clicked");
-          copy.querySelector("button").textContent = "Copy";
-        }, 1500);
-      };
-    });
-
-  return elementsToClean;
-}
-
 export default function createCopyCodeFunctionality() {
-  const container = createDOMElements();
-  return attachCopyCodeFunctionality(container);
+  const cleanups = [];
+  document.querySelectorAll(".lesson-content pre").forEach((pre) => {
+    const code = pre.querySelector("code");
+    if (!code) return;
+    const container = document.createElement("div");
+    container.className = "div-copy";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Copy";
+    button.setAttribute("aria-label", "Copy code to clipboard");
+    button.setAttribute("aria-live", "polite");
+    container.appendChild(button);
+    pre.appendChild(container);
+    let timeout;
+    let active = true;
+    const copy = async () => {
+      try {
+        // Copy the code only, never the button label.
+        await navigator.clipboard.writeText(code.textContent);
+        if (active) button.textContent = "Copied";
+      } catch {
+        if (active) button.textContent = "Select code to copy";
+      }
+      if (!active) return;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => { button.textContent = "Copy"; }, 2000);
+    };
+    button.addEventListener("click", copy);
+    cleanups.push(() => {
+      active = false;
+      clearTimeout(timeout);
+      button.removeEventListener("click", copy);
+      container.remove();
+    });
+  });
+  return () => cleanups.forEach((cleanup) => cleanup());
 }

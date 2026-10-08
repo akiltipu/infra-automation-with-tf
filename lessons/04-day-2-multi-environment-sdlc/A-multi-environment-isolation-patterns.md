@@ -11,26 +11,22 @@ keywords:
 
 # Environment Isolation: Workspaces vs Directory Separation
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Evaluate isolation by state, permissions, and deployment controls.</p></div>
+
 Managing multiple environments (**Development**, **Staging**, and **Production**) requires choosing an isolation strategy that prevents accidental cross-environment destruction while maximizing code reuse.
 
 ---
 
 ## 1. Comparing the Two Primary Isolation Patterns
 
-```
-PATTERN 1: WORKSPACES (Logical)             PATTERN 2: DIRECTORY SEPARATION (Physical)
-┌──────────────────────────────────────┐     ┌──────────────────────────────────────┐
-│ Single codebase with shared backend  │     │ Independent folders & separate states│
-│  - terraform workspace select dev    │     │  - environments/dev/main.tf          │
-│  - terraform workspace select prod   │     │  - environments/prod/main.tf         │
-└──────────────────────────────────────┘     └──────────────────────────────────────┘
-```
+![Dev and production reuse code but separate state, credentials, and delivery](/images/lesson-diagrams/isolation.svg)
+
 
 | Dimension | **Terraform Workspaces** | **Directory-Based Separation** (Recommended) |
 | :--- | :--- | :--- |
 | **State Storage** | Single backend bucket with prefix sub-keys | Separate backend configs / separate S3 buckets |
-| **Blast Radius** | **High** (One typo in `terraform apply` can hit prod) | **Low** (Prod runs in a dedicated directory) |
-| **IAM Access Control** | Impossible to grant dev permissions without prod | Dedicated IAM roles per environment account |
+| **Blast Radius** | Shared workflow increases the risk of selecting the wrong state | Separate roots clarify intent; permissions still enforce access |
+| **IAM Access Control** | Shared backend/authentication requires careful IAM scoping; workspace selection is not authorization | Can use dedicated backend policies and roles per account |
 | **Structural Differences**| Difficult (must use ternary logic `var.env == "prod" ? 3 : 1`) | Easy (Dev and Prod can call modules with different inputs) |
 | **Best Used For** | Ephemeral feature branches, testing | Long-lived production environments (Dev, Staging, Prod) |
 
@@ -43,17 +39,17 @@ With Workspaces, all environments share the exact same `.tf` files:
 ```bash
 # An engineer thinks they are in 'dev'
 terraform workspace show
-# default (Production!)
+# default (only production if your team configured it that way)
 
 # Engineer runs destroy intended for dev -> PRODUCTION OUTAGE!
-terraform destroy -auto-approve
+terraform plan -destroy # Inspect only; do not execute a production destroy
 ```
 
 ---
 
 ## 3. Recommended Enterprise Directory Structure
 
-The industry standard is **Directory-Based Separation with Shared Reusable Modules**:
+One common pattern is **Directory-Based Separation with Shared Reusable Modules**:
 
 ```
 terraform-infrastructure/
@@ -99,6 +95,18 @@ module "networking" {
 
 ---
 
+
+## Apply the idea: compare two failure paths
+
+Two folders using the same backend key still share state. Two different keys accessed through an unrestricted production role still share authority. Before running, verify the root directory, backend key/workspace, caller account, and role. A label named prod is neither a permission nor an approval.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Are CLI workspaces the same as HCP Terraform workspaces?</summary>
+<p>No. CLI workspaces select state instances within a configuration/backend. HCP Terraform workspaces also organize configuration, variables, run history, and access controls. Evaluate the actual product and permission model.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/state/workspaces).
+
 ## 4. Summary & Next Steps
 
-Directory-based separation minimizes blast radius and establishes clear security boundaries. In the next lesson, we will explore **Multi-Account and Multi-Region Cloud Strategies with AWS Organizations and IAM Role Assumption**.
+Directory-based separation makes targets explicit. Distinct state, scoped IAM roles, and deployment approvals establish the security boundaries. In the next lesson, we will explore **Multi-Account and Multi-Region Cloud Strategies with AWS Organizations and IAM Role Assumption**.

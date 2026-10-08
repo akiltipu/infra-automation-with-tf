@@ -11,6 +11,8 @@ keywords:
 
 # Enterprise Module Composition & Architecture Patterns
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Compose modules through outputs without broad dependency coupling.</p></div>
+
 As cloud systems grow, the question arises: how should multiple modules interact with each other? Let us examine the architectural patterns used by high-performing DevOps organizations.
 
 ---
@@ -19,24 +21,8 @@ As cloud systems grow, the question arises: how should multiple modules interact
 
 In **Flat Composition**, the root module acts as a smart orchestrator. It instantiates foundational modules and wires their outputs directly into downstream consumer modules:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                              ROOT MODULE                               │
-│                                                                        │
-│   ┌────────────────────┐                   ┌───────────────────────┐   │
-│   │ module "network"   │                   │ module "compute"      │   │
-│   │                    ├─► vpc_id, subnets ┼─►                     │   │
-│   │ (AWS VPC, Subnets) │                   │ (EC2, Auto Scaling)   │   │
-│   └────────────────────┘                   └───────────────────────┘   │
-│             │                                          │               │
-│             │                                          ▼               │
-│             │                              ┌───────────────────────┐   │
-│             │                              │ module "database"     │   │
-│             └──────────► subnet_ids ───────┼─►                     │   │
-│                                            │ (PostgreSQL RDS)      │   │
-│                                            └───────────────────────┘   │
-└────────────────────────────────────────────────────────────────────────┘
-```
+![Network outputs feed compute and database inputs](/images/lesson-diagrams/composition.svg)
+
 
 ### Why Flat Composition Wins:
 - **Maximum Reusability**: The networking module has zero knowledge of the database or compute modules.
@@ -83,6 +69,18 @@ module "payments_api" {
 | **Hardcoding Providers in Child Modules** | Breaks multi-region and multi-account reusability. | Inherit providers from the root module caller. |
 
 ---
+
+
+## Apply the idea: wire only the required dependency
+
+Pass module.network.vpc_id into the security module and module.network.private_subnet_ids into the database module when those outputs exist. A direct reference establishes the needed dependency. A blanket depends_on on an entire module may serialize unrelated resources and defer data-source reads.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does a flat module structure guarantee independent deployments?</summary>
+<p>No. Modules in one root share a state and apply lifecycle. Separate roots can support independent delivery, but require a deliberate interface for exchanging outputs and coordinating changes.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/modules/develop/composition).
 
 ## 4. Summary & Next Steps
 

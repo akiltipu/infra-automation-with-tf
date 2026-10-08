@@ -12,6 +12,8 @@ keywords:
 
 # Welcome & Instructor Introduction
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose a learning path and define evidence of completion.</p></div>
+
 Welcome to **Infrastructure Automation with Terraform & Ansible**! This comprehensive 4-day hands-on masterclass is designed to take you from core Infrastructure as Code fundamentals to enterprise-grade cloud architecture, multi-environment state management, and configuration orchestration.
 
 ---
@@ -90,9 +92,21 @@ To gain the maximum benefit from this course, you should have:
 - Git installed and configured.
 
 > [!TIP]
-> All code snippets and architecture patterns demonstrated throughout this course are production-grade and immediately applicable to real-world cloud environments.
+> Examples are teaching configurations. Local labs need no cloud account; AWS labs require a sandbox and can incur charges. Adapt identity, network access, backups, monitoring, and recovery controls before production use.
 
 ---
+
+
+## Apply the idea: build a learning log
+
+Keep one small Git repository for exercises. Record the command, your prediction, the observed result, and cleanup evidence. A successful apply is one observation; a second no-change plan and a tested recovery are stronger evidence that you understand the system.
+
+<details class="knowledge-check">
+<summary>Check your understanding: What can you finish without an AWS account?</summary>
+<p>The HCL playground, local state lab, environment game day, stable-address refactor, and local CI quality gate all work without cloud resources.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/intro).
 
 ## 4. Let's Get Started!
 

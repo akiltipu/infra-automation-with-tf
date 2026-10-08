@@ -817,3 +817,40 @@ pre {
   .instructor-card { flex-direction: column; align-items: flex-start; padding: 18px; }
   .lesson-content .instructor-card > img { width: 96px; height: 96px; flex-basis: 96px; }
 }
+
+/* Reading aids use native HTML and remain useful without JavaScript. */
+.lesson-content { min-width: 0; overflow-wrap: anywhere; }
+.lesson-content h1 { font-size: clamp(1.65rem, 4vw, 2.25rem); line-height: 1.25; color: var(--text-main-headers); }
+.lesson-toc { margin-bottom: 28px; padding: 14px 18px; border: 1px solid var(--emphasized-border); border-radius: 10px; }
+.lesson-toc summary, .knowledge-check summary { cursor: pointer; font-weight: 700; line-height: 1.6; }
+.lesson-toc summary span { margin-left: 10px; font-size: .8rem; font-weight: 400; }
+.lesson-toc ol { padding-left: 24px; }
+.lesson-toc li { margin: 6px 0; }
+.lesson-goal { padding: 18px 22px; margin: 24px 0; background: var(--emphasized-bg); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; }
+.lesson-goal strong { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-main-headers); }
+.lesson-goal p { margin: 7px 0 0; }
+.knowledge-check { margin: 24px 0; padding: 18px 22px; border: 1px solid var(--emphasized-border); border-radius: 12px; background: var(--emphasized-bg); }
+.knowledge-check p { margin-bottom: 0; }
+.lesson-content img[src*="lesson-diagrams"] { width: 100%; border: 1px solid var(--emphasized-border); border-radius: 14px; margin: 28px 0; }
+.workflow-steps { list-style: decimal; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 32px; padding: 20px 20px 20px 40px; background: var(--emphasized-bg); border-radius: 12px; }
+.workflow-steps strong, .workflow-steps span { display: block; }
+.workflow-steps span { font-size: .9rem; }
+.lesson-content table { display: block; max-width: 100%; overflow-x: auto; }
+.lesson-content th { min-width: 130px; }
+.lesson-content pre { max-width: 100%; overflow-wrap: normal; }
+.lesson-content pre code { padding-top: 42px; }
+.lesson-toc a:focus-visible, .lesson summary:focus-visible, .div-copy button:focus-visible { outline: 3px solid var(--primary); outline-offset: 4px; }
+@media (max-width: 600px) {
+  .workflow-steps { grid-template-columns: 1fr; }
+  .lesson-content :is(h2, h3, h4) { scroll-margin-top: 130px; }
+}
+.lesson-diagram { margin: 28px 0; }
+.diagram-viewport { overflow-x: auto; border: 1px solid var(--emphasized-border); border-radius: 14px; }
+.lesson-content .lesson-diagram img { display: block; min-width: 600px; margin: 0; border: 0; }
+.lesson-diagram figcaption { margin-top: 8px; font-size: .85rem; }
+.diagram-viewport:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .navbar h1 { font-size: 14px; line-height: 1.35; }
+  /* The lesson title is already visible in the page; keep the fixed header compact. */
+  .navbar-info { display: none; }
+}

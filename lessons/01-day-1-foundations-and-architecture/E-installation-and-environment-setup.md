@@ -13,6 +13,8 @@ keywords:
 
 # Complete Installation & Environment Setup Guide
 
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Verify the Terraform binary and AWS identity before planning.</p></div>
+
 Before writing our first line of infrastructure code, we need a robust, production-ready local environment. This guide covers cross-platform installation, multi-version management, and cloud provider credential configuration.
 
 ---
@@ -34,7 +36,7 @@ terraform -version
 ### B. Linux (Ubuntu / Debian)
 ```bash
 # 1. Install prerequisites
-sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl wget unzip
 
 # 2. Add HashiCorp GPG key
 wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -50,7 +52,7 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
 sudo apt-get update && sudo apt-get install -y terraform
 ```
 
-### C. Linux (RHEL / CentOS / Fedora / Amazon Linux)
+### C. Linux (RHEL)
 ```bash
 # Add HashiCorp YUM repository
 sudo yum install -y yum-utils
@@ -110,49 +112,29 @@ Terraform does not store cloud credentials inside your `.tf` files. Instead, it 
 # macOS
 brew install awscli
 
-# Linux
+# Linux x86_64 (use the aarch64 installer on ARM64)
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 sudo ./aws/install
 ```
 
-### B. Configure AWS Credentials
-Run `aws configure` to set your local profile:
-```bash
-aws configure --profile course-dev
-# Prompt inputs:
-# AWS Access Key ID [None]: AKIAIOSFODNN7EXAMPLE
-# AWS Secret Access Key [None]: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-# Default region name [None]: us-east-1
-# Default output format [None]: json
-```
+### B. Prefer short-lived credentials with IAM Identity Center
 
-This creates or updates two files in your home directory:
-- `~/.aws/credentials`:
-  ```ini
-  [course-dev]
-  aws_access_key_id = AKIAIOSFODNN7EXAMPLE
-  aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-  ```
-- `~/.aws/config`:
-  ```ini
-  [profile course-dev]
-  region = us-east-1
-  output = json
-  ```
-
-### C. Terraform Credential Resolution Order
-When executing, the AWS Provider checks the following locations in order:
-1. Parameters in the `provider "aws"` block (never hardcode secrets here!).
-2. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`).
-3. Shared credentials file (`~/.aws/credentials` via `AWS_PROFILE=course-dev`).
-4. IAM Instance Profile / ECS Task Role / EKS IRSA (when running in cloud CI/CD).
+Use the start URL, SSO region, account, and role supplied by your sandbox administrator:
 
 ```bash
-# Export the profile in your shell session
+aws configure sso --profile course-dev
+aws sso login --profile course-dev
 export AWS_PROFILE=course-dev
 export AWS_REGION=us-east-1
+aws sts get-caller-identity
 ```
+
+Check the returned **Account** and **Arn** before any AWS lab. If temporary environment credentials are also set, they can take precedence over the profile; use a clean shell or remove stale credentials before proceeding. CI should use a scoped OIDC role rather than a developer profile.
+
+### C. Separate backend and provider authentication
+
+The AWS provider uses an AWS credential chain to authenticate resource operations. An S3 backend authenticates separately during `init`; a provider's `assume_role` block does not configure the backend. Both need the intended role and permissions. Do not put credentials in `.tf` files or backend arguments.
 
 ---
 
@@ -167,6 +149,18 @@ To maximize productivity:
    ```
 
 ---
+
+
+## Apply the idea: run a preflight
+
+Run terraform version, aws --version, and aws sts get-caller-identity in the same shell that will run Terraform. Compare the account and role with the sandbox you intended. An expired SSO session needs a fresh login; changing an HCL region does not switch AWS accounts.
+
+<details class="knowledge-check">
+<summary>Check your understanding: AWS CLI works but terraform init cannot read S3. Where do you look?</summary>
+<p>The backend authenticates independently of the resource provider. Check its profile/role, bucket region, state-key permissions, lockfile permissions, and any KMS policy.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/backend/s3).
 
 ## 5. Summary & Next Steps
 
