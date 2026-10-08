@@ -849,3 +849,8 @@ pre {
 .lesson-content .lesson-diagram img { display: block; min-width: 600px; margin: 0; border: 0; }
 .lesson-diagram figcaption { margin-top: 8px; font-size: .85rem; }
 .diagram-viewport:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .navbar h1 { font-size: 14px; line-height: 1.35; }
+  /* The lesson title is already visible in the page; keep the fixed header compact. */
+  .navbar-info { display: none; }
+}
