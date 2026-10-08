@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+<title id="title">Code review and deployment review</title><desc id="desc">PRs receive credential-free validation. Trusted main generates a saved plan. A protected environment gates apply of that exact plan.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>
+<rect width="720" height="420" rx="18" fill="#f8fafc"/>
+<text x="28" y="38" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#172554">Code review and deployment review</text>
+<path d="M335 130 L385 130" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M540 179 L540 265" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M385 315 L335 315" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<rect x="25" y="80" width="310" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="41" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Pull request</text>
+<text x="41" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">Format + initialize + validate</text>
+<text x="41" y="157" font-family="Arial,sans-serif" font-size="16" fill="#334155">No deployment credentials</text>
+<rect x="385" y="80" width="310" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="401" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Trusted main commit</text>
+<text x="401" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">Scoped plan role</text>
+<text x="401" y="157" font-family="Arial,sans-serif" font-size="16" fill="#334155">Save plan + commit + digest</text>
+<rect x="385" y="265" width="310" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="401" y="294" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Deployment review</text>
+<text x="401" y="320" font-family="Arial,sans-serif" font-size="16" fill="#334155">Inspect this run’s plan</text>
+<text x="401" y="342" font-family="Arial,sans-serif" font-size="16" fill="#334155">Protected production environment</text>
+<rect x="25" y="265" width="310" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="41" y="294" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Apply saved plan</text>
+<text x="41" y="320" font-family="Arial,sans-serif" font-size="16" fill="#334155">Same commit and artifact</text>
+<text x="41" y="342" font-family="Arial,sans-serif" font-size="16" fill="#334155">Scoped apply role + state lock</text>
+</svg>

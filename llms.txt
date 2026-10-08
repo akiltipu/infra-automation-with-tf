@@ -1,0 +1,4763 @@
+# Welcome & Instructor Introduction
+
+# Welcome & Instructor Introduction
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose a learning path and define evidence of completion.</p></div>
+
+Welcome to **Infrastructure Automation with Terraform & Ansible**! This comprehensive 4-day hands-on masterclass is designed to take you from core Infrastructure as Code fundamentals to enterprise-grade cloud architecture, multi-environment state management, and configuration orchestration.
+
+---
+
+## 1. whoami ?
+
+<div class="instructor-card">
+  <img src="/images/akiltipu-pro.jpg" alt="Akil Mahmod Tipu" />
+  <div class="instructor-info">
+    <h2>Akil Mahmod Tipu</h2>
+    <p class="instructor-role">Senior DevOps Engineer & Team Lead</p>
+    <p>
+      Specializing in Cloud Architecture, Large-Scale Infrastructure Automation, Kubernetes Orchestration, and Enterprise CI/CD Pipelines. Passionate about empowering engineering teams to design reliable, secure, and reproducible cloud platforms.
+    </p>
+    <div class="instructor-links">
+      <a href="https://www.linkedin.com/in/akiltipu" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-linkedin"></i> Connect on LinkedIn
+      </a>
+      <a href="https://github.com/akiltipu" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-github"></i> Follow on GitHub
+      </a>
+    </div>
+  </div>
+</div>
+
+---
+
+## 2. The 4-Day Master Curriculum Roadmap
+
+This course is structured into four intensive, hands-on learning days:
+
+<div class="course-roadmap">
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 01</span>
+    <h3>Understand & deploy</h3>
+    <p>IaC mental model, Terraform internals, HCL anatomy, CLI workflow, variables, data sources, and your first resources.</p>
+    <span class="roadmap-output">Output: a working local stack you can inspect</span>
+  </article>
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 02</span>
+    <h3>Protect & recover</h3>
+    <p>State internals, remote backends, locking, drift, imports, recovery, environment isolation, and multi-account design.</p>
+    <span class="roadmap-output">Output: a team-safe state and recovery runbook</span>
+  </article>
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 03</span>
+    <h3>Reuse & refactor</h3>
+    <p>Module contracts, registries, versioning, composition, expressions, dynamic blocks, lifecycle, count, and for_each.</p>
+    <span class="roadmap-output">Output: a reusable module with stable addresses</span>
+  </article>
+  <article class="roadmap-day">
+    <span class="roadmap-number">Day 04</span>
+    <h3>Automate & govern</h3>
+    <p>Ansible handoff, dynamic inventory, CI/CD, OIDC, security scanning, policy as code, and an incident-driven capstone.</p>
+    <span class="roadmap-output">Output: a reviewed delivery pipeline</span>
+  </article>
+</div>
+
+### The rhythm used in every live lesson
+
+1. **Predict** what Terraform will do before running a command.
+2. **Run** one small, copyable change.
+3. **Observe** the plan, state, logs, or real infrastructure.
+4. **Break** one assumption on purpose.
+5. **Recover** safely and explain why the fix works.
+6. **Clean up** resources and capture the production lesson.
+
+---
+
+## 3. Prerequisites & Environment Expectations
+
+To gain the maximum benefit from this course, you should have:
+- Basic familiarity with cloud concepts (Compute instances, VPC networks, DNS, SSH keys).
+- A free-tier or sandbox **Amazon Web Services (AWS)** account.
+- A terminal with administrator access (macOS, Linux, or Windows WSL2).
+- Git installed and configured.
+
+> [!TIP]
+> Examples are teaching configurations. Local labs need no cloud account; AWS labs require a sandbox and can incur charges. Adapt identity, network access, backups, monitoring, and recovery controls before production use.
+
+---
+
+
+## Apply the idea: build a learning log
+
+Keep one small Git repository for exercises. Record the command, your prediction, the observed result, and cleanup evidence. A successful apply is one observation; a second no-change plan and a tested recovery are stronger evidence that you understand the system.
+
+<details class="knowledge-check">
+<summary>Check your understanding: What can you finish without an AWS account?</summary>
+<p>The HCL playground, local state lab, environment game day, stable-address refactor, and local CI quality gate all work without cloud resources.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/intro).
+
+## 4. Let's Get Started!
+
+Click **Next →** below to begin **Day 1: Lesson B — The Evolution of Cloud Infrastructure & Why IaC Matters**!
+
+=================
+
+# The Evolution of Cloud Infrastructure & Why IaC Matters
+
+# The Evolution of Cloud Infrastructure & Why IaC Matters
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish desired configuration, recorded state, and actual infrastructure.</p></div>
+
+Modern cloud engineering is rooted in software engineering rigor. To understand why tools like **Terraform** dominate the industry, we must first understand how infrastructure management evolved from physical data centers to automated, programmatic cloud provisioning.
+
+---
+
+## 1. The Historical Paradigm Shift
+
+Infrastructure management has traversed four overlapping eras. Older approaches still exist; each newer layer reduces a different constraint.
+
+<div class="course-roadmap infrastructure-timeline">
+  <article class="roadmap-day"><span class="roadmap-number">1990s–2000s</span><h3>Bare metal</h3><p>Rack, cable, install, and configure physical servers. Capacity planning and delivery often take weeks.</p><span class="roadmap-output">Constraint: physical lead time</span></article>
+  <article class="roadmap-day"><span class="roadmap-number">2000s–2010s</span><h3>Virtualization</h3><p>Hypervisors divide hardware into virtual machines. Provisioning speeds up, but workflows may remain ticket-driven.</p><span class="roadmap-output">Constraint: manual coordination</span></article>
+  <article class="roadmap-day"><span class="roadmap-number">2010s</span><h3>Cloud & ClickOps</h3><p>APIs make resources available in minutes. Console-only changes introduce drift, weak review, and inconsistent environments.</p><span class="roadmap-output">Constraint: repeatability</span></article>
+  <article class="roadmap-day"><span class="roadmap-number">Modern delivery</span><h3>Infrastructure as Code</h3><p>Versioned declarations, automated checks, plans, and controlled pipelines make change reviewable and repeatable.</p><span class="roadmap-output">New work: governance and recovery</span></article>
+</div>
+
+---
+
+## 2. The Dangers of ClickOps and Imperative Scripts
+
+When teams transition to the cloud, they often start with **ClickOps** (configuring resources via web console) or **Imperative Shell Scripts** (running sequences of `aws ec2 run-instances` commands).
+
+### The Inherent Flaws of Manual Infrastructure Management:
+
+1. **Configuration Drift**: Manual changes made directly in the console cause production environments to deviate from staging and development, leading to "works in dev, fails in prod" syndrome.
+2. **Snowflake Architecture**: Every server or VPC becomes uniquely modified and impossible to replicate precisely when a disaster occurs.
+3. **No Versioned Intent or Peer Review**: When an engineer accidentally deletes a subnet or opens port `22` to `0.0.0.0/0`, there may be cloud audit events, but no reviewed Git change explaining the intended configuration.
+4. **Lack of Idempotency**: Running a shell script twice often results in duplicated resources or fatal collision errors (`ResourceAlreadyExists`).
+
+---
+
+## 3. Declarative vs. Imperative Paradigms
+
+Understanding the distinction between **Declarative** and **Imperative** models is foundational to mastering Terraform:
+
+| Dimension | Imperative Model (e.g., Bash, AWS CLI, Python SDK) | Declarative Model (e.g., Terraform, OpenTofu) |
+| :--- | :--- | :--- |
+| **Focus** | *HOW* to do it (step-by-step instructions) | *WHAT* the final state should look like |
+| **Execution** | Executes sequential commands without understanding end state | Calculates delta between current reality and desired state |
+| **Idempotency** | Difficult; must write custom checks (`if exists then skip`) | Designed for repeatable convergence when providers and configuration model the resource correctly |
+| **Destruction** | Must write explicit teardown scripts in reverse order | Automatic; removes resources no longer declared in code |
+| **Complexity** | High cognitive overhead for error handling and retries | Low cognitive overhead; engine manages dependencies |
+
+### Imperative Example (Bash + AWS CLI):
+```bash
+# Imperative: The script must explicitly check if resources exist
+VPC_ID=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query 'Vpc.VpcId' --output text)
+aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.1.0/24
+# If you run this script again, it creates a SECOND VPC rather than maintaining state!
+```
+
+### Declarative Example (Terraform HCL):
+```hcl
+# Declarative: You declare the target state; Terraform plans changes to converge toward it
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+
+  tags = {
+    Name        = "production-vpc"
+    Environment = "production"
+    ManagedBy   = "Terraform"
+  }
+}
+```
+
+> [!NOTE]
+> If the configuration, provider behavior, and remote system remain unchanged and no replacement triggers are present, applying the declaration creates the VPC on the first run and should then produce a no-change plan because the desired state matches the real-world state. This property is known as **Idempotency**.
+
+---
+
+## 4. The Core Pillars of Modern IaC
+
+
+| Practice | Why it matters |
+| :--- | :--- |
+| Version control | Review intent and retain change history. |
+| Declared architecture | Make infrastructure ownership visible. |
+| Continuous checks | Find invalid or disallowed changes early. |
+| Recovery | Recreate infrastructure and separately restore data. |
+
+
+1. **Version Control & Peer Review**: Infrastructure changes follow the exact same pull request, code review, and automated linting pipelines as application code.
+2. **Self-Documenting Architecture**: The Git repository serves as the definitive, single source of truth for the entire architecture.
+3. **Continuous Validation**: Security scanning tools (`tfsec`, `checkov`) and cost analyzers (`infracost`) can inspect infrastructure code before any cloud resources are actually provisioned.
+4. **Disaster Recovery & Reproducibility**: IaC can recreate declared infrastructure in another location. Data restoration, DNS cutover, external dependencies, quotas, and validation still need separate recovery plans.
+
+---
+
+
+## Apply the idea: reason about drift
+
+Suppose code declares one server, an operator changes its size in the console, and nobody updates Git. The next normal plan refreshes the remote attributes and proposes reconciling them with code. Terraform does not continuously repair drift in the background: a run must be initiated.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does committing a Terraform change alter AWS?</summary>
+<p>No. Git records intent; a separate authenticated plan/apply workflow evaluates and executes the change. Cloud audit logs record API activity, while Git review records why the change was intended.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/intro).
+
+## 5. Summary & Next Steps
+
+Infrastructure as Code transforms operations from an unpredictable, error-prone manual process into a disciplined, automated software engineering discipline. In the next lesson, we will explore **why Terraform specifically was created, the exact problems it solves, and how it compares to competing tools like AWS CloudFormation, Pulumi, and Ansible**.
+
+=================
+
+# Why Terraform Exists & What Problems It Solves
+
+# Why Terraform Exists & What Problems It Solves
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Select a tool by its ownership model and operational requirements.</p></div>
+
+In 2014, HashiCorp introduced **Terraform** to solve a critical dilemma in cloud computing: how do organizations manage heterogeneous cloud infrastructure reliably, predictably, and without proprietary vendor lock-in?
+
+---
+
+## 1. The Core Problems Terraform Solves
+
+
+| Problem | Terraform contribution |
+| :--- | :--- |
+| Multiple APIs | One workflow with provider-specific resources. |
+| Unreviewed change | Plan proposed actions before execution. |
+| Dependencies | Order related operations and parallelize independent ones. |
+| Identity and drift | Map addresses to objects and refresh observations. |
+
+
+### 1. Unified Multi-Cloud & Hybrid Orchestration
+
+A shared workflow does not make resource definitions cloud-portable: an AWS VPC configuration must be redesigned for Azure networking. OpenTofu is a separate project; check compatibility for the features and providers you use.
+Prior to Terraform, organizations using multiple cloud providers (e.g., AWS for compute, Google Cloud for BigQuery, Cloudflare for DNS/WAF, and Datadog for observability) had to maintain separate, incompatible tooling for each:
+- AWS CloudFormation for AWS
+- Azure Resource Manager (ARM) / Bicep for Azure
+- Google Cloud Deployment Manager for GCP
+- Custom shell scripts and API calls for SaaS services
+
+Terraform introduced a **single, unified workflow and syntax (HCL)** capable of managing thousands of diverse cloud providers, SaaS APIs, and on-premises systems through pluggable providers.
+
+### 2. Predictable Execution Plans & Blast Radius Mitigation
+Many deployment tools execute changes blindly. If a parameter change requires recreating a production database, an engineer might only discover this after the database has already been terminated.
+
+Terraform introduces the **Speculative Execution Plan (`terraform plan`)**:
+- It reads the current cloud state.
+- It compares the state against your declared code.
+- It generates a detailed diff displaying exactly which resources will be **Created (+)**, **Modified (~)**, or **Destroyed (-)** before any real cloud resources are touched.
+
+```
+Terraform will perform the following actions:
+
+  # aws_instance.web_server will be updated in-place
+  ~ resource "aws_instance" "web_server" {
+      ~ instance_type = "t3.micro" -> "t3.small"
+        tags          = {
+            "Environment" = "production"
+        }
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+```
+
+### 3. Automated Dependency Graph Engine (DAG)
+Terraform automatically analyzes your code and constructs a **Directed Acyclic Graph (DAG)** of all resources. It automatically determines:
+- Which resources have zero dependencies and can be provisioned simultaneously in parallel (up to 10 by default).
+- Which resources depend on others (e.g., an EC2 instance depends on a Subnet, which depends on a VPC) and provisions them in the exact required order.
+
+### 4. State-Driven Infrastructure Tracking
+Terraform normally refreshes managed objects through provider APIs during planning. State is primarily an identity and metadata record, not a substitute for those reads. Terraform maintains a **State File** that records the exact mappings between code identifiers and real-world Cloud Resource IDs (e.g., mapping `aws_vpc.main` to `vpc-0a1b2c3d4e5f`).
+
+---
+
+## 2. Comprehensive Tooling Comparison
+
+How does Terraform compare against other popular infrastructure and configuration tools in the modern DevOps landscape?
+
+| Feature / Dimension | **Terraform** | **AWS CloudFormation** | **Pulumi** | **Ansible** |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Infrastructure Provisioning | AWS Provisioning | Infrastructure Provisioning | Configuration Management & App Deployment |
+| **Language** | HCL (Declarative DSL) | JSON / YAML (Declarative) | General Purpose (TS, Python, Go, C#) | YAML Playbooks (Hybrid Imperative/Declarative) |
+| **Cloud Support** | Multi-cloud through provider plugins | AWS Only (Proprietary) | Multi-Cloud | Multi-Platform / OS Configuration |
+| **State Storage** | State File (Local or Remote S3/GCS/TFC) | Managed by AWS CloudFormation Service | Pulumi Service / S3 / Blob | Stateless (Queries live servers via SSH) |
+| **Execution Plan** | First-Class (`terraform plan`) | Change Sets | `pulumi preview` | `--check` mode (Dry-run) |
+| **Orchestration Model** | Client-Side Engine + Cloud APIs | Server-Side Cloud Engine | Client-Side Engine + Cloud APIs | Agentless SSH / WinRM Push |
+| **Best Used For** | Cloud Networks, VMs, Clusters, Storage | Pure AWS Stacks | Teams wanting full programming languages | OS Hardening, Packages, App Configuration |
+
+---
+
+## 3. Provisioning vs. Configuration Management: The Golden Pairing
+
+A common misconception is that Terraform and Ansible are direct competitors. In enterprise production architectures, they are complementary partners:
+
+
+
+> [!IMPORTANT]
+> - **Terraform's job**: Provision the raw hardware, cloud primitives, and networking.
+> - **Ansible's job**: Configure the operating systems, install runtime dependencies, and orchestrate software deployments on those provisioned machines.
+> We will master Terraform throughout Days 1–3 and integrate Ansible on **Day 4**!
+
+---
+
+
+## Apply the idea: choose by responsibility
+
+For a VM-hosted web application, Terraform can own networking and instance identity while Ansible owns packages and configuration inside the VM. Give each setting one owner: if user data and Ansible both overwrite nginx.conf, repeat runs can fight each other.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does a shared HCL workflow make an AWS VPC portable to Azure?</summary>
+<p>No. The workflow is reusable, but provider resource types, identity, and network semantics differ. Portability requires an architecture decision, not just a provider name change.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/providers/configuration).
+
+## 4. Summary & Next Steps
+
+Terraform exists to give engineering teams a safe, predictable, and vendor-agnostic foundation for automating cloud architecture. In the next lesson, we will dissect the **internal architecture of Terraform**, exploring how **Terraform Core**, **Provider Plugins**, and the **gRPC communication layer** interact.
+
+=================
+
+# Terraform Architecture & Core Engine Deep Dive
+
+# Terraform Architecture & Core Engine Deep Dive
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain dependency ordering and diagnose a provider failure.</p></div>
+
+To debug complex infrastructure issues and design scalable Terraform workflows, engineers must understand what happens under the hood when a command like `terraform plan` or `terraform apply` is executed.
+
+---
+
+## 1. High-Level Architecture Overview
+
+Terraform is split into two distinct tiers: **Terraform Core** and **Provider Plugins**.
+
+<div class="concept-flow">
+  <div class="concept-node"><strong>Terraform Core</strong><small>Loads HCL and state, evaluates expressions, builds the dependency graph, and decides the proposed actions. It contains no AWS resource schemas; backend integrations such as S3 are a separate concern.</small></div>
+  <div class="concept-node"><strong>Provider plugins</strong><small>Separate processes expose resource schemas and translate planned actions. Examples: AWS, Azure, Kubernetes, and GitHub.</small></div>
+  <div class="concept-node"><strong>Remote APIs</strong><small>Providers authenticate and call service APIs. Terraform Core does not call an EC2 or GitHub endpoint directly.</small></div>
+</div>
+
+---
+
+## 2. The Core Components
+
+### A. Terraform Core (The Orchestrator)
+Terraform Core is a statically compiled Go binary. It is completely cloud-agnostic. Terraform Core does **not** know what an AWS EC2 instance, an Azure VNet, or a Google Cloud bucket is.
+
+Instead, Terraform Core is responsible for:
+1. **Reading & Parsing HCL**: Converts your `.tf` code into internal AST (Abstract Syntax Tree) structures.
+2. **State Management**: Reads the current `terraform.tfstate` file to understand the registered infrastructure.
+3. **Graph Construction (DAG)**: Builds a Directed Acyclic Graph of all resources and dependencies.
+4. **Plan Generation**: Compares declared configuration against the current state to determine what actions are necessary (Create, Read, Update, Delete).
+
+### B. Provider Plugins (The Translators)
+Providers are independent Go executables downloaded dynamically into the `.terraform/providers/` directory during `terraform init`.
+
+Each provider implements the **Terraform Provider Schema**:
+- Defines supported **Resources** (e.g., `aws_instance`, `aws_s3_bucket`) and **Data Sources** (e.g., `aws_ami`, `aws_vpc`).
+- Implements CRUD handlers:
+  - `Create()`: Translates HCL arguments into cloud API HTTP POST/PUT requests.
+  - `Read()`: Queries cloud API via GET to refresh current attributes.
+  - `Update()`: Sends PATCH/PUT requests when resource properties change in-place.
+  - `Delete()`: Sends DELETE requests when resources are removed from code.
+
+### C. The gRPC Inter-Process Communication Layer
+Terraform Core and the Provider Plugins run as separate operating system processes. They communicate using **gRPC** (Google Remote Procedure Calls) over local domain sockets or loopback TCP. Process isolation separates provider implementation from Core. A provider crash can still fail a run and leave partially completed changes that require inspection.
+
+---
+
+## 3. The Directed Acyclic Graph (DAG) Engine
+
+When Terraform evaluates a directory, it does not execute sequentially line-by-line. It constructs a **Directed Acyclic Graph (DAG)**:
+
+![VPC dependency graph with two parallel subnets](/images/lesson-diagrams/dependencies.svg)
+
+
+### Key Graph Execution Properties:
+- **Topological Sorting**: Terraform calculates the mathematical topological order of all nodes.
+- **Automatic Parallelism**: Non-dependent nodes (such as `aws_subnet.a` and `aws_subnet.b` above) are provisioned simultaneously across parallel worker routines (controlled by the `-parallelism=N` flag, default is `10`).
+- **Cycle Detection**: If resource A references resource B, and resource B references resource A, the graph engine throws a `Cycle error` before applying the cyclic resource operations.
+
+---
+
+## 4. The 4 Stages of the Terraform Lifecycle
+
+A typical plan/apply workflow includes these responsibilities; `plan` stops before execution, and commands such as `fmt` do not refresh infrastructure:
+
+<div class="concept-flow four-steps">
+  <div class="concept-node"><strong>1 · Load</strong><small>Parse configuration and evaluate values.</small></div>
+  <div class="concept-node"><strong>2 · Refresh</strong><small>Read managed objects through providers.</small></div>
+  <div class="concept-node"><strong>3 · Plan</strong><small>Build the graph and calculate changes.</small></div>
+  <div class="concept-node"><strong>4 · Apply</strong><small>Execute approved graph operations.</small></div>
+</div>
+
+1. **Configuration Parse**: Scans all `.tf` files in the working directory, validates syntax, and builds variable/local tables.
+2. **State Refresh**: Queries cloud provider APIs to fetch the latest attributes of already managed resources (detecting out-of-band changes).
+3. **Graph Diff & Plan**: Determines the exact delta between the desired HCL state and the refreshed real-world state.
+4. **API Execution**: Upon approval (`terraform apply`), executes CRUD operations against cloud APIs in strict dependency graph order.
+
+---
+
+
+## Apply the idea: read a dependency graph
+
+If two subnets reference one VPC, both wait for the VPC and can then be created in parallel. An EC2 instance that references only subnet A need not wait for subnet B. Extra depends_on edges reduce concurrency and can defer values until apply; add them only for a real hidden dependency.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does an API permission error mean the HCL parser failed?</summary>
+<p>No. Parsing, graph construction, authentication, and API authorization are different failure layers. Start with the failing resource and provider diagnostic, then check the caller identity and denied action.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/internals/graph).
+
+## 5. Summary & Next Steps
+
+Understanding the separation between Terraform Core, Provider Plugins, and the Graph engine empowers you to debug provider authentication errors, race conditions, and graph cycles. In the next lesson, we will walk through a **complete, step-by-step installation and environment setup across macOS, Linux, and Windows**, including version management tools (`tfswitch`/`tenv`) and AWS authentication.
+
+=================
+
+# Complete Installation & Environment Setup Guide
+
+# Complete Installation & Environment Setup Guide
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Verify the Terraform binary and AWS identity before planning.</p></div>
+
+Before writing our first line of infrastructure code, we need a robust, production-ready local environment. This guide covers cross-platform installation, multi-version management, and cloud provider credential configuration.
+
+---
+
+## 1. Cross-Platform Terraform Installation
+
+### A. macOS (via Homebrew)
+```bash
+# Add the official HashiCorp Homebrew tap
+brew tap hashicorp/tap
+
+# Install Terraform
+brew install hashicorp/tap/terraform
+
+# Verify installation
+terraform -version
+```
+
+### B. Linux (Ubuntu / Debian)
+```bash
+# 1. Install prerequisites
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl wget unzip
+
+# 2. Add HashiCorp GPG key
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+  gpg --dearmor | \
+  sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+
+# 3. Add official HashiCorp repository
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+  https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+# 4. Update repository index and install
+sudo apt-get update && sudo apt-get install -y terraform
+```
+
+### C. Linux (RHEL)
+```bash
+# Add HashiCorp YUM repository
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+# Install Terraform
+sudo yum -y install terraform
+```
+
+### D. Windows (via Chocolatey or Winget)
+```powershell
+# Using Chocolatey
+choco install terraform
+
+# Using Windows Package Manager (Winget)
+winget install HashiCorp.Terraform
+```
+
+---
+
+## 2. Managing Multiple Terraform Versions (`tfswitch` & `tenv`)
+
+In enterprise environments, different codebases often require different Terraform versions (e.g., Project A uses `1.5.7` while Project B uses `1.10.x`). Instead of reinstalling binaries manually, use a version manager.
+
+### Option 1: `tfswitch` (Terraform Switcher)
+```bash
+# Install tfswitch on macOS/Linux
+brew install warrensbox/tap/tfswitch
+
+# Run tfswitch interactively in any project directory
+tfswitch
+
+# Or create a .terraform-version file in your project root
+echo "1.10.5" > .terraform-version
+tfswitch
+```
+
+### Option 2: `tenv` (Modern Unified Manager)
+`tenv` manages Terraform, OpenTofu, and Terragrunt seamlessly:
+```bash
+# Install tenv via Homebrew
+brew install tofuutils/tap/tenv
+
+# Install and switch versions
+tenv tf install 1.10.5
+tenv tf use 1.10.5
+```
+
+---
+
+## 3. Cloud Provider Authentication: AWS CLI Setup
+
+Terraform does not store cloud credentials inside your `.tf` files. Instead, it natively resolves credentials through standard cloud SDK credential chains.
+
+### A. Install AWS CLI v2
+```bash
+# macOS
+brew install awscli
+
+# Linux x86_64 (use the aarch64 installer on ARM64)
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
+### B. Prefer short-lived credentials with IAM Identity Center
+
+Use the start URL, SSO region, account, and role supplied by your sandbox administrator:
+
+```bash
+aws configure sso --profile course-dev
+aws sso login --profile course-dev
+export AWS_PROFILE=course-dev
+export AWS_REGION=us-east-1
+aws sts get-caller-identity
+```
+
+Check the returned **Account** and **Arn** before any AWS lab. If temporary environment credentials are also set, they can take precedence over the profile; use a clean shell or remove stale credentials before proceeding. CI should use a scoped OIDC role rather than a developer profile.
+
+### C. Separate backend and provider authentication
+
+The AWS provider uses an AWS credential chain to authenticate resource operations. An S3 backend authenticates separately during `init`; a provider's `assume_role` block does not configure the backend. Both need the intended role and permissions. Do not put credentials in `.tf` files or backend arguments.
+
+---
+
+## 4. IDE Tooling & Shell Autocompletion
+
+To maximize productivity:
+1. **VS Code Extension**: Install **"HashiCorp Terraform"** (`hashicorp.terraform`) for real-time syntax checking, schema autocompletion, and hover documentation.
+2. **Shell Autocompletion**:
+   ```bash
+   # Enable bash/zsh autocomplete for terraform commands
+   terraform -install-autocomplete
+   ```
+
+---
+
+
+## Apply the idea: run a preflight
+
+Run terraform version, aws --version, and aws sts get-caller-identity in the same shell that will run Terraform. Compare the account and role with the sandbox you intended. An expired SSO session needs a fresh login; changing an HCL region does not switch AWS accounts.
+
+<details class="knowledge-check">
+<summary>Check your understanding: AWS CLI works but terraform init cannot read S3. Where do you look?</summary>
+<p>The backend authenticates independently of the resource provider. Check its profile/role, bucket region, state-key permissions, lockfile permissions, and any KMS policy.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/backend/s3).
+
+## 5. Summary & Next Steps
+
+You now have a fully configured, cross-platform Terraform environment with multi-version switching and AWS authentication. In the next section, we dive into **Section 02: HCL Syntax, Core Workflow & First Deployments**, starting with the **anatomy of HashiCorp Configuration Language (HCL)**.
+
+=================
+
+# HashiCorp Configuration Language (HCL) Anatomy
+
+# HashiCorp Configuration Language (HCL) Anatomy
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Identify blocks, expressions, and addresses without relying on filenames.</p></div>
+
+**HCL (HashiCorp Configuration Language)** is a declarative domain-specific language designed to be human-readable and machine-friendly. It combines the readability of YAML with the structural rigor of JSON.
+
+HCL is the **language**. A `.tf` file is a Terraform configuration file written in HCL. The names are related, but they are not interchangeable:
+
+| File | What it does | Commit it? |
+| :--- | :--- | :--- |
+| `main.tf`, `variables.tf`, any `*.tf` | Declares the desired infrastructure for one module. Terraform loads every `.tf` file in the current directory together. | Yes |
+| `something.tf.json` | The same Terraform configuration expressed as JSON, normally generated by tools. | Usually |
+| `.terraform.lock.hcl` | Locks provider selections and checksums. It is HCL, but it does **not** declare infrastructure. | Yes |
+| `terraform.tfvars` / `*.auto.tfvars` | Supplies variable values. It can contain secrets, so review before committing. | Depends; secret values: no |
+| `terraform.tfstate` | Records Terraform's bindings to real objects. It is JSON data, not HCL and not configuration. | No |
+
+> Renaming `network.tf` to `banana.tf` changes nothing. Terraform combines all `.tf` files in a directory into a single module. File names are for humans; block addresses and references are what Terraform uses.
+
+<div class="concept-flow">
+  <div class="concept-node"><strong>HCL configuration</strong><small>Your desired result: “these objects should exist with these arguments.”</small></div>
+  <div class="concept-node"><strong>Terraform engine</strong><small>Parses expressions, builds a dependency graph, reads state, refreshes providers, and calculates a plan.</small></div>
+  <div class="concept-node"><strong>Provider APIs</strong><small>AWS, GitHub, Kubernetes, and other APIs receive create, read, update, and delete requests.</small></div>
+</div>
+
+---
+
+## 1. The Anatomy of an HCL Block
+
+Every HCL file consists of top-level **Blocks**. Each block follows a strict grammatical structure:
+
+```hcl
+block_type "label_one" "label_two" {
+  argument_key = "argument_value" # Argument
+  
+  nested_block {                  # Nested Block
+    nested_key = 123
+  }
+}
+```
+
+
+| Block element | Example | Meaning |
+| :--- | :--- | :--- |
+| Type | resource | Declare a managed object. |
+| First label | aws_vpc | Choose the provider resource type. |
+| Second label | main | Choose a logical name within this module. |
+
+
+### Real-World Example:
+```hcl
+resource "aws_security_group" "web_sg" {
+  name        = "web-server-sg"
+  description = "Security group for HTTPS web traffic"
+  vpc_id      = "vpc-0123456789abcdef0"
+
+  ingress {
+    description = "Allow TLS from internet"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Environment = "production"
+    Team        = "Platform"
+  }
+}
+```
+
+---
+
+## 2. The 7 Primary Top-Level Block Types
+
+| Block Type | Purpose | Example |
+| :--- | :--- | :--- |
+| `terraform` | Configures Terraform runtime settings, required versions, and provider requirements | `terraform { required_version = ">= 1.5.0" }` |
+| `provider` | Configures authentication and plugins for a specific cloud/service | `provider "aws" { region = "us-east-1" }` |
+| `resource` | Declares infrastructure components to be created and managed | `resource "aws_s3_bucket" "data" {}` |
+| `data` | Queries read-only information about existing resources in the cloud | `data "aws_ami" "ubuntu" {}` |
+| `variable` | Defines parameterized inputs passed into configuration | `variable "environment" { type = string }` |
+| `output` | Exposes computed values to the CLI or downstream modules | `output "vpc_id" { value = aws_vpc.main.id }` |
+| `locals` | Defines reusable, computed local constants within a module | `locals { name_prefix = "${var.project}-${var.env}" }` |
+
+---
+
+## 3. Data Types in HCL
+
+HCL supports both primitive types and complex structural types:
+
+### A. Primitive Types
+```hcl
+is_production = true             # bool (true or false)
+instance_count = 3                # number (integers and floating-point)
+cluster_name   = "prod-cluster"   # string (UTF-8 text)
+```
+
+### B. Collection Types
+```hcl
+# List (Ordered collection of elements of the same type, accessed by 0-based index)
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+# Set (Unordered collection of unique elements)
+allowed_roles = toset(["admin", "developer", "auditor"])
+
+# Map (Key-value pairs where all values share the same type)
+environment_tags = {
+  Environment = "production"
+  CostCenter  = "Engineering-804"
+}
+```
+
+### C. Structural Types (Object and Tuple)
+```hcl
+# Object (Key-value pairs where each value can have a different type schema)
+server_config = {
+  hostname = "web-01"
+  port     = 8080
+  enabled  = true
+}
+
+# Tuple (Ordered sequence where each element index can have a different type)
+mixed_tuple = ["subnet-abc", 443, true]
+```
+
+---
+
+## 4. String Interpolation and Heredocs
+
+### String Interpolation:
+Embed dynamic variables or resource attributes inside strings using `${...}` syntax:
+```hcl
+locals {
+  app_name    = "payment-gateway"
+  environment = "production"
+  bucket_name = "${local.app_name}-${local.environment}-logs-${var.aws_region}"
+}
+```
+
+### Multiline Heredocs (`<<-EOT`):
+When injecting shell scripts, cloud-init user data, or JSON policies, use the trimmed heredoc marker (`<<-EOT`), which strips leading indentation:
+```hcl
+resource "aws_instance" "web" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+
+  user_data = <<-EOT
+    #!/bin/bash
+    echo "Starting Web Server Initialization"
+    apt-get update -y
+    apt-get install -y nginx
+    systemctl enable --now nginx
+  EOT
+}
+```
+
+---
+
+## 5. Five-minute local HCL experiment
+
+This experiment uses only Terraform's built-in functions. It creates no cloud resources and costs nothing.
+
+### Step 1 — Create an empty practice directory
+
+```bash
+mkdir hcl-playground
+cd hcl-playground
+```
+
+### Step 2 — Create `main.tf`
+
+```hcl
+locals {
+  course     = "terraform"
+  students   = ["amina", "rahim", "sadia"]
+  name_tags  = { for name in local.students : name => upper(name) }
+}
+
+output "class_summary" {
+  value = "${title(local.course)} has ${length(local.students)} students"
+}
+
+output "name_tags" {
+  value = local.name_tags
+}
+```
+
+### Step 3 — Format, validate, and evaluate
+
+```bash
+terraform fmt
+terraform init
+terraform validate
+terraform apply -auto-approve
+terraform output
+```
+
+Expected idea—not necessarily identical spacing:
+
+```text
+class_summary = "Terraform has 3 students"
+name_tags = {
+  "amina" = "AMINA"
+  "rahim" = "RAHIM"
+  "sadia" = "SADIA"
+}
+```
+
+### Step 4 — Prove that file names do not define execution order
+
+Move the `output` blocks into a new file named `aaa_outputs.tf`, then run:
+
+```bash
+terraform fmt
+terraform validate
+terraform apply -auto-approve
+```
+
+The result stays the same because Terraform loads the module as a whole and derives order from references, not alphabetical filenames.
+
+### Deliberate failure
+
+Change `local.students` to `local.student`. Run `terraform validate` and read the diagnostic from top to bottom: summary, source location, then explanation. Restore the correct name and validate again.
+
+---
+
+
+## Apply the idea: trace one reference
+
+In vpc_id = aws_vpc.main.id, vpc_id is the receiving argument, aws_vpc.main is the resource address, and id is an exported attribute. The reference creates a dependency. A quoted literal such as "vpc-0123" supplies a value but does not link that VPC to another managed block.
+
+<details class="knowledge-check">
+<summary>Check your understanding: If main.tf is renamed to network.tf, does Terraform replace the VPC?</summary>
+<p>No. Files in one module are loaded together. Renaming the resource label main to core changes its address and needs a reviewed moved block if the object already exists.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/syntax/configuration).
+
+## 6. Summary & Next Steps
+
+HCL provides a clean, expressive grammar for defining cloud architecture. In the next lesson, we will execute our **First Terraform Deployment and examine the full workflow lifecycle** (`init`, `plan`, `apply`, `destroy`, `fmt`, and `validate`).
+
+=================
+
+# First Deployment & The Complete Terraform Lifecycle
+
+# First Deployment & The Complete Terraform Lifecycle
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Initialize, validate, review a saved plan, and clean up a sandbox.</p></div>
+
+Let us build our first working infrastructure stack while dissecting each command in the standard Terraform workflow lifecycle.
+
+---
+
+## 1. Writing the Infrastructure Code
+
+Create a directory named `first-stack` and create `main.tf`:
+
+```hcl
+# main.tf
+
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+# 1. Provision a VPC
+resource "aws_vpc" "app_vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = "course-app-vpc"
+    Environment = "development"
+  }
+}
+
+# 2. Provision a Public Subnet inside the VPC
+resource "aws_subnet" "public_subnet_1" {
+  vpc_id                  = aws_vpc.app_vpc.id # Implicit dependency
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "course-public-subnet-1"
+  }
+}
+
+# 3. Provision an Internet Gateway attached to the VPC
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.app_vpc.id
+
+  tags = {
+    Name = "course-main-gw"
+  }
+}
+
+# 4. A public subnet needs a route to the internet gateway.
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.app_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public_subnet_1.id
+  route_table_id = aws_route_table.public.id
+}
+```
+
+---
+
+## 2. The Core 6-Command Lifecycle
+
+<ol class="workflow-steps">
+  <li><strong>Format</strong><span>Normalize HCL.</span></li>
+  <li><strong>Initialize</strong><span>Install providers and configure state.</span></li>
+  <li><strong>Validate</strong><span>Check the initialized configuration.</span></li>
+  <li><strong>Plan</strong><span>Save and review proposed actions.</span></li>
+  <li><strong>Apply</strong><span>Execute that saved plan.</span></li>
+  <li><strong>Clean up</strong><span>Review a sandbox destroy.</span></li>
+</ol>
+
+### Step 1: Canonical Formatting (`terraform fmt`)
+Ensures all code across your entire team adheres to standard indentation and alignment:
+```bash
+terraform fmt -recursive
+```
+
+### Step 2: Initialization (`terraform init`)
+Prepares the working directory:
+- Downloads the AWS provider plugin matching version `~> 5.0`.
+- Creates the local hidden `.terraform/` directory.
+- Creates or updates the **Dependency Lock File (`.terraform.lock.hcl`)**.
+
+```bash
+terraform init
+```
+
+> [!IMPORTANT]
+> **The Dependency Lock File (`.terraform.lock.hcl`)**:
+> This file records the exact version and cryptographic checksums (`zh:...`, `h1:...`) of all downloaded provider plugins. **Always commit `.terraform.lock.hcl` to Git** to ensure that every teammate and CI/CD runner uses identical provider binaries.
+
+### Step 3: Static Syntax Validation (`terraform validate`)
+Checks your configuration for syntactical correctness, attribute name errors, and type mismatches without making any network calls:
+```bash
+terraform validate
+# Success! The configuration is valid.
+```
+
+### Step 4: Saved Planning (`terraform plan`)
+Reads current state, queries AWS APIs, and prints the proposed execution delta:
+```bash
+terraform plan -out=tfplan
+```
+The output indicates:
+`Plan: 5 to add, 0 to change, 0 to destroy.`
+
+### Step 5: Live Execution (`terraform apply`)
+Review the saved actions with `terraform show tfplan`. Applying a saved plan executes without an additional confirmation prompt; possession of the plan is not a substitute for approval. Plans may contain secrets.
+
+Applies the plan against real AWS APIs:
+```bash
+terraform apply tfplan
+# Or run interactively: terraform apply (requires typing 'yes')
+```
+Upon completion, Terraform creates the local `terraform.tfstate` file, recording the IDs of the created VPC, Subnet, and Gateway.
+
+### Step 6: Clean Teardown (`terraform destroy`)
+When you are done with a sandbox or testing environment, safely remove all provisioned resources:
+```bash
+terraform destroy
+```
+Terraform automatically computes the **reverse dependency graph**: it deletes the Subnet and Internet Gateway first, and only deletes the VPC after its dependent children are removed.
+
+---
+
+
+## Apply the idea: read the plan before approval
+
+For this stack, the VPC precedes the subnet and internet gateway. The route table references the gateway; the association references both the subnet and route table. Expect five managed resources. A public IP alone is insufficient for internet access: routing, security groups, and network ACLs also matter.
+
+<details class="knowledge-check">
+<summary>Check your understanding: You edit main.tf after saving tfplan. Does applying tfplan use the edit?</summary>
+<p>No. A saved plan carries the previously planned configuration and actions. Discard it and generate a new plan when intent changes; do not approve one configuration and execute another.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/cli/commands/plan).
+
+## 3. Summary & Next Steps
+
+You have executed the full Terraform lifecycle and mastered the role of initialization, lockfiles, and execution plans. In the next lesson, we will make our code dynamic and reusable using **Input Variables, Custom Validation Rules, Outputs, and Local Values**.
+
+=================
+
+# Input Variables, Custom Validation Rules, Outputs & Locals
+
+# Input Variables, Custom Validation Rules, Outputs & Locals
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Trace input precedence and distinguish redaction from secret storage.</p></div>
+
+Hardcoded values make infrastructure code fragile and non-reusable. To build enterprise-grade configurations, we use **Input Variables**, **Outputs**, and **Local Values**.
+
+---
+
+## 1. Input Variables & Custom Validation Rules
+
+Variables allow configurations to be customized without altering the underlying code.
+
+### Standard Variable Declaration:
+```hcl
+# variables.tf
+
+variable "aws_region" {
+  type        = string
+  description = "The target AWS region for deployment"
+  default     = "us-east-1"
+}
+
+variable "vpc_cidr" {
+  type        = string
+  description = "CIDR block for the VPC"
+  default     = "10.0.0.0/16"
+
+  # Custom Validation Block
+  validation {
+    condition     = can(cidrnetmask(var.vpc_cidr))
+    error_message = "The vpc_cidr value must be a valid CIDR address (e.g. 10.0.0.0/16)."
+  }
+}
+
+variable "environment" {
+  type        = string
+  description = "Deployment environment tier"
+
+  # Enforce Allowed Values via Validation
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "The environment must be one of: dev, staging, prod."
+  }
+}
+
+variable "database_password" {
+  type        = string
+  description = "Master password for RDS database"
+  sensitive   = true # Redacts normal display; does not remove it from state
+}
+```
+
+---
+
+## 2. Variable Value Precedence Order
+
+When the same variable is defined in multiple places, Terraform resolves the final value using this strict **precedence hierarchy** (highest priority wins):
+
+| Priority (highest first) | Source | Tie-breaking rule |
+| :--- | :--- | :--- |
+| 1 | Explicit `-var` and `-var-file` arguments | Later command-line arguments win |
+| 2 | `*.auto.tfvars` and `*.auto.tfvars.json` | Loaded in lexical filename order |
+| 3 | `terraform.tfvars.json` | Overrides `terraform.tfvars` |
+| 4 | `terraform.tfvars` | Overrides environment values |
+| 5 | `TF_VAR_name` | Overrides the variable default |
+| 6 | `default` in the variable declaration | Used only if no higher source supplies a value |
+
+This describes local CLI runs; HCP Terraform variable sets add their own precedence rules.
+
+---
+
+## 3. Local Values (`locals`) for DRY Configurations
+
+While variables are user-supplied inputs, **Locals** are internal computed expressions. Use locals to avoid repeating complex string formatting or tagging conventions:
+
+```hcl
+# locals.tf
+
+locals {
+  project_name = "fintech-core"
+  env          = var.environment
+  name_prefix  = "${local.project_name}-${local.env}"
+
+  # Common tags merged across all resources
+  common_tags = {
+    Project     = local.project_name
+    Environment = local.env
+    ManagedBy   = "Terraform"
+    Owner       = "Platform-Team"
+  }
+}
+
+# Usage in Resource
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-vpc"
+  })
+}
+```
+
+---
+
+## 4. Outputs & Sensitive Flag
+
+Outputs expose values after provisioning. They are essential for displaying connection strings, feeding downstream CI/CD jobs, or sharing data between modules.
+
+```hcl
+# outputs.tf
+
+output "vpc_id" {
+  description = "The ID of the provisioned VPC"
+  value       = aws_vpc.main.id
+}
+
+output "vpc_cidr_block" {
+  description = "CIDR block assigned to VPC"
+  value       = aws_vpc.main.cidr_block
+}
+
+output "db_connection_string" {
+  description = "Database connection URI"
+  value       = "postgres://${aws_db_instance.main.username}:${var.database_password}@${aws_db_instance.main.endpoint}/appdb"
+  sensitive   = true # Redacts value in CLI stdout (shows <sensitive>)
+}
+```
+
+### Accessing Outputs via CLI:
+```bash
+# JSON includes sensitive outputs in plaintext; do not publish or log it
+terraform output -json
+
+# Query a specific output directly
+terraform output -raw vpc_id
+```
+
+---
+
+
+## Apply the idea: predict the winning input
+
+Assume default = "dev", TF_VAR_environment=staging, terraform.tfvars sets environment="prod", and the command adds -var="environment=dev". The effective value is dev because the explicit CLI argument wins. A file named prod.tfvars is not automatically loaded unless passed with -var-file.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does sensitive = true make terraform output -json safe to publish?</summary>
+<p>No. JSON and raw output can expose sensitive values, as can state and saved plans. Print only the non-secret output needed by the next step.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/values/variables).
+
+## 5. Summary & Next Steps
+
+Variables, locals, and outputs provide parameterization, data sanitization, and interface boundaries. In the next lesson, we will explore **Data Sources, Provider Configurations, and Local State Mechanics**.
+
+=================
+
+# Data Sources, Provider Configuration & Local State Mechanics
+
+# Data Sources, Provider Configuration & Local State Mechanics
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain when a data source reads an object without owning it.</p></div>
+
+Real-world cloud architectures rarely exist in a vacuum. You frequently need to reference existing cloud assets (such as official Ubuntu AMIs, standard VPCs, or DNS zones) without managing their lifecycle in your current Terraform code.
+
+---
+
+## 1. Data Sources: Reading Existing Infrastructure
+
+A **Data Source** allows Terraform to read metadata from the cloud provider at runtime. Unlike `resource` blocks, Terraform will **never create, modify, or destroy** resources defined in a `data` block.
+
+
+| Declaration | Operation | Ownership |
+| :--- | :--- | :--- |
+| resource "aws_instance" "web" | Create/read/update/delete | This state manages the instance. |
+| data "aws_ami" "ubuntu" | Read/query | The image lifecycle is owned elsewhere. |
+
+
+### Finding the Latest Ubuntu 22.04 LTS AMI Dynamically:
+Instead of hardcoding brittle AMI IDs like `ami-0c55b159cbfafe1f0`, use a data source:
+
+```hcl
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical (Official Ubuntu Owner ID)
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+# Reference the dynamically discovered AMI ID
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+
+  tags = {
+    Name = "web-server"
+  }
+}
+```
+
+---
+
+## 2. Provider Aliases (Multi-Region / Multi-Account Setup)
+
+Sometimes you need to provision resources across multiple AWS regions (e.g., primary in `us-east-1` and disaster recovery replica in `us-west-2`) within the same code module:
+
+```hcl
+# Default Provider (us-east-1)
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Alternate Provider with Alias (us-west-2)
+provider "aws" {
+  alias  = "west"
+  region = "us-west-2"
+}
+
+# Resource in Default Region (us-east-1)
+resource "aws_s3_bucket" "primary_bucket" {
+  bucket = "my-company-primary-storage-8921"
+}
+
+# Resource in Secondary Region (us-west-2) using provider alias
+resource "aws_s3_bucket" "dr_bucket" {
+  provider = aws.west
+  bucket   = "my-company-dr-storage-8921"
+}
+```
+
+---
+
+## 3. Local State Mechanics & Limitations
+
+With the default local backend and workspace, Terraform writes `terraform.tfstate` in your working directory after an apply that persists state.
+
+### Inside `terraform.tfstate` (JSON):
+```json
+{
+  "version": 4,
+  "terraform_version": "1.10.5",
+  "serial": 12,
+  "lineage": "e7b4a2f8-9a3d-4c5e-8b1a-2c3d4e5f6a7b",
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "aws_vpc",
+      "name": "app_vpc",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "id": "vpc-0abc123def456",
+            "cidr_block": "10.0.0.0/16",
+            "enable_dns_hostnames": true
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Why Local State Fails in Teams:
+1. **Concurrency Conflicts**: Local state supports locking on the same filesystem, but separate laptop copies can diverge and manage overlapping objects without a shared lock.
+2. **Secrets in Plaintext**: State files contain sensitive database passwords and private keys in clear text JSON. Storing them locally on laptops or checking them into Git is a critical security vulnerability.
+3. **No Centralized History**: Teammates cannot see recent infrastructure changes made by others.
+
+---
+
+
+## Apply the idea: make ami selection deliberate
+
+A most_recent AMI query can resolve to a new image on a later plan even when your HCL is unchanged. Because changing an EC2 AMI generally requires replacement, review this as an image rollout. For controlled releases, promote a reviewed AMI ID per region through environment inputs.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Will deleting the aws_ami data block delete the AMI?</summary>
+<p>No. A data source does not own that image lifecycle. However, removing a reference or changing its result can change the resources that consume it.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/data-sources).
+
+## 4. Day 1 Wrap-up & Transition to Day 2
+
+You have mastered the foundations of Terraform:
+- The historical evolution of cloud infrastructure and declarative IaC theory.
+- Why Terraform exists, the problems it solves, and its internal architecture.
+- Full local installation, tooling, and AWS credentials configuration.
+- HCL block anatomy, data types, variable validation, outputs, and locals.
+- Core CLI lifecycle commands, data sources, and state mechanics.
+
+In **Day 2**, we will solve the state synchronization dilemma by building a **Remote State Backend with Amazon S3 native locking**, mastering **State Disaster Recovery**, and designing **Multi-Environment SDLC Architecture**!
+
+=================
+
+# Terraform State Internals & Schema Deep Dive
+
+# Terraform State Internals & Schema Deep Dive
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain resource identity, state snapshots, and secret exposure.</p></div>
+
+![Configuration, state, and observed infrastructure inform the plan](/images/lesson-diagrams/reconcile.svg)
+
+The **state file** is Terraform's durable record of which resource address is bound to which real object, plus the latest known attributes. It is essential, but calling it the only “source of truth” hides an important idea: Terraform constantly reconciles three views.
+
+<div class="concept-flow">
+  <div class="concept-node"><strong>Configuration</strong><small>What you want. Example: <code>terraform_data.example</code> should exist with a particular input.</small></div>
+  <div class="concept-node"><strong>State</strong><small>What Terraform remembers. Example: this resource address is bound to object ID <code>abc123</code>.</small></div>
+  <div class="concept-node"><strong>Real system</strong><small>What actually exists now, discovered through provider Read calls during refresh.</small></div>
+</div>
+
+`terraform plan` compares these views. A difference may mean an intentional code change, out-of-band drift, an incomplete import, or stale/unavailable remote data.
+
+---
+
+## 1. Why Does Terraform Need State?
+
+Why can't Terraform simply query the AWS API on every execution instead of maintaining a state file?
+
+<div class="concept-flow four-steps">
+  <div class="concept-node"><strong>Map identity</strong><small>Bind <code>aws_vpc.main</code> to a provider object such as <code>vpc-0123</code>.</small></div>
+  <div class="concept-node"><strong>Retain metadata</strong><small>Remember dependencies, provider associations, instance keys, and known attributes.</small></div>
+  <div class="concept-node"><strong>Compare efficiently</strong><small>Use the prior snapshot while providers refresh the values needed for planning.</small></div>
+  <div class="concept-node"><strong>Coordinate writes</strong><small>A capable remote backend can lock state so two writers do not update it concurrently.</small></div>
+</div>
+
+---
+
+## 2. Anatomy of the State JSON Structure
+
+A `terraform.tfstate` file is a structured JSON document containing crucial metadata headers:
+
+```json
+{
+  "version": 4,
+  "terraform_version": "1.10.5",
+  "serial": 42,
+  "lineage": "a8f34bc1-90ef-4f12-98ab-312456cde789",
+  "outputs": {
+    "vpc_id": {
+      "value": "vpc-0123456789abcdef0",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "aws_vpc",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "id": "vpc-0123456789abcdef0",
+            "cidr_block": "10.0.0.0/16",
+            "enable_dns_hostnames": true,
+            "tags": {
+              "Environment": "production"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Critical Metadata Fields:
+- **`version`**: The internal state schema format (currently version 4).
+- **`serial`**: An integer incremented every time state is modified. If a client attempts to apply changes with a lower serial number than the remote backend, Terraform detects a conflict and halts execution.
+- **`lineage`**: A unique UUID assigned upon initial creation. If the lineage changes, Terraform knows this is an entirely different infrastructure stack, preventing accidental overwrites.
+
+---
+
+## 3. Inspecting State Safely with the CLI
+
+Never edit the state JSON file manually with a text editor. Use Terraform's built-in state inspection commands:
+
+```bash
+# List all resources currently tracked in state
+terraform state list
+
+# Output:
+# aws_vpc.main
+# aws_subnet.public_1
+# aws_internet_gateway.gw
+
+# Inspect detailed attributes of a specific resource
+terraform state show aws_vpc.main
+```
+
+## 4. Safe local state lab: watch the file change
+
+<div class="lab-banner"><strong>Live-class goal:</strong> create one provider-free resource, find its address and ID in state, change it, and remove everything. No AWS account is required.</div>
+
+### Step 1 — Start clean
+
+```bash
+mkdir state-lab
+cd state-lab
+```
+
+Create `main.tf`:
+
+```hcl
+terraform {
+  required_version = ">= 1.4.0"
+}
+
+resource "terraform_data" "lesson" {
+  input = {
+    topic   = "tfstate"
+    version = 1
+  }
+}
+
+output "lesson_id" {
+  value = terraform_data.lesson.id
+}
+```
+
+### Step 2 — Predict, apply, inspect
+
+```bash
+terraform init
+terraform plan
+terraform apply -auto-approve
+terraform state list
+terraform state show terraform_data.lesson
+terraform output -json
+```
+
+Now inspect a machine-readable view without editing it:
+
+```bash
+terraform show -json > current-state-view.json
+```
+
+`terraform show -json` is intended for tooling. The raw backend state format is an implementation detail and can contain sensitive values.
+
+### Step 3 — Observe `serial`
+
+For this local-only demonstration, print two safe metadata fields:
+
+```bash
+terraform state pull | grep -E '"(serial|lineage)"'
+```
+
+Change `version = 1` to `version = 2`, apply, and run the command again. The lineage should stay the same; the serial should increase because a new state snapshot was written.
+
+### Step 4 — Prove that state is a binding, not the resource
+
+```bash
+terraform state rm terraform_data.lesson
+terraform plan
+```
+
+The object was forgotten by Terraform, so the plan proposes creating a new one even though `main.tf` did not change. For a real cloud object, `state rm` does not delete the remote object; it only removes Terraform's binding. In this local lab, apply once more to restore the binding.
+
+### Step 5 — Clean up
+
+```bash
+terraform destroy -auto-approve
+cd ..
+```
+
+### What each generated file is for
+
+| Path | Why it exists | Normal action |
+| :--- | :--- | :--- |
+| `.terraform/` | Downloaded providers/modules and local working data | Do not commit |
+| `.terraform.lock.hcl` | Repeatable provider selection and checksums | Commit |
+| `terraform.tfstate` | Current local state snapshot | Never commit |
+| `terraform.tfstate.backup` | Previous local snapshot for limited recovery | Never commit |
+
+---
+
+## 5. State Security & Secrets Protection
+
+> [!CAUTION]
+> **State Files Contain Plaintext Secrets**:
+> If you create an `aws_db_instance` with a master password, that password is stored in clear text inside the state JSON.
+> 
+> **Enterprise Rules**:
+> 1. **Never commit `.tfstate` to Git**: Add `*.tfstate` and `*.tfstate.backup` to `.gitignore`.
+> 2. **Always use encrypted remote backends** (e.g., S3 with SSE-KMS).
+> 3. **Restrict IAM access** to the backend storage bucket to authorized CI/CD roles only.
+
+---
+
+
+## Apply the idea: interpret a state change
+
+An address identifies the configuration instance; the stored ID identifies the remote object. A new serial records a new snapshot, not necessarily a new cloud object. Lineage distinguishes state histories. A copied state file is not a safe way to clone infrastructure because both copies may claim the same objects.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Why does state rm followed by plan propose creation?</summary>
+<p>The binding is gone while the desired resource remains in code. For real infrastructure, re-import an existing object or complete a deliberate ownership handoff; do not create a duplicate blindly.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/state).
+
+## 6. Summary & Next Steps
+
+Now that you understand the internals and risks of state, we will build a production-ready **Remote State Backend using Amazon S3 native locking** in the next lesson.
+
+=================
+
+# Remote State with Amazon S3 Native Locking
+
+# Remote State with Amazon S3 Native Locking
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Separate state storage, writer coordination, and recovery history.</p></div>
+
+For team use, Terraform state needs shared storage, controlled access, recovery history, and protection from concurrent writers. The Amazon S3 backend can provide storage and **native state locking** with `use_lockfile = true`.
+
+> [!IMPORTANT]
+> Older courses pair S3 with a DynamoDB table. DynamoDB-based locking is now deprecated by Terraform. Keep it only while clients migrate; new backends should prefer S3 native lockfiles.
+
+## 1. What the backend does
+
+<div class="concept-flow">
+  <div class="concept-node"><strong>Engineer or CI</strong><small>Authenticates with an AWS role and starts plan/apply.</small></div>
+  <div class="concept-node"><strong>S3 lock object</strong><small>Terraform creates a <code>.tflock</code> object. A second writer waits or exits instead of writing concurrently.</small></div>
+  <div class="concept-node"><strong>S3 state object</strong><small>Terraform reads/writes the state key. Versioning provides recoverable historical object versions.</small></div>
+</div>
+
+Locking protects against simultaneous Terraform writers. It does not replace pipeline concurrency, approvals, backups, or application-data recovery.
+
+## 2. Bootstrap the S3 bucket
+
+The backend must exist before Terraform can store state in it. Manage the bootstrap stack separately from the application stack whose state it stores.
+
+Create `bootstrap/main.tf`:
+
+```hcl
+terraform {
+  required_version = ">= 1.10.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+variable "state_bucket_name" {
+  type        = string
+  description = "Globally unique S3 bucket name for Terraform state"
+}
+
+resource "aws_s3_bucket" "terraform_state" {
+  bucket        = var.state_bucket_name
+  force_destroy = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_s3_bucket_versioning" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+output "bucket_name" {
+  value = aws_s3_bucket.terraform_state.id
+}
+```
+
+Run with a globally unique bucket name:
+
+```bash
+terraform -chdir=bootstrap init
+terraform -chdir=bootstrap plan -var='state_bucket_name=replace-with-your-unique-name'
+terraform -chdir=bootstrap apply -var='state_bucket_name=replace-with-your-unique-name'
+```
+
+Do not destroy this stack during normal application cleanup. State storage has a different lifecycle from the infrastructure it records.
+
+## 3. Configure the application backend
+
+Create a backend block in the application root module:
+
+```hcl
+terraform {
+  required_version = ">= 1.10.0"
+
+  backend "s3" {
+    bucket       = "replace-with-your-unique-name"
+    key          = "production/networking/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+}
+```
+
+Backend blocks cannot use input variables, locals, or resource references because Terraform initializes the backend before it evaluates the root module. Use partial backend configuration for environment-specific non-secret settings:
+
+```hcl
+# backend.tf
+terraform {
+  backend "s3" {}
+}
+```
+
+```bash
+terraform init \
+  -backend-config='bucket=replace-with-your-unique-name' \
+  -backend-config='key=production/networking/terraform.tfstate' \
+  -backend-config='region=us-east-1' \
+  -backend-config='encrypt=true' \
+  -backend-config='use_lockfile=true'
+```
+
+Do not put access keys in `-backend-config`: Terraform can record backend configuration in `.terraform/` and plan artifacts. Use AWS profiles locally and short-lived OIDC credentials in CI.
+
+## 4. Minimum access mental model
+
+The runtime role normally needs:
+
+- `s3:ListBucket` on the bucket, scoped with a prefix condition where practical.
+- `s3:GetObject` and `s3:PutObject` on the state object.
+- `s3:GetObject`, `s3:PutObject`, and `s3:DeleteObject` on the `.tflock` object.
+- KMS permissions as well if you select a customer-managed KMS key.
+
+Terraform does not need `s3:DeleteObject` on the state object for normal S3 backend operation. Test the exact policy in a sandbox because organization SCPs, permission boundaries, and KMS key policies also participate in authorization.
+
+## 5. Migrate existing local state
+
+Before migration:
+
+1. Confirm nobody else is running Terraform against this stack.
+2. Back up the current local state securely.
+3. Verify the S3 bucket, versioning, encryption, and role access.
+4. Add or update the backend configuration.
+
+Then run:
+
+```bash
+terraform init -migrate-state
+terraform state list
+terraform plan
+```
+
+Read the migration prompt before accepting it. After migration, verify that the expected resources are listed and that `plan` shows the expected result before removing local state copies.
+
+## 6. Migrate from DynamoDB locking
+
+During a controlled transition, Terraform permits both mechanisms:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "replace-with-your-unique-name"
+    key            = "production/networking/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    use_lockfile   = true
+    dynamodb_table = "legacy-terraform-locks"
+  }
+}
+```
+
+Upgrade every operator and CI runner to a Terraform version that supports `use_lockfile`, reinitialize, and exercise plan/apply locking. Only then remove `dynamodb_table` and retire the legacy table through a separately reviewed change.
+
+## 7. Lock incident drill
+
+If Terraform reports that the state is locked:
+
+1. Read the lock information: operation, owner, timestamp, and lock ID.
+2. Check CI and team activity; assume another operation may still be active.
+3. Wait or stop the active operation cleanly.
+4. Use `terraform force-unlock LOCK_ID` only after proving the original writer is gone.
+5. Run a fresh plan after unlocking.
+
+Never delete a lock merely because it is inconvenient. A mistaken force-unlock can allow two writers and corrupt the workflow you added locking to protect.
+
+
+## Apply the idea: diagnose a lock failure
+
+A runner may read the .tfstate object successfully yet fail to create or delete its .tflock sibling. Check permissions for both paths, not just the bucket. Versioning helps recover a damaged snapshot; it does not recreate a deleted database or recover its application data.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Can one client use only S3 locking while an older client uses only DynamoDB locking?</summary>
+<p>They do not coordinate through a shared lock. Use a controlled overlap configuration during migration, upgrade and verify all writers, then retire the old mechanism.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/backend/s3).
+
+## 8. Summary
+
+A production backend is more than a bucket: it combines native locking, versioning, encryption, least-privilege access, short-lived credentials, serialized pipelines, and rehearsed recovery. Next, we will practice state refactoring and disaster recovery operations.
+
+=================
+
+# Advanced State Operations & Disaster Recovery
+
+# Advanced State Operations & Disaster Recovery
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose between address migration, unmanagement, and drift reconciliation.</p></div>
+
+As infrastructure scales, you will inevitably need to refactor code, move resources into modules, untrack legacy assets, and recover from stuck state locks or out-of-band configuration drift.
+
+---
+
+## 1. Refactoring Resources with `terraform state mv`
+
+If you rename a resource block in your HCL code, Terraform's default behavior is to **destroy the old resource and create a new one**:
+
+```hcl
+# Before
+resource "aws_instance" "web" {}
+
+# After rename in code
+resource "aws_instance" "frontend_server" {}
+```
+> [!WARNING]
+> Without intervention, running `terraform apply` will **terminate the running EC2 server** and create a fresh one!
+
+To rename the logical reference in state **without touching live cloud infrastructure**, use `state mv`:
+
+```bash
+# Move resource identifier in state
+terraform state mv aws_instance.web aws_instance.frontend_server
+
+# Output:
+# Successfully moved 1 object(s).
+```
+
+### Moving Standalone Resources into a Module:
+```bash
+terraform state mv aws_security_group.app module.networking.aws_security_group.app
+```
+
+---
+
+## 2. Unmanaging Resources with `terraform state rm`
+
+If you want Terraform to stop tracking a resource (without deleting it from AWS):
+
+```bash
+# Remove resource from state file
+terraform state rm aws_s3_bucket.legacy_data
+
+# Output:
+# Successfully removed aws_s3_bucket.legacy_data from state.
+```
+The bucket remains in AWS. Remove its configuration too if you intend to stop management; otherwise the next plan proposes creating a new binding and may fail on a name collision. For a reviewed handoff on Terraform 1.7+, consider a `removed` block with `destroy = false`.
+
+---
+
+## 3. Resolving Stuck State Locks (`force-unlock`)
+
+If a CI/CD job crashes midway through an execution, a backend lock may remain. With the S3 backend this is normally the `.tflock` object; legacy configurations may use a DynamoDB lock entry. Subsequent runs will fail with:
+
+```
+Error: Error acquiring the state lock
+Lock Info:
+  ID:        a1b2c3d4-5678-90ab-cdef-1234567890ab
+  Path:      company-tfstate-production/terraform.tfstate
+  Operation: OperationTypeApply
+  Who:       runner@github-actions-01
+```
+
+### Safely Unlocking the Backend:
+1. Verify that no other teammate or pipeline is actively writing to the infrastructure.
+2. Preserve the failed job logs and identify why the writer stopped.
+3. Release the lock using the unique Lock ID only after the original process is gone:
+```bash
+terraform force-unlock a1b2c3d4-5678-90ab-cdef-1234567890ab
+```
+
+---
+
+## 4. Drift Detection & Remediation (`refresh-only`)
+
+Configuration drift happens when an engineer modifies a resource directly in the AWS Console (e.g., manually changing a Security Group rule).
+
+![Intent and refreshed state converge in a reviewed plan](/images/lesson-diagrams/reconcile.svg)
+
+
+### Detecting Drift:
+Run a refresh-only plan to inspect the drift:
+```bash
+terraform plan -refresh-only
+```
+Terraform queries AWS APIs and reports that AWS has drifted from `terraform.tfstate`.
+
+### Reconciling Drift:
+```bash
+# Option A: Record observed cloud changes in the configured backend
+terraform apply -refresh-only
+# Also update HCL if the change is intentional; refresh-only does not edit code.
+
+# Option B: Overwrite the console changes and force AWS back to matching the HCL code
+terraform apply
+```
+
+---
+
+
+## Apply the idea: choose the recovery operation
+
+For a resource rename, keep the object and migrate its address, preferably with a reviewed moved block. For intentional console drift, update the HCL and inspect a fresh normal plan. For a corrupt state snapshot, pause writers and follow the backend recovery runbook. These are different incidents with different fixes.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does apply -refresh-only permanently accept a console change?</summary>
+<p>It updates state to observed reality, but leaves HCL unchanged. A later normal plan may propose reverting the console change until code expresses the new intent.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/cli/commands/plan#planning-modes).
+
+## 5. Summary & Next Steps
+
+State manipulation and drift remediation are vital operational skills for DevOps leads. In the next lesson, we will explore **Importing Existing Infrastructure and Automated Code Generation in Terraform 1.5+**.
+
+=================
+
+# Greenfield vs Brownfield: Resource Import & Code Generation
+
+# Greenfield vs Brownfield: Resource Import & Code Generation
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Adopt an existing object without unintended changes.</p></div>
+
+Not all infrastructure starts from a blank slate (**Greenfield**). Most DevOps engineers inherit pre-existing, manually created cloud infrastructure (**Brownfield**) that must be brought under Terraform management without downtime.
+
+---
+
+## 1. The Two Approaches to Importing Infrastructure
+
+![Import binds an existing object to a Terraform address](/images/lesson-diagrams/import.svg)
+
+
+---
+
+## 2. The Modern Declarative `import` Block (Terraform 1.5+)
+
+In Terraform 1.5.0 and newer, importing is declarative and supports automatic code generation.
+
+### Step 1: Declare the `import` Block
+Create a file named `imports.tf`:
+
+```hcl
+# imports.tf
+
+import {
+  to = aws_vpc.imported_vpc
+  id = "vpc-0a1b2c3d4e5f67890" # Existing AWS VPC ID
+}
+
+import {
+  to = aws_security_group.imported_sg
+  id = "sg-0987654321fedcba0"  # Existing AWS Security Group ID
+}
+```
+
+### Step 2: Generate HCL Code Automatically
+Run `terraform plan` with the `-generate-config-out` flag:
+
+```bash
+terraform plan -generate-config-out=generated_resources.tf
+```
+
+Terraform queries AWS APIs for `vpc-0a1b2c3d4e5f67890` and writes a starting resource configuration to `generated_resources.tf`:
+
+```hcl
+# generated_resources.tf (Generated by Terraform)
+
+resource "aws_vpc" "imported_vpc" {
+  cidr_block           = "172.31.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  instance_tenancy     = "default"
+
+  tags = {
+    Name = "legacy-production-vpc"
+  }
+}
+```
+
+### Step 3: Review and Apply
+Initialize a root module with the AWS provider and the correct account/region first. The output path must not already exist when generating configuration. Review generated defaults, conflicting arguments, secrets, and resource ownership; import does not recursively adopt attached resources.
+
+After correcting the generated file, review a new plan. Proceed only when the intended result is import-only:
+
+```bash
+terraform apply
+# Output:
+# Apply complete! Resources: 2 imported, 0 added, 0 changed, 0 destroyed.
+```
+
+---
+
+## 3. The Legacy Imperative Method (`terraform import`)
+
+For reference or older environments:
+
+1. Write the resource block in `main.tf`:
+   ```hcl
+   resource "aws_s3_bucket" "legacy_bucket" {
+     # Leave empty or add bucket name
+     bucket = "my-pre-existing-company-bucket"
+   }
+   ```
+2. Run the import command:
+   ```bash
+   terraform import aws_s3_bucket.legacy_bucket my-pre-existing-company-bucket
+   ```
+3. Run `terraform plan` and adjust arguments until `Plan: 0 to add, 0 to change, 0 to destroy`.
+
+---
+
+
+## Apply the idea: review an import-only plan
+
+A successful import binds an existing ID to one Terraform address. It does not establish that generated defaults match your operational requirements. If the import plan also replaces or updates the object, stop and reconcile the configuration. Avoid binding one remote object to two addresses or states.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Will importing a VPC automatically import its subnets and routes?</summary>
+<p>No. Determine which related objects and provider resource types need separate declarations/imports, and assign clear ownership for each.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/import).
+
+## 4. Summary & Next Steps
+
+Declarative `import` blocks streamline brownfield migrations and eliminate manual guesswork. Next, in **Section 04: Multi-Environment SDLC Architecture**, we will explore how to isolate **Dev, Staging, and Production** environments safely.
+
+=================
+
+# Environment Isolation: Workspaces vs Directory Separation
+
+# Environment Isolation: Workspaces vs Directory Separation
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Evaluate isolation by state, permissions, and deployment controls.</p></div>
+
+Managing multiple environments (**Development**, **Staging**, and **Production**) requires choosing an isolation strategy that prevents accidental cross-environment destruction while maximizing code reuse.
+
+---
+
+## 1. Comparing the Two Primary Isolation Patterns
+
+![Dev and production reuse code but separate state, credentials, and delivery](/images/lesson-diagrams/isolation.svg)
+
+
+| Dimension | **Terraform Workspaces** | **Directory-Based Separation** (Recommended) |
+| :--- | :--- | :--- |
+| **State Storage** | Single backend bucket with prefix sub-keys | Separate backend configs / separate S3 buckets |
+| **Blast Radius** | Shared workflow increases the risk of selecting the wrong state | Separate roots clarify intent; permissions still enforce access |
+| **IAM Access Control** | Shared backend/authentication requires careful IAM scoping; workspace selection is not authorization | Can use dedicated backend policies and roles per account |
+| **Structural Differences**| Difficult (must use ternary logic `var.env == "prod" ? 3 : 1`) | Easy (Dev and Prod can call modules with different inputs) |
+| **Best Used For** | Ephemeral feature branches, testing | Long-lived production environments (Dev, Staging, Prod) |
+
+---
+
+## 2. The Danger of Workspaces in Production
+
+With Workspaces, all environments share the exact same `.tf` files:
+
+```bash
+# An engineer thinks they are in 'dev'
+terraform workspace show
+# default (only production if your team configured it that way)
+
+# Engineer runs destroy intended for dev -> PRODUCTION OUTAGE!
+terraform plan -destroy # Inspect only; do not execute a production destroy
+```
+
+---
+
+## 3. Recommended Enterprise Directory Structure
+
+One common pattern is **Directory-Based Separation with Shared Reusable Modules**:
+
+```
+terraform-infrastructure/
+├── modules/                         # Reusable Building Blocks
+│   ├── networking/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   └── compute/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+│
+└── environments/                    # Dedicated Root Modules
+    ├── dev/
+    │   ├── main.tf                  # Calls ../../modules/networking with dev params
+    │   ├── variables.tf
+    │   ├── terraform.tfvars
+    │   └── backend.tf               # S3 key: dev/terraform.tfstate
+    │
+    ├── staging/
+    │   ├── main.tf
+    │   ├── terraform.tfvars
+    │   └── backend.tf               # S3 key: staging/terraform.tfstate
+    │
+    └── prod/
+        ├── main.tf
+        ├── terraform.tfvars
+        └── backend.tf               # S3 key: prod/terraform.tfstate (Restricted IAM)
+```
+
+### Example `environments/prod/main.tf`:
+```hcl
+module "networking" {
+  source = "../../modules/networking"
+
+  vpc_cidr            = "10.100.0.0/16"
+  environment         = "production"
+  enable_nat_gateway  = true
+  multi_az_deployment = true
+}
+```
+
+---
+
+
+## Apply the idea: compare two failure paths
+
+Two folders using the same backend key still share state. Two different keys accessed through an unrestricted production role still share authority. Before running, verify the root directory, backend key/workspace, caller account, and role. A label named prod is neither a permission nor an approval.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Are CLI workspaces the same as HCP Terraform workspaces?</summary>
+<p>No. CLI workspaces select state instances within a configuration/backend. HCP Terraform workspaces also organize configuration, variables, run history, and access controls. Evaluate the actual product and permission model.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/state/workspaces).
+
+## 4. Summary & Next Steps
+
+Directory-based separation makes targets explicit. Distinct state, scoped IAM roles, and deployment approvals establish the security boundaries. In the next lesson, we will explore **Multi-Account and Multi-Region Cloud Strategies with AWS Organizations and IAM Role Assumption**.
+
+=================
+
+# Multi-Account & Multi-Region Cloud Strategies
+
+# Multi-Account & Multi-Region Cloud Strategies
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Trace the identity and region used by each provider configuration.</p></div>
+
+Enterprise security best practices dictate that Development, Staging, and Production environments should reside in **separate AWS Accounts** managed under **AWS Organizations**.
+
+---
+
+## 1. Enterprise Multi-Account Topology
+
+
+| Account | Example ID | Boundary to configure |
+| :--- | :--- | :--- |
+| Development | 111122223333 | Sandbox role and state access |
+| Staging | 444455556666 | Preproduction role and state access |
+| Production | 777788889999 | Restricted role, state, and approval |
+
+
+By placing environments into distinct AWS accounts:
+1. **Reduced Blast Radius**: Separate accounts reduce direct resource access. Cross-account roles, shared networking, and central pipelines can still propagate mistakes.
+2. **Quota & Rate Limit Isolation**: High API usage or EC2 instance limits in Dev do not throttle Production workloads.
+3. **Billing Segregation**: Cloud costs are automatically itemized per account.
+
+---
+
+## 2. Cross-Account IAM Role Assumption (`assume_role`)
+
+Instead of issuing long-lived access keys for every AWS account, CI/CD pipelines authenticate to a single central identity account and assume a least-privilege IAM role in the target environment:
+
+```hcl
+# environments/prod/provider.tf
+
+provider "aws" {
+  region = "us-east-1"
+
+  # Assume cross-account role in Production Account (777788889999)
+  assume_role {
+    role_arn     = "arn:aws:iam::777788889999:role/TerraformDeploymentRole"
+    session_name = "TerraformProdDeployment"
+  }
+
+  default_tags {
+    tags = {
+      Environment = "production"
+      ManagedBy   = "Terraform"
+    }
+  }
+}
+```
+
+---
+
+## 3. Multi-Region Replication & Provider Aliases
+
+When building active-passive or active-active global infrastructure, declare provider aliases and pass them explicitly to modules:
+
+```hcl
+# Primary Region (us-east-1)
+provider "aws" {
+  alias  = "primary"
+  region = "us-east-1"
+}
+
+# Disaster Recovery Region (eu-west-1)
+provider "aws" {
+  alias  = "dr"
+  region = "eu-west-1"
+}
+
+# Module in Primary Region
+module "primary_vpc" {
+  source = "../../modules/networking"
+  providers = {
+    aws = aws.primary
+  }
+  vpc_cidr = "10.0.0.0/16"
+}
+
+# Module in DR Region
+module "dr_vpc" {
+  source = "../../modules/networking"
+  providers = {
+    aws = aws.dr
+  }
+  vpc_cidr = "10.1.0.0/16"
+}
+```
+
+---
+
+
+## Apply the idea: follow the assumed role
+
+The source identity must be allowed to call sts:AssumeRole, the target role trust policy must accept it, and the assumed role needs resource permissions. SCPs and permission boundaries can further restrict the result. A region alias changes the API region; it does not by itself assume another account role.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Do two regional S3 buckets automatically replicate data?</summary>
+<p>No. Provider aliases choose where to manage resources. Replication requires its own configuration, permissions, versioning, and recovery validation.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/providers/configuration).
+
+## 4. Summary & Next Steps
+
+Multi-account topologies provide stronger isolation when trust policies and shared dependencies are controlled, and cross-account IAM role assumption keeps credentials secure. In the next lesson, we will cover **Managing Secrets and Environment Variables with `.tfvars` and AWS Secrets Manager**.
+
+=================
+
+# Managing Secrets & Environment Variables Securely
+
+# Managing Secrets & Environment Variables Securely
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Keep secrets out of Git and identify where Terraform can persist them.</p></div>
+
+Hardcoded secrets in infrastructure code represent one of the most critical security vulnerabilities in cloud engineering. Let us explore how to manage variables and secrets securely across environments.
+
+---
+
+## 1. Environment-Specific `.tfvars` Files
+
+In directory-based or shared module structures, values are separated into `.tfvars` files:
+
+```
+environments/
+├── dev.tfvars        (Committed to Git - non-sensitive dev settings)
+├── prod.tfvars       (Committed to Git - non-sensitive prod settings)
+└── secrets.tfvars    (NEVER committed to Git - listed in .gitignore)
+```
+
+### Applying with a Variable File:
+```bash
+terraform apply -var-file="prod.tfvars"
+```
+
+---
+
+## 2. Using `TF_VAR_*` Environment Variables in CI/CD
+
+In automated pipelines (such as GitHub Actions or GitLab CI), inject secrets directly into the environment using the `TF_VAR_` prefix:
+
+```bash
+# Setting environment variables
+export TF_VAR_db_password="${SECRET_DB_PASSWORD}"
+export TF_VAR_api_key="${SECRET_API_KEY}"
+
+# Terraform automatically maps TF_VAR_db_password to var.db_password
+terraform plan
+```
+
+---
+
+## 3. Dynamic Secrets from AWS Secrets Manager & SSM
+
+A secret manager keeps values out of Git. However, ordinary Terraform data sources and resource password arguments can still persist those values in state and saved plans. `sensitive = true` redacts normal CLI display; it does not encrypt or omit stored values.
+
+The following is an **illustrative fragment**, not a complete database deployment. Prefer application runtime secret retrieval, service-managed credentials, or supported ephemeral/write-only provider features when secret material must stay out of state:
+
+```hcl
+# Read Database Password from AWS Secrets Manager
+data "aws_secretsmanager_secret" "db_secret" {
+  name = "production/rds/master-credentials"
+}
+
+data "aws_secretsmanager_secret_version" "db_secret_val" {
+  secret_id = data.aws_secretsmanager_secret.db_secret.id
+}
+
+locals {
+  # Parse JSON payload from Secrets Manager
+  db_credentials = jsondecode(data.aws_secretsmanager_secret_version.db_secret_val.secret_string)
+}
+
+# Provision RDS with the dynamically fetched secret
+resource "aws_db_instance" "database" {
+  allocated_storage = 20
+  engine            = "postgres"
+  instance_class    = "db.t3.micro"
+  username          = local.db_credentials.username
+  password          = local.db_credentials.password # Sensitive
+  skip_final_snapshot = false # Supply a unique final_snapshot_identifier in the full configuration
+}
+```
+
+---
+
+
+## Apply the idea: follow a secret through the system
+
+Passing a secret via TF_VAR avoids hardcoding, but an ordinary resource argument can still put it in state. Reading it from a secret-manager data source has the same persistence concern. Prefer passing a secret ARN to the application, which retrieves the value at runtime with its own scoped role when the architecture permits.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Which feature merely redacts display: sensitive or ephemeral?</summary>
+<p>sensitive redacts normal display. Ephemeral values require Terraform 1.10+ and supported contexts; managed-resource write-only arguments require Terraform 1.11+ and provider support. They are not drop-in options for every argument.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
+
+## 4. Day 2 Wrap-up & Transition to Day 3
+
+You have completed **Day 2: State Management & Multi-Environment SDLC Architecture**:
+- Understood state JSON internals, serial counters, and lineage tracking.
+- Built an encrypted, versioned S3 remote backend with native lockfile state locking.
+- Mastered state refactoring with `state mv`, unmanaged resources with `state rm`, and resolved drift with `refresh-only`.
+- Imported brownfield resources with declarative `import {}` blocks and automatic code generation.
+- Designed multi-environment directory layouts, multi-account topologies with `assume_role`, and secure secrets handling.
+
+In **Day 3**, we will dive into **Reusable Modules & Advanced HCL Expressions**!
+
+=================
+
+# Live Lab: Environment Isolation Game Day
+
+# Live Lab: Environment Isolation Game Day
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Prove isolation and record a useful incident finding.</p></div>
+
+<div class="lab-banner"><strong>Scenario:</strong> two environments use the same module. A rushed operator runs a command from the wrong directory. We will add guardrails, recreate the mistake safely with local-only resources, and turn it into a blameless postmortem.</div>
+
+This lab requires Terraform 1.4 or later and no cloud credentials.
+
+## 1. The production question
+
+An environment is not just a variable named `environment`. Strong isolation has three parts:
+
+| Boundary | Dev and production should have... | Why |
+| :--- | :--- | :--- |
+| State | Different state keys or backends | A dev command cannot mutate production bindings |
+| Credentials | Different roles/accounts | The wrong configuration still lacks permission |
+| Delivery | Different approval rules | Production changes receive independent review |
+
+Changing only `environment = "prod"` does not create an isolation boundary.
+
+## 2. Build one reusable module
+
+Create this structure:
+
+```text
+environment-game-day/
+├── modules/service/main.tf
+└── live/
+    ├── dev/main.tf
+    └── prod/main.tf
+```
+
+```bash
+mkdir -p environment-game-day/modules/service environment-game-day/live/dev environment-game-day/live/prod
+cd environment-game-day
+```
+
+Create `modules/service/main.tf`:
+
+```hcl
+variable "environment" {
+  type = string
+
+  validation {
+    condition     = contains(["dev", "prod"], var.environment)
+    error_message = "environment must be dev or prod."
+  }
+}
+
+resource "terraform_data" "service" {
+  input = {
+    name        = "checkout-api"
+    environment = var.environment
+  }
+}
+
+output "service" {
+  value = terraform_data.service.output
+}
+```
+
+Create `live/dev/main.tf`:
+
+```hcl
+terraform { required_version = ">= 1.4.0" }
+
+module "service" {
+  source      = "../../modules/service"
+  environment = "dev"
+}
+
+output "service" { value = module.service.service }
+```
+
+Create `live/prod/main.tf` with the same content, changing only `"dev"` to `"prod"`.
+
+## 3. Apply and prove the states are separate
+
+```bash
+terraform -chdir=live/dev init
+terraform -chdir=live/dev apply -auto-approve
+terraform -chdir=live/prod init
+terraform -chdir=live/prod apply -auto-approve
+
+terraform -chdir=live/dev output
+terraform -chdir=live/prod output
+```
+
+Both directories contain a resource at the same address:
+
+```bash
+terraform -chdir=live/dev state list
+terraform -chdir=live/prod state list
+```
+
+The addresses match, but the state files and object IDs do not. The full identity is effectively **backend + workspace + resource address**, not the address alone.
+
+## 4. Simulate the incident
+
+Ask the class to predict what this command targets:
+
+```bash
+terraform -chdir=live/prod plan -destroy
+```
+
+Nothing is deleted because this is only a plan. The lesson is that the directory selected the state before Terraform considered the word `prod` inside the configuration.
+
+Now add a safety variable to `live/prod/main.tf`:
+
+```hcl
+variable "confirm_production" {
+  type      = bool
+  default   = false
+  nullable  = false
+}
+
+resource "terraform_data" "production_guard" {
+  lifecycle {
+    precondition {
+      condition     = var.confirm_production
+      error_message = "Production requires -var='confirm_production=true'."
+    }
+  }
+}
+```
+
+Run:
+
+```bash
+terraform -chdir=live/prod plan
+terraform -chdir=live/prod plan -var='confirm_production=true'
+```
+
+This precondition blocks this normal plan when confirmation is absent. It is not a destroy guard: destroy planning does not evaluate resource preconditions. It is not a security boundary. IAM and pipeline approvals must enforce the real boundary.
+
+## 5. Recover and clean up
+
+Because we stopped at `plan -destroy`, recovery is simply to reject the plan. If an apply had started against real infrastructure:
+
+1. Stop initiating additional writes.
+2. Preserve the CI logs, plan artifact, state version, and cloud audit events.
+3. Determine which operations completed; do not assume the apply was atomic.
+4. Restore state only when the state itself is corrupt. If real objects were deleted, re-apply reviewed configuration instead.
+5. Validate application data recovery separately from infrastructure recreation.
+
+Clean up the local lab:
+
+```bash
+terraform -chdir=live/dev destroy -auto-approve
+terraform -chdir=live/prod destroy -auto-approve -var='confirm_production=true'
+cd ..
+```
+
+## 6. Complete postmortem
+
+### Incident summary
+
+An operator prepared a destroy plan while their terminal targeted the production root module. The plan was detected before apply, so customer impact was avoided.
+
+### Timeline
+
+| Time | Event |
+| :--- | :--- |
+| 10:02 | Operator intended to reset dev |
+| 10:03 | Shell history/autocomplete selected `live/prod` |
+| 10:04 | Plan showed production objects marked for destruction |
+| 10:05 | Operator stopped and notified the team |
+
+### Root cause
+
+The workflow relied on the operator's current directory and attention as the primary environment control.
+
+### Contributing factors
+
+- Dev and production commands looked nearly identical.
+- The shell prompt did not display the target account/environment.
+- Production planning was possible from a general-purpose role.
+- There was no required CI approval boundary.
+
+### What worked
+
+- A saved plan was reviewed before apply.
+- No automatic `-auto-approve` path existed for production.
+- The operator escalated immediately.
+
+### Corrective actions
+
+| Action | Type | Evidence of completion |
+| :--- | :--- | :--- |
+| Run production only in CI with OIDC | Prevent | Local role cannot assume the production deploy role |
+| Require environment approval | Prevent | Two-person approval recorded in pipeline logs |
+| Show account ID in pre-plan output | Detect | CI log prints and verifies the expected account |
+| Enable backend versioning | Recover | A prior state version can be retrieved in a drill |
+| Run this game day quarterly | Learn | Drill date and findings are documented |
+
+The postmortem is complete only when the actions have owners, due dates, and verification—not when the document is published.
+
+## Apply the idea: collect evidence from both roots
+
+Before the simulated mistake, record each root path, state address, and terraform_data object ID. After the destroy plan, verify the dev output remains unchanged. Identical resource addresses are expected across independent states; identical remote IDs would need investigation.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Will the confirmation precondition prevent plan -destroy?</summary>
+<p>No. It is a teaching check for normal planning, not a destroy authorization control. Restrict production roles and require trusted deployment approval. Never test a destructive guard against real production.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/expressions/custom-conditions).
+
+=================
+
+# Modular Architecture Principles & Standard Structure
+
+# Modular Architecture Principles & Standard Structure
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Design a module as a typed interface with explicit ownership.</p></div>
+
+In Terraform, any directory containing `.tf` files is technically a **Module**. As architectures grow, structuring infrastructure into reusable, self-contained **Child Modules** prevents code duplication and enforces organizational standards.
+
+---
+
+## 1. Root Modules vs. Child Modules
+
+
+| Module role | Responsibility |
+| :--- | :--- |
+| Root | Selects backend, providers, inputs, and child modules. |
+| Child | Implements a reusable interface of variables and outputs. |
+
+
+- **Root Module**: The top-level directory where `terraform init`, `plan`, and `apply` are executed.
+- **Child Module**: A reusable package instantiated by another module via a `module` block.
+
+---
+
+## 2. The Standard Module Anatomy
+
+The HashiCorp standard module convention consists of three core files and documentation:
+
+```
+modules/aws-vpc/
+├── README.md          # Usage examples, inputs/outputs documentation
+├── main.tf            # Core resource declarations
+├── variables.tf       # Parameter inputs with types, defaults & validation
+├── outputs.tf         # Exposed return values (IDs, ARNs, endpoints)
+└── versions.tf        # Minimum Terraform & provider version constraints
+```
+
+---
+
+## 3. Designing a Clean Module Contract
+
+Think of a Terraform module like a function in software engineering:
+
+| Contract element | Example | Responsibility |
+| :--- | :--- | :--- |
+| Input | `vpc_cidr`, `environment` | Caller supplies a typed, validated value. |
+| Implementation | VPC and subnet resource blocks | Module owns internal resource identities. |
+| Output | `vpc_id`, `subnet_ids` | Caller consumes only the exposed interface. |
+
+
+
+### Key Design Principles:
+1. **Single Responsibility**: A module should manage a cohesive unit of infrastructure (e.g., `vpc`, `eks-cluster`, `postgres-rds`), not an entire company's infrastructure in one mega-file.
+2. **Sensible Defaults with Custom Overrides**: Provide standard production defaults while allowing callers to override specific parameters.
+3. **Never Hardcode Provider Blocks inside Child Modules**: Child modules should inherit providers from the root caller.
+
+---
+
+
+## Apply the idea: review a module contract
+
+A networking module accepts CIDRs and availability-zone choices and returns subnet IDs. Consumers use those outputs rather than reaching into internal resources. Renaming an output breaks callers; changing internal resource addresses can cause replacements unless you provide migration declarations.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does each child module get its own state file?</summary>
+<p>No. Child resources normally live in the root module state with module-prefixed addresses. A separate root/backend is needed for an independent state and deployment lifecycle.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/modules/develop).
+
+## 4. Summary & Next Steps
+
+Modular design is the backbone of scalable infrastructure code. In the next lesson, we will **build a focused AWS VPC and public-subnet module, then identify the controls needed to extend it**.
+
+=================
+
+# Building a Reusable Networking Module
+
+# Building a Reusable Networking Module
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain CIDR subdivision and the resources that make a subnet public.</p></div>
+
+Build a **public-network teaching module** with a VPC, public subnets, an internet gateway, and route associations. It does not include private subnets, NAT gateways, flow logs, or a complete production network. Add these only after deciding egress, availability, and cost requirements.
+
+The caller supplies an AWS provider for `us-east-1`. Add `required_providers` with `hashicorp/aws` in the child and configure the provider in the root. With `newbits = 8`, use an IPv4 VPC prefix from /16 through /20 so the resulting subnets stay within AWS sizes. Keep the AZ list stable: reordering a count-based list changes address-to-subnet mappings.
+
+---
+
+## 1. Defining Module Inputs (`variables.tf`)
+
+```hcl
+# modules/aws-network/variables.tf
+
+variable "vpc_cidr" {
+  type        = string
+  description = "Base CIDR block for the VPC"
+  default     = "10.0.0.0/16"
+
+  validation {
+    condition     = can(cidrnetmask(var.vpc_cidr)) && can(regex("/(1[6-9]|20)$", var.vpc_cidr))
+    error_message = "Use an IPv4 CIDR with a prefix from /16 through /20 for this example."
+  }
+}
+
+variable "availability_zones" {
+  type        = list(string)
+  description = "List of availability zones for subnet distribution"
+  default     = ["us-east-1a", "us-east-1b"]
+}
+
+variable "environment" {
+  type        = string
+  description = "Deployment environment name (e.g., dev, prod)"
+}
+```
+
+---
+
+## 2. Implementing Resources (`main.tf`)
+
+We will use the built-in `cidrsubnet()` function to programmatically calculate non-overlapping subnet IP ranges:
+
+```hcl
+# modules/aws-network/main.tf
+
+# 1. Main VPC
+resource "aws_vpc" "this" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = "${var.environment}-vpc"
+    Environment = var.environment
+  }
+}
+
+# 2. Public Subnets across specified AZs
+resource "aws_subnet" "public" {
+  count                   = length(var.availability_zones)
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
+  availability_zone       = var.availability_zones[count.index]
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.environment}-public-${var.availability_zones[count.index]}"
+    Tier = "Public"
+  }
+}
+
+# 3. Internet Gateway
+resource "aws_internet_gateway" "this" {
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name = "${var.environment}-igw"
+  }
+}
+
+# 4. Public Route Table
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.this.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.this.id
+  }
+
+  tags = {
+    Name = "${var.environment}-public-rt"
+  }
+}
+
+# 5. Associate Public Subnets with Route Table
+resource "aws_route_table_association" "public" {
+  count          = length(aws_subnet.public)
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
+}
+```
+
+---
+
+## 3. Exposing Module Outputs (`outputs.tf`)
+
+```hcl
+# modules/aws-network/outputs.tf
+
+output "vpc_id" {
+  description = "The ID of the provisioned VPC"
+  value       = aws_vpc.this.id
+}
+
+output "public_subnet_ids" {
+  description = "List of IDs of the public subnets"
+  value       = aws_subnet.public[*].id
+}
+
+output "vpc_cidr_block" {
+  description = "CIDR block of the VPC"
+  value       = aws_vpc.this.cidr_block
+}
+```
+
+---
+
+## 4. Consuming the Module in Root Code
+
+```hcl
+# environments/prod/main.tf
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "primary_network" {
+  source = "../../modules/aws-network"
+
+  vpc_cidr           = "10.50.0.0/16"
+  environment        = "production"
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+# Pass module output to other resources
+resource "aws_security_group" "web_sg" {
+  name   = "prod-web-sg"
+  vpc_id = module.primary_network.vpc_id # Referenced cleanly via module output!
+}
+```
+
+---
+
+
+## Apply the idea: calculate before provisioning
+
+For cidrsubnet("10.0.0.0/16", 8, 2), adding 8 prefix bits produces /24 networks, and network number 2 is 10.0.2.0/24. The example uses indices 0 and 1 for the first two AZs. Route-table association, not a Public tag, gives each subnet its route to the internet gateway.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does this module provide private subnets or NAT?</summary>
+<p>No. Extend it with separate subnet ranges, route tables, an explicit egress design, and outputs before describing it as a full production network. Estimate NAT and cross-AZ costs separately.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/functions/cidrsubnet).
+
+## 5. Summary & Next Steps
+
+You have built a reusable public-network teaching module with automated CIDR calculation and standard outputs. In the next lesson, we will explore **Module Sources, the Public Terraform Registry, and Version Pinning**.
+
+=================
+
+# Module Sources, Public Registry & Version Pinning
+
+# Module Sources, Public Registry & Version Pinning
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish exact module versions from allowed provider ranges.</p></div>
+
+Terraform modules can be sourced from local file paths, the official **Terraform Registry**, Git repositories, or private organizational registries.
+
+---
+
+## 1. Supported Module Source Types
+
+
+| Source | Selection mechanism |
+| :--- | :--- |
+| Local path | Version with the parent repository. |
+| Public registry | Use version for an exact release or explicit range. |
+| Git HTTPS/SSH | Use ref for a tag or immutable commit. |
+| Private registry | Use registry versions and authenticated access. |
+
+
+---
+
+## 2. Using Verified Modules from the Terraform Registry
+
+The [Terraform Registry](https://registry.terraform.io) hosts thousands of community and vendor-maintained modules.
+
+### Example: Community AWS VPC Module
+```hcl
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.0.0" # Teaching example: select and test an exact release
+
+  name = "production-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+  enable_nat_gateway = true
+  single_nat_gateway = false
+
+  tags = {
+    Environment = "production"
+  }
+}
+```
+
+---
+
+## 3. Referencing Git Repositories with Semantic Versioning
+
+For proprietary internal modules stored in GitHub, GitLab, or Bitbucket:
+
+```hcl
+# Pinning to a specific Git Release Tag (Recommended)
+module "internal_security" {
+  source = "git::https://github.com/company/terraform-aws-security.git?ref=v2.4.1"
+}
+
+# Pinning via SSH (for private enterprise repos)
+module "database_cluster" {
+  source = "git::git@github.com:company/terraform-aws-rds.git?ref=v3.1.0"
+}
+```
+
+> [!IMPORTANT]
+> **Never Point to Unpinned Branches in Production**:
+> Sourcing `?ref=main` or omitting `?ref` entirely means someone pushing a breaking commit to `main` could unexpectedly alter your production plan. **Always pin exact Git tags or semantic release versions**.
+
+---
+
+
+## Apply the idea: review an upgrade deliberately
+
+An exact registry module version chooses one release. A constraint such as ~> 5.0 permits compatible-range 5.x releases; the provider lockfile records a concrete provider choice, but does not lock modules. For a Git source, a full immutable commit reference is stronger than a movable tag.
+
+<details class="knowledge-check">
+<summary>Check your understanding: What should you inspect after init -upgrade?</summary>
+<p>Review the lockfile/provider change, module release notes and compatibility, then a plan for each consuming environment. Installing successfully does not prove that the upgrade is behaviorally safe.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/files/dependency-lock).
+
+## 4. Summary & Next Steps
+
+The provider lockfile does not lock remote module versions. Exact registry versions and immutable Git commit references make module selection repeatable; tags may be moved. Version constraints such as `~> 5.0` permit upgrades within that range. Review module/provider compatibility and release notes before upgrading. In the next lesson, we will examine **Enterprise Module Composition and Architecture Patterns**.
+
+=================
+
+# Enterprise Module Composition & Architecture Patterns
+
+# Enterprise Module Composition & Architecture Patterns
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Compose modules through outputs without broad dependency coupling.</p></div>
+
+As cloud systems grow, the question arises: how should multiple modules interact with each other? Let us examine the architectural patterns used by high-performing DevOps organizations.
+
+---
+
+## 1. Pattern 1: Flat Composition (Recommended)
+
+In **Flat Composition**, the root module acts as a smart orchestrator. It instantiates foundational modules and wires their outputs directly into downstream consumer modules:
+
+![Network outputs feed compute and database inputs](/images/lesson-diagrams/composition.svg)
+
+
+### Why Flat Composition Wins:
+- **Maximum Reusability**: The networking module has zero knowledge of the database or compute modules.
+- **Easy Testing**: Each module can be unit-tested in complete isolation.
+- **Clear Dependency Flow**: The root module explicitly shows how data flows across components.
+
+---
+
+## 2. Pattern 2: Service Wrapper ("Golden Path") Pattern
+
+Platform engineering teams often create **Service Wrappers** that bundle networking, security groups, IAM roles, and compute into an opinionated, compliant service for application teams:
+
+```hcl
+# modules/standard-web-service/main.tf (Platform Engineering Golden Path)
+
+module "security_group" {
+  source = "../aws-sg"
+  # Injected corporate compliance rules
+}
+
+module "app_instances" {
+  source = "../aws-ec2-cluster"
+  # Enforces IMDSv2, EBS encryption, standard logging agent
+}
+```
+
+Application engineers simply invoke the service wrapper:
+```hcl
+module "payments_api" {
+  source       = "git::https://github.com/company/golden-paths.git//web-service?ref=v1.0.0"
+  service_name = "payments"
+  tier         = "production"
+}
+```
+
+---
+
+## 3. Module Anti-Patterns to Avoid
+
+| Anti-Pattern | Why It Fails | Correction |
+| :--- | :--- | :--- |
+| **Monolithic "Kitchen Sink" Module** | Putting VPC, RDS, Redis, and EKS in one module makes small changes risky. | Decompose into independent, focused modules. |
+| **Deep Module Nesting (4+ Levels)** | Passing variables down 4 layers creates debugging nightmares. | Keep nesting shallow (maximum 1–2 levels). |
+| **Hardcoding Providers in Child Modules** | Breaks multi-region and multi-account reusability. | Inherit providers from the root module caller. |
+
+---
+
+
+## Apply the idea: wire only the required dependency
+
+Pass module.network.vpc_id into the security module and module.network.private_subnet_ids into the database module when those outputs exist. A direct reference establishes the needed dependency. A blanket depends_on on an entire module may serialize unrelated resources and defer data-source reads.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does a flat module structure guarantee independent deployments?</summary>
+<p>No. Modules in one root share a state and apply lifecycle. Separate roots can support independent delivery, but require a deliberate interface for exchanging outputs and coordinating changes.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/modules/develop/composition).
+
+## 4. Summary & Next Steps
+
+Module composition allows you to build sophisticated, decoupled platforms. In **Section 06: Advanced HCL Logic & Dynamic Blocks**, we will unlock advanced language features: **`count` vs `for_each`**, **Dynamic Blocks**, and **Lifecycle Meta-Arguments**.
+
+=================
+
+# Advanced Control Flow: count vs for_each Meta-Arguments
+
+# Advanced Control Flow: `count` vs `for_each` Meta-Arguments
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose durable resource keys and predict index-shift consequences.</p></div>
+
+![Count shifts index identity while for_each preserves named keys](/images/lesson-diagrams/addresses.svg)
+
+Terraform provides two meta-arguments for creating multiple instances of a resource: **`count`** and **`for_each`**. Choosing the wrong one can cause unintentional destruction of production infrastructure.
+
+---
+
+## 1. The Mechanics of `count` & The Index Shifting Risk
+
+`count` accepts an integer and creates resources referenced by an **array index (`[0]`, `[1]`, `[2]`)**:
+
+```hcl
+variable "usernames" {
+  type    = list(string)
+  default = ["alice", "bob", "charlie"]
+}
+
+resource "aws_iam_user" "users" {
+  count = length(var.usernames)
+  name  = var.usernames[count.index]
+}
+```
+State mappings created:
+- `aws_iam_user.users[0]` ──► `alice`
+- `aws_iam_user.users[1]` ──► `bob`
+- `aws_iam_user.users[2]` ──► `charlie`
+
+### The Disaster Scenario (Index Shift):
+Suppose someone removes `"bob"` from the list: `["alice", "charlie"]`.
+
+```
+BEFORE REMOVAL:               AFTER REMOVING "bob":
+[0] = alice                   [0] = alice (No change)
+[1] = bob          ──►        [1] = charlie (Terraform updates/destroys bob to become charlie!)
+[2] = charlie                 [2] = DELETED! (Terraform terminates charlie!)
+```
+> [!CAUTION]
+> If these were RDS databases or EC2 instances, removing a middle item shifts later identities. Attributes may update in place or require replacement depending on the resource schema, and the final index is removed. Inspect the plan; replacement is not universal.
+
+---
+
+## 2. The Solution: `for_each` with Maps and Sets
+
+`for_each` identifies resources by a **stable string key** rather than an integer index. Removing an item only deletes that specific item, leaving all other resources completely untouched:
+
+```hcl
+variable "users" {
+  type = map(object({
+    department = string
+    role       = string
+  }))
+  default = {
+    "alice" = { department = "engineering", role = "admin" }
+    "bob"   = { department = "product",     role = "editor" }
+    "charlie" = { department = "security",  role = "viewer" }
+  }
+}
+
+resource "aws_iam_user" "team" {
+  for_each = var.users # Iterates over map keys
+
+  name = each.key # "alice", "bob", "charlie"
+  tags = {
+    Department = each.value.department
+    Role       = each.value.role
+  }
+}
+```
+State mappings created:
+- `aws_iam_user.team["alice"]`
+- `aws_iam_user.team["bob"]`
+- `aws_iam_user.team["charlie"]`
+
+Removing `"bob"` only removes `aws_iam_user.team["bob"]`!
+
+---
+
+## 3. When is `count` Still Appropriate?
+
+One useful case for `count` is **Conditional Resource Creation (Boolean Switch)**:
+
+```hcl
+variable "enable_monitoring" {
+  type    = bool
+  default = true
+}
+
+resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
+  count = var.enable_monitoring ? 1 : 0 # Creates resource if true, skips if false
+
+  alarm_name          = "high-cpu-utilization"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 120
+  statistic           = "Average"
+  threshold           = 80
+}
+```
+
+---
+
+
+## Apply the idea: compare identity, not syntax
+
+With count, removing bob shifts charlie from index 2 to index 1. Terraform sees changed attributes at [1] and a removed [2]; the provider determines whether changed attributes update or replace. With for_each, removing the bob key leaves the charlie address stable.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Can a newly created resource ID be a for_each key in the same plan?</summary>
+<p>Keys must be known before apply. Prefer stable configuration keys such as service names; computed IDs can be values. Sensitive values are also unsuitable as exposed instance keys.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/meta-arguments/for_each).
+
+## 4. Summary & Next Steps
+
+Use `for_each` for durable named identities; `count` is also suitable for conditional or genuinely interchangeable instances. In the next lesson, we will master **Expressions, Built-in Functions, and Dynamic Blocks**.
+
+=================
+
+# Advanced Expressions, Built-in Functions & Dynamic Blocks
+
+# Advanced Expressions, Built-in Functions & Dynamic Blocks
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Use expressions for values and dynamic blocks for nested configuration.</p></div>
+
+HCL provides a rich suite of built-in functions, list/map comprehension expressions, and dynamic block iterators for handling complex configuration logic.
+
+---
+
+## 1. Essential Built-in Functions
+
+Terraform includes dozens of native functions for data transformation:
+
+### A. Collection & Map Functions:
+```hcl
+locals {
+  raw_tags  = { Environment = "prod" }
+  team_tags = { Team = "DevOps", CostCenter = "901" }
+
+  # merge: Combine multiple maps
+  all_tags = merge(local.raw_tags, local.team_tags)
+
+  # lookup: Safe map lookup with fallback default
+  region_alias = lookup({ "us-east-1" = "virginia", "us-west-2" = "oregon" }, var.aws_region, "unknown")
+
+  # flatten: Flattens nested lists of lists into a single list
+  nested_subnets = [["subnet-1", "subnet-2"], ["subnet-3", "subnet-4"]]
+  flat_subnets   = flatten(local.nested_subnets) # ["subnet-1", "subnet-2", "subnet-3", "subnet-4"]
+}
+```
+
+### B. Defensive Error Handling with `try` and `can`:
+```hcl
+locals {
+  is_valid_cidr = can(cidrhost("10.0.0.0/16", 0))
+  settings     = jsondecode("{}")
+  # Missing object attribute is a dynamic error that try can catch.
+  instance_type = try(local.settings.instance_type, "t3.micro")
+}
+# try does not catch undeclared variables and does not replace a valid null.
+# Use coalesce for a null/empty-string fallback when that is the intent.
+```
+
+---
+
+## 2. `for` List & Map Comprehensions
+
+Transform and filter collections dynamically:
+
+### List Comprehension:
+```hcl
+variable "server_names" {
+  default = ["web", "api", "worker", "db"]
+}
+
+# Produce uppercase list: ["WEB", "API", "WORKER", "DB"]
+locals {
+  upper_names = [for s in var.server_names : upper(s)]
+
+  # Filter out "db": ["web", "api", "worker"]
+  non_db_servers = [for s in var.server_names : s if s != "db"]
+}
+```
+
+### Map Comprehension:
+```hcl
+# Convert list of users into map keyed by username
+variable "user_list" {
+  default = [
+    { username = "alice", role = "admin" },
+    { username = "bob",   role = "viewer" }
+  ]
+}
+
+locals {
+  user_map = { for u in var.user_list : u.username => u.role }
+  # Result: { "alice" = "admin", "bob" = "viewer" }
+}
+```
+
+---
+
+## 3. Dynamic Blocks (Iterating Nested Blocks)
+
+In HCL, some resources require nested blocks (such as `ingress` rules inside `aws_security_group` or `ebs_block_device` inside `aws_instance`). You cannot use a regular `for_each` inside a nested block. You must use a **`dynamic` block**:
+
+```hcl
+variable "web_ports" {
+  type        = list(number)
+  description = "List of ports to open for inbound traffic"
+  default     = [80, 443, 8080]
+}
+
+resource "aws_security_group" "web" {
+  name        = "dynamic-web-sg"
+  description = "Security group with dynamically generated ingress ports"
+  vpc_id      = "vpc-0123456789"
+
+  # Generates 3 separate ingress blocks dynamically
+  dynamic "ingress" {
+    for_each = var.web_ports
+    iterator = port # Custom iterator name (defaults to 'ingress')
+    content {
+      description = "Allow inbound port ${port.value}"
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+```
+
+---
+
+
+## Apply the idea: separate three kinds of iteration
+
+A for expression transforms a collection into a value. Resource for_each creates separate tracked instances. A dynamic block emits nested provider blocks inside one resource; it does not create independent resource addresses for those blocks. Choose the construct by the object you need to produce.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does try(null, &quot;fallback&quot;) return fallback?</summary>
+<p>No. null is a valid result, not an evaluation error. Use an explicit null check or coalesce where appropriate; try handles dynamic evaluation errors, not undeclared names or provider API failures.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/functions/try).
+
+## 4. Summary & Next Steps
+
+Built-in functions, `for` expressions, and dynamic blocks make your modules adaptable and expressive. In the next lesson, we will master **Resource Lifecycle Management and Meta-Arguments** (`create_before_destroy`, `prevent_destroy`, `ignore_changes`).
+
+=================
+
+# Resource Lifecycle Management & Meta-Arguments
+
+# Resource Lifecycle Management & Meta-Arguments
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain the limits of lifecycle rules before relying on them.</p></div>
+
+By default, when a resource property requires recreation, Terraform **destroys the existing resource first, then creates the new one**. This causes downtime. With the **`lifecycle` block**, you can fine-tune resource replacement, protect production databases from deletion, and ignore non-critical drift.
+
+---
+
+## 1. Replacement Ordering: `create_before_destroy`
+
+When updating an ASG Launch Template, Auto Scaling Group, or Security Group, you want the new resource online before the old one is terminated:
+
+```hcl
+resource "aws_security_group" "web" {
+  name_prefix = "web-sg-"
+  vpc_id      = "vpc-0123456789"
+
+  lifecycle {
+    create_before_destroy = true # Provisions new SG, updates references, then deletes old SG
+  }
+}
+```
+
+> [!NOTE]
+> When using `create_before_destroy = true` with resources that have name constraints (like Security Groups or IAM roles), use a provider-supported unique-name strategy such as `name_prefix` where available. Also allow overlap in quotas and cost; this setting alone does not guarantee healthy traffic cutover or zero downtime.
+
+---
+
+## 2. Preventing Accidental Deletion: `prevent_destroy`
+
+This protection disappears if you remove the resource block. It cannot stop console/API deletion. Combine it with service deletion protection, IAM, and tested backups. The resource examples here illustrate lifecycle settings and omit required surrounding configuration.
+
+Protect critical production stateful resources (such as production RDS databases or primary S3 data lakes):
+
+```hcl
+resource "aws_db_instance" "production_db" {
+  allocated_storage = 100
+  engine            = "postgres"
+  instance_class    = "db.r6g.xlarge"
+
+  lifecycle {
+    prevent_destroy = true # Rejects a planned destroy while this rule remains in configuration
+  }
+}
+```
+
+---
+
+## 3. Ignoring External Drift: `ignore_changes`
+
+In production, external systems often modify resource attributes. For example:
+- AWS Auto Scaling dynamically adjusts `desired_capacity`.
+- Kubernetes controllers add custom labels or tags.
+
+```hcl
+resource "aws_autoscaling_group" "web_asg" {
+  name                 = "web-asg"
+  min_size             = 2
+  max_size             = 10
+  desired_capacity     = 2 # Initial bootstrap value
+
+  lifecycle {
+    # Ignore changes to desired_capacity so Terraform doesn't revert Auto Scaling events
+    ignore_changes = [
+      desired_capacity
+    ]
+  }
+}
+```
+
+---
+
+## 4. Explicit Dependencies: `depends_on`
+
+Terraform automatically detects dependencies when you reference attributes (e.g. `aws_subnet.public.id`). However, when a resource depends on an invisible background side effect (such as an IAM policy being attached before an S3 bucket or EKS node can function), use `depends_on`:
+
+```hcl
+resource "aws_iam_role_policy_attachment" "worker_node_policy" {
+  role       = aws_iam_role.eks_nodes.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+}
+
+resource "aws_eks_node_group" "main" {
+  cluster_name    = aws_eks_cluster.main.name
+  node_group_name = "standard-workers"
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = module.vpc.private_subnet_ids
+
+  # Explicitly wait for IAM permissions to attach before creating the node group
+  depends_on = [
+    aws_iam_role_policy_attachment.worker_node_policy
+  ]
+}
+```
+
+---
+
+
+## Apply the idea: design a replacement
+
+Creating a replacement before destroying the old object requires two objects to coexist. Unique names, capacity quotas, dependency updates, and service health must all permit that overlap. A database still needs a separate data-migration and recovery strategy; ordering alone cannot preserve its contents.
+
+<details class="knowledge-check">
+<summary>Check your understanding: If the resource block is removed, does prevent_destroy still protect it?</summary>
+<p>No. The rule is part of the configuration you removed. Keep cloud deletion protection, scoped IAM, approvals, and verified backups as independent controls.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle).
+
+## 5. Day 3 Wrap-up & Transition to Day 4
+
+You have completed **Day 3: Reusable Modules & Advanced HCL Expressions**:
+- Designed clean root and child module contracts adhering to single responsibility and encapsulation.
+- Built a reusable AWS public-network teaching module with dynamic subnet calculations.
+- Mastered module sources, semantic version pinning, and public/private registries.
+- Explored Flat vs Nested composition patterns and Platform Engineering Golden Paths.
+- Mastered `count` vs `for_each`, built-in functions, comprehension expressions, and `dynamic` blocks.
+- Configured resource lifecycles with `create_before_destroy`, `prevent_destroy`, and `ignore_changes`.
+
+In **Day 4**, we reach the pinnacle of the course: **Introducing Ansible for Configuration Management**, building an **End-to-End Terraform + Ansible Orchestration Lab**, and deploying **Enterprise CI/CD Pipelines and Policy as Code**!
+
+=================
+
+# Live Lab: Refactor count to for_each Without Recreation
+
+# Live Lab: Stable Resource Addresses
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Migrate addresses and prove object identity is preserved.</p></div>
+
+![Count shifts index identity while for_each preserves named keys](/images/lesson-diagrams/addresses.svg)
+
+<div class="lab-banner"><strong>Scenario:</strong> a team manages three named services with <code>count</code>. Removing the middle item causes addresses to shift. We will first see the dangerous plan, then refactor to stable keys without recreating objects.</div>
+
+This provider-free lab requires Terraform 1.4 or later.
+
+## 1. Why addresses matter
+
+Terraform tracks a resource instance by its address—not by the human meaning of its attributes.
+
+```text
+terraform_data.service[0]          # position-based identity
+terraform_data.service["billing"] # key-based identity
+```
+
+For identical cattle-like instances, an index may be acceptable. For named services, accounts, databases, or subnets, a stable key usually matches the domain better.
+
+## 2. Create the count version
+
+```bash
+mkdir stable-address-lab
+cd stable-address-lab
+```
+
+Create `main.tf`:
+
+```hcl
+terraform { required_version = ">= 1.4.0" }
+
+locals {
+  services = ["accounts", "billing", "catalog"]
+}
+
+resource "terraform_data" "service" {
+  count = length(local.services)
+
+  input = {
+    name = local.services[count.index]
+  }
+
+  # Makes identity changes visible as replacement in this demonstration.
+  triggers_replace = local.services[count.index]
+}
+```
+
+```bash
+terraform init
+terraform apply -auto-approve
+terraform state list
+```
+
+You should see `[0]`, `[1]`, and `[2]`. Ask: “Which address means billing?” Terraform knows only that billing currently occupies index 1.
+
+## 3. Expose the index-shift failure
+
+Remove `"billing"` from the list, leaving `accounts` and `catalog`, then run:
+
+```bash
+terraform plan
+```
+
+Read the plan carefully. `catalog` moves from index 2 to index 1, so one address changes identity and another disappears. With replace-sensitive cloud resources, this can become an unnecessary destroy/create operation.
+
+Do **not** apply this plan. Restore all three names.
+
+## 4. Refactor with explicit moves
+
+Replace the resource with:
+
+```hcl
+locals {
+  services = toset(["accounts", "billing", "catalog"])
+}
+
+resource "terraform_data" "service" {
+  for_each = local.services
+
+  input = {
+    name = each.key
+  }
+
+  triggers_replace = each.key
+}
+
+moved {
+  from = terraform_data.service[0]
+  to   = terraform_data.service["accounts"]
+}
+
+moved {
+  from = terraform_data.service[1]
+  to   = terraform_data.service["billing"]
+}
+
+moved {
+  from = terraform_data.service[2]
+  to   = terraform_data.service["catalog"]
+}
+```
+
+Format and plan:
+
+```bash
+terraform fmt
+terraform plan
+```
+
+The plan should report address moves and **0 to add, 0 to change, 0 to destroy**. Apply so the new addresses are recorded:
+
+```bash
+terraform apply -auto-approve
+terraform state list
+```
+
+## 5. Repeat the original change
+
+Remove `"billing"` again and run:
+
+```bash
+terraform plan
+```
+
+Now only `terraform_data.service["billing"]` is selected for destruction. `catalog` keeps its own stable address.
+
+## 6. What the moved block actually does
+
+A `moved` block changes Terraform's recorded address during planning. It does not call a cloud API to rename an object, and it does not copy infrastructure. Keep the block in version control long enough for every supported upgrade path to pass through the migration.
+
+Use `terraform state mv` mainly for exceptional operator-led repair. Prefer `moved` blocks for code-reviewed, repeatable module refactors.
+
+## 7. Failure drills
+
+Run these drills **before applying the migration in step 4**, while state still uses indexed addresses. After the migration is applied, omitting a move no longer demonstrates the same failure. For a repeat session, use a fresh lab directory and repeat steps 2–3.
+
+### Drill A — omit one move
+
+Temporarily remove the `billing` moved block while all three names exist. The plan should propose destroying the old indexed instance and creating the keyed instance. Restore the block before applying.
+
+### Drill B — map to the wrong key
+
+Swap the destinations for billing and catalog. The plan exposes replacements because `triggers_replace` no longer agrees with the identity. This is why each move must be reviewed against state and domain meaning.
+
+## 8. Clean up and decision rule
+
+```bash
+terraform destroy -auto-approve
+cd ..
+```
+
+Choose `for_each` when instances have durable names. Choose `count` when instances are truly positional or interchangeable. Never choose based only on which syntax is shorter.
+
+
+## Apply the idea: compare before and after
+
+Capture terraform state show for each original index and record its ID. After applying the moved blocks, inspect the keyed addresses and compare IDs. The meaningful success criterion is unchanged object identity and no create/delete actions, not merely a green command exit.
+
+<details class="knowledge-check">
+<summary>Check your understanding: When must the omit-a-move drill be run?</summary>
+<p>Before applying the migration, while state still contains indexed addresses. After migration, omitting an old move will not recreate the original failure because state already uses the new addresses.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/modules/develop/refactoring).
+
+=================
+
+# Introducing Ansible in the Cloud Infrastructure Ecosystem
+
+# Introducing Ansible in the Cloud Infrastructure Ecosystem
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Assign provisioning and guest configuration to clear owners.</p></div>
+
+In modern enterprise cloud engineering, delivering a production application involves two distinct responsibilities: **Provisioning Infrastructure** and **Configuring Software**. 
+
+Understanding how **Terraform** and **Ansible** complement each other is key to building end-to-end automated pipelines.
+
+---
+
+## 1. The Separation of Responsibilities
+
+
+| Owner | Typical responsibilities |
+| :--- | :--- |
+| Terraform | VPCs, routes, instances, IAM, security groups. |
+| Ansible | Packages, templates, services, guest OS configuration. |
+
+
+
+
+---
+
+## 2. Immutable vs. Mutable Infrastructure
+
+There are two major architectural patterns for managing virtual machine software:
+
+### Pattern A: Mutable Infrastructure (Terraform + Ansible)
+- Terraform deploys standard, generic OS images (e.g., base Ubuntu 22.04 LTS).
+- Ansible connects to the running instances, updates packages, and installs the latest application version in place.
+- **Advantage**: Fast feedback loops, lower AMI storage costs, flexible for on-the-fly patching.
+
+### Pattern B: Immutable Infrastructure (Packer + Terraform)
+- HashiCorp **Packer** uses Ansible during a build pipeline to bake an "Amazon Machine Image" (AMI) containing all dependencies.
+- Terraform deploys instances using the pre-baked AMI.
+- To update the app, a new AMI is baked, and Terraform performs a replacement coordinated with health checks and an ASG instance refresh or other rollout mechanism.
+- **Advantage**: Fast auto-scaling launch times and fewer runtime package-installation dependencies.
+
+---
+
+## 3. Why Ansible? Key Characteristics
+
+1. **Agentless Architecture**: Unlike Chef or Puppet, Ansible requires **no background daemon or agent** installed on target servers. It operates entirely over standard **OpenSSH** (Linux) or **WinRM** (Windows).
+2. **Declarative YAML Playbooks**: Tasks describe the desired target state rather than imperative shell commands.
+3. **Idempotency-aware modules**: Many Ansible modules check current state; shell commands, restart tasks, and time-dependent operations need explicit design to be repeatable. If a package is already installed or a file already contains the correct line, Ansible reports `ok: 0 changed`.
+4. **Massive Module Ecosystem**: Native modules for managing `apt`, `yum`, `systemd`, `template` (Jinja2), `copy`, `user`, `git`, and Docker.
+
+---
+
+
+## Apply the idea: choose mutable or image-based delivery
+
+For a small sandbox VM, applying a playbook in place makes the change visible. For a large fleet, bake a tested image and roll it out through health-aware replacement. Ansible can participate in either approach; the distinction is when configuration happens and how updates reach running machines.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Can Terraform and Ansible both manage the same security-group rules?</summary>
+<p>They can technically call the APIs, but shared ownership invites oscillation and drift. Give the rules one owner and expose only the inputs the other tool needs.</p>
+</details>
+
+**Read further:** [Official documentation](https://docs.ansible.com/ansible/latest/getting_started/index.html).
+
+## 4. Summary & Next Steps
+
+Terraform and Ansible together provide complete automation from raw cloud compute to running software. In the next lesson, we will master **Ansible Architecture, Inventories, Tasks, Modules, and Playbooks**.
+
+=================
+
+# Ansible Architecture & Core Fundamentals
+
+# Ansible Architecture & Core Fundamentals
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain tasks, handlers, host selection, and repeat-run behavior.</p></div>
+
+Ansible operates using a straightforward, agentless architecture. Let us break down its core building blocks and write a small Ubuntu teaching playbook.
+
+---
+
+## 1. High-Level Architecture
+
+
+| Component | What it needs |
+| :--- | :--- |
+| Control node | Ansible, inventory, playbooks, credentials, network access. |
+| Managed Linux node | Verified SSH identity and Python for most modules. |
+
+
+---
+
+## 2. Core Ansible Concepts
+
+### A. The Inventory (`hosts.ini` or `inventory.yaml`)
+Defines the target servers and groups:
+```ini
+[webservers]
+web-01 ansible_host=54.210.10.45 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/aws-key.pem
+web-02 ansible_host=54.210.10.46 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/aws-key.pem
+
+[databases]
+db-01 ansible_host=10.0.2.15 ansible_user=ubuntu
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+```
+
+### B. Playbooks & Tasks
+A **Playbook** maps a group of hosts to a series of **Tasks**, where each task invokes an Ansible **Module**:
+
+```yaml
+# playbook.yaml
+---
+- name: Configure Production Web Servers
+  hosts: webservers
+  become: true # Run tasks with sudo privileges
+
+  vars:
+    http_port: 80
+    app_title: "Automated via Terraform & Ansible"
+
+  tasks:
+    - name: Update apt package index
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install Nginx web server
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Deploy custom Nginx HTML landing page
+      ansible.builtin.template:
+        src: templates/index.html.j2
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      notify: Restart Nginx Service # Triggers handler only if file changed!
+
+    - name: Ensure Nginx service is running and enabled
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart Nginx Service
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
+```
+
+---
+
+## 3. Jinja2 Templating (`index.html.j2`)
+
+Ansible uses **Jinja2** to inject dynamic variables into configuration files:
+
+```html
+<!-- templates/index.html.j2 -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ app_title }}</title>
+</head>
+<body style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+  <h1>🚀 {{ app_title }}</h1>
+  <p>Provisioned by <strong>Terraform</strong> | Configured by <strong>Ansible</strong></p>
+  <p>Host: <code>{{ ansible_hostname }}</code> ({{ ansible_default_ipv4.address }})</p>
+</body>
+</html>
+```
+
+---
+
+## 4. Executing the Playbook & Inspecting Idempotency
+
+Run the playbook against your inventory:
+
+```bash
+ansible-playbook -i hosts.ini playbook.yaml
+```
+
+### Output Summary:
+```
+PLAY [Configure Production Web Servers] ****************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [web-01]
+
+TASK [Install Nginx web server] ************************************************
+changed: [web-01]
+
+TASK [Deploy custom Nginx HTML landing page] ***********************************
+changed: [web-01]
+
+RUNNING HANDLER [Restart Nginx Service] ****************************************
+changed: [web-01]
+
+PLAY RECAP *********************************************************************
+web-01    : ok=5    changed=3    unreachable=0    failed=0
+```
+
+> [!NOTE]
+> With no drift, within the apt cache-validity interval, and with the service already started, a second run should report no changes. Exact task counts can vary; an example is:
+> `web-01 : ok=5 changed=0 unreachable=0 failed=0`
+> This demonstrates **Idempotency** in action.
+
+---
+
+
+## Apply the idea: observe handler behavior
+
+A template task notifies its handler only when it reports a change. Repeated notifications normally lead to one handler execution per host at the handler flush point. Static HTML changes do not usually require an Nginx restart; notifying on the page is only a demonstration of the mechanism.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does check mode prove that a first deployment will succeed?</summary>
+<p>No. It depends on module support and existing remote state. A later task may depend on a package or file that check mode did not actually create. Use syntax checks, a disposable target, and a repeat run.</p>
+</details>
+
+**Read further:** [Official documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html).
+
+## 5. Summary & Next Steps
+
+You now understand Ansible's core architecture, task execution, Jinja2 templating, and handlers. In the next lesson, we will explore **Connecting Terraform and Ansible: passing outputs to dynamic inventories and orchestration strategies**.
+
+=================
+
+# Connecting Terraform and Ansible: Integration Patterns
+
+# Connecting Terraform and Ansible: Integration Patterns
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Build a scoped inventory and retry configuration independently.</p></div>
+
+When combining Terraform and Ansible, how do you dynamically pass the IP addresses, hostnames, and metadata generated by Terraform to Ansible?
+
+Let us analyze the **4 primary integration patterns**.
+
+---
+
+## 1. Pattern 1: Automatic Inventory Generation via Terraform (`local_file`)
+
+Terraform can generate an Ansible `inventory.ini` or `inventory.yaml` file automatically as part of its execution:
+
+```hcl
+# main.tf
+
+resource "aws_instance" "web_nodes" {
+  count         = 2
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+
+  tags = {
+    Name = "web-server-${count.index + 1}"
+    Role = "webserver"
+  }
+}
+
+# Automatically generate Ansible inventory file
+resource "local_file" "ansible_inventory" {
+  filename = "${path.module}/ansible/inventory.ini"
+  content  = <<-EOT
+    [webservers]
+    %{ for idx, inst in aws_instance.web_nodes ~}
+    ${inst.tags.Name} ansible_host=${inst.public_ip} ansible_user=ubuntu
+    %{ endfor ~}
+  EOT
+}
+```
+
+---
+
+## 2. Pattern 2: AWS EC2 Dynamic Inventory Plugin (`amazon.aws.aws_ec2`)
+
+Instead of writing static files, Ansible's official AWS EC2 plugin queries the AWS API dynamically in real time, grouping instances by their Terraform tags:
+
+```yaml
+# ansible/aws_ec2.yaml (Ansible Dynamic Inventory Configuration)
+---
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+filters:
+  instance-state-name: running
+  tag:Environment: dev
+  tag:Role: webserver
+
+# Group hosts by tag: Role (e.g. tag:Role=webserver creates group 'role_webserver')
+keyed_groups:
+  - key: tags.Role
+    prefix: role
+
+# Use Public IP address for SSH connection
+compose:
+  ansible_host: public_ip_address
+```
+
+### Running Playbook with Dynamic Inventory:
+
+Install `amazon.aws` and its documented `boto3`/`botocore` dependencies in the Ansible control-node environment. Use credentials scoped to the intended account. Set the playbook target to `hosts: role_webserver`, then inspect `ansible-inventory -i ansible/aws_ec2.yaml --graph` before running. The static-inventory lesson uses `webservers`, which is a different group.
+
+```bash
+ansible-playbook -i ansible/aws_ec2.yaml ansible/playbook.yaml
+```
+
+---
+
+## 3. Pattern 3: The `local-exec` Provisioner (Coupled)
+
+Terraform can invoke Ansible immediately after an EC2 instance finishes provisioning:
+
+```hcl
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+
+  # Provisioner runs locally on the machine executing terraform apply
+  provisioner "local-exec" {
+    command = "ansible-playbook -u ubuntu -i '${self.public_ip},' playbook.yaml # This play must target hosts: all"
+  }
+}
+```
+> [!WARNING]
+> **Limitations of `local-exec`**:
+> - Tight coupling: If Ansible fails due to temporary SSH unreachable, Terraform marks the entire resource as `tainted` / broken.
+> - Difficult to re-run configuration management independently of infrastructure apply.
+
+---
+
+## 4. Pattern 4: Decoupled CI/CD Orchestration (Enterprise Gold Standard)
+
+In enterprise CI/CD workflows, Terraform and Ansible are executed as independent, sequential pipeline stages:
+
+
+| Stage | Success evidence |
+| :--- | :--- |
+| Provision | Terraform resources and required outputs exist. |
+| Wait | Verified SSH and completed cloud-init. |
+| Configure | Playbook completes; HTTP and repeat-run checks pass. |
+
+
+---
+
+
+## Apply the idea: inspect the handoff
+
+After apply, select only the required non-secret outputs or query instances with environment and role filters. Inspect the inventory graph and host count before running the playbook. Keep private keys outside Terraform outputs and verify that the runner has a network path to the selected addresses.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Ansible failed after Terraform succeeded. Should you destroy the VM?</summary>
+<p>Usually no. Diagnose reachability, identity, host keys, cloud-init, and the failed task, then rerun configuration. The decoupled stages exist so a transient configuration failure need not replace healthy infrastructure.</p>
+</details>
+
+**Read further:** [Official documentation](https://docs.ansible.com/ansible/latest/collections/amazon/aws/aws_ec2_inventory.html).
+
+## 5. Summary & Next Steps
+
+Decoupled orchestration provides clean architectural boundaries, safe retries, and high reliability. In the next lesson, we will complete a full **Hands-On Integration Lab: Provisioning with Terraform & Configuring with Ansible**.
+
+=================
+
+# Hands-On Lab: Provisioning with Terraform & Configuring with Ansible
+
+# Hands-On Lab: Provisioning with Terraform & Configuring with Ansible
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Provision a sandbox host, verify readiness, configure it, and clean up.</p></div>
+
+![Verify host identity and readiness before configuration and HTTP checks](/images/lesson-diagrams/readiness.svg)
+
+In this hands-on lab, we will provision a complete cloud infrastructure stack on AWS with **Terraform**, then immediately configure the operating system, firewall, and an **Nginx Web Server** with **Ansible**.
+
+---
+
+## 1. Step 1: The Terraform Infrastructure Layer
+
+Create a project directory `terraform-ansible-lab/` with `main.tf`:
+
+```hcl
+# main.tf
+
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.4"
+    }
+
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+# 1. Register only the public key; keep the private key outside Terraform state.
+variable "ssh_public_key_path" {
+  type = string
+}
+
+variable "ssh_private_key_path" {
+  type = string
+}
+
+variable "operator_cidr" {
+  type        = string
+  description = "Your current public IPv4 address with /32, not 0.0.0.0/0"
+  validation {
+    condition     = can(cidrnetmask(var.operator_cidr)) && can(regex("/32$", var.operator_cidr))
+    error_message = "Use your public IPv4 address followed by /32."
+  }
+}
+
+resource "aws_key_pair" "generated_key" {
+  key_name_prefix = "ansible-lab-"
+  public_key      = file(pathexpand(var.ssh_public_key_path))
+}
+
+# 2. Network & Security Group
+resource "aws_vpc" "lab_vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  tags = { Name = "ansible-lab-vpc" }
+}
+
+resource "aws_subnet" "lab_subnet" {
+  vpc_id                  = aws_vpc.lab_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1a"
+}
+
+resource "aws_internet_gateway" "lab_gw" {
+  vpc_id = aws_vpc.lab_vpc.id
+}
+
+resource "aws_route_table" "lab_rt" {
+  vpc_id = aws_vpc.lab_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.lab_gw.id
+  }
+}
+
+resource "aws_route_table_association" "lab_rta" {
+  subnet_id      = aws_subnet.lab_subnet.id
+  route_table_id = aws_route_table.lab_rt.id
+}
+
+resource "aws_security_group" "web_sg" {
+  name   = "ansible-web-sg"
+  vpc_id = aws_vpc.lab_vpc.id
+
+  ingress {
+    description = "Allow SSH from the lab operator only"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.operator_cidr]
+  }
+
+  ingress {
+    description = "Allow HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 3. Discover Latest Ubuntu AMI
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"]
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+}
+
+# 4. Web Server Instance
+resource "aws_instance" "web" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.micro"
+  key_name               = aws_key_pair.generated_key.key_name
+  subnet_id              = aws_subnet.lab_subnet.id
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+  metadata_options {
+    http_tokens = "required"
+  }
+  root_block_device {
+    encrypted = true
+  }
+
+  tags = {
+    Environment = "dev"
+    Name = "ansible-managed-web-01"
+    Role = "webserver"
+  }
+}
+
+# 5. Automatically Output Ansible Inventory
+resource "local_file" "ansible_inventory" {
+  filename = "${path.module}/ansible/hosts.ini"
+  content  = <<-EOT
+    [webservers]
+    web-01 ansible_host=${aws_instance.web.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file='${pathexpand(var.ssh_private_key_path)}'
+  EOT
+}
+
+output "web_public_ip" {
+  value = aws_instance.web.public_ip
+}
+```
+
+---
+
+## 2. Step 2: The Ansible Configuration Layer
+
+Create `ansible/playbook.yaml`:
+
+```yaml
+# ansible/playbook.yaml
+---
+- name: Configure Sandbox Web Server
+  hosts: webservers
+  become: true
+  gather_facts: false
+
+  vars:
+    company_name: "Cloud Enterprise DevOps"
+
+  pre_tasks:
+    - name: Wait for SSH and Python connectivity
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    - name: Wait for Ubuntu cloud-init to finish
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+
+    - name: Gather facts after the host is ready
+      ansible.builtin.setup:
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install Nginx and UFW Firewall
+      ansible.builtin.apt:
+        name:
+          - nginx
+          - ufw
+          - curl
+        state: present
+
+    - name: Deploy custom web page
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>{{ company_name }}</title>
+            <style>
+              body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding-top: 100px; }
+              .card { background: #1e293b; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+              h1 { color: #38bdf8; }
+              .badge { background: #0284c7; padding: 6px 12px; border-radius: 6px; font-weight: bold; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h1>🚀 Infrastructure & App Deployed!</h1>
+              <p>Provisioned with <span class="badge">Terraform</span></p>
+              <p>Configured & Hardened with <span class="badge">Ansible</span></p>
+            </div>
+          </body>
+          </html>
+      notify: Restart Nginx
+
+    - name: Configure UFW - Allow OpenSSH
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Configure UFW - Allow HTTP
+      community.general.ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+
+    - name: Enable UFW Firewall
+      community.general.ufw:
+        state: enabled
+
+    - name: Ensure Nginx is running and enabled
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
+```
+
+---
+
+## 3. Step 3: Preflight, execute, and verify
+
+**Prerequisites:** Terraform, AWS CLI with a sandbox role, a supported Ansible control node (macOS/Linux/WSL), Python, OpenSSH, and `community.general` for the UFW tasks. This creates one EC2 instance, an EBS volume, and a public IPv4 address, which may incur charges. It is a single-host HTTP lab, not a TLS or high-availability production deployment.
+
+```bash
+mkdir -p ansible
+ansible-galaxy collection install community.general
+aws sts get-caller-identity
+ssh-keygen -t ed25519 -f ~/.ssh/terraform-ansible-lab
+```
+
+Use an SSH agent for a passphrase-protected key. Create an uncommitted `terraform.tfvars` with your own paths and actual public IPv4 address; the documentation address below is only a placeholder:
+
+```hcl
+ssh_public_key_path  = "~/.ssh/terraform-ansible-lab.pub"
+ssh_private_key_path = "~/.ssh/terraform-ansible-lab"
+operator_cidr        = "203.0.113.10/32"
+```
+
+```bash
+terraform init
+terraform fmt
+terraform validate
+terraform plan -out=tfplan
+terraform show tfplan
+terraform apply tfplan
+```
+
+Before Ansible connects, verify the instance's SSH host-key fingerprint through a trusted channel, such as the authenticated EC2 console system log containing cloud-init host-key fingerprints. Connect interactively and compare the fingerprint before accepting it:
+
+```bash
+ssh -i ~/.ssh/terraform-ansible-lab ubuntu@"$(terraform output -raw web_public_ip)"
+# After checking the fingerprint and connecting, exit the remote shell.
+ansible-inventory -i ansible/hosts.ini --graph
+ansible-playbook -i ansible/hosts.ini ansible/playbook.yaml --syntax-check
+ansible-playbook -i ansible/hosts.ini ansible/playbook.yaml
+curl --fail "http://$(terraform output -raw web_public_ip)"
+```
+
+Do not disable host-key checking or blindly trust `ssh-keyscan` output. If a rebuilt instance has a different key, re-verify its identity before updating `known_hosts`.
+
+Run the playbook again. Expect no application changes when the host is converged, though an expired apt cache may refresh. If connection fails, check your current public IP, the /32 security-group rule, route association, SSH key, and verified host key. An open port does not prove cloud-init completed.
+
+## 4. Clean up the sandbox
+
+```bash
+terraform plan -destroy -out=destroy.tfplan
+terraform show destroy.tfplan
+terraform apply destroy.tfplan
+terraform state list
+```
+
+Verify the lab EC2 instance is terminated and no lab volumes or other billable resources remain in AWS. Keep `.terraform/`, `*.tfstate*`, `*.tfplan`, `tfplan`, generated inventory, and secret variable files out of Git. Remove the local lab key pair only when you no longer need it; Terraform did not create or manage the private key.
+
+
+## Apply the idea: verify both layers
+
+A successful Terraform apply establishes cloud objects; it does not prove SSH, package installation, or HTTP readiness. The playbook waits for connection and cloud-init, then configures the host. Test HTTP and run the playbook again; explain any remaining changed tasks instead of assuming idempotency.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Why set gather_facts: false before wait_for_connection?</summary>
+<p>Automatic fact gathering would connect before the readiness task and could fail on a new host. Wait first, then explicitly gather facts. Keep host-key verification enabled and establish trust before the playbook.</p>
+</details>
+
+**Read further:** [Official documentation](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/wait_for_connection_module.html).
+
+## 5. Summary & Next Steps
+
+You have built an automated pipeline spanning cloud compute provisioning and operating system configuration. In **Section 08: Enterprise CI/CD, Security & Capstone**, we will explore **GitHub Actions CI/CD automation**, **Policy as Code with Trivy & tflint**, and the **Production Readiness Review**.
+
+=================
+
+# Enterprise CI/CD Pipelines with GitHub Actions
+
+# Enterprise CI/CD Pipelines with GitHub Actions
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Bind a reviewed saved plan to a trusted commit and deployment approval.</p></div>
+
+For shared production infrastructure, a controlled deployment pipeline makes identity, review, and execution auditable. Route normal infrastructure changes through automated **Continuous Integration & Continuous Deployment (CI/CD)** pipelines.
+
+---
+
+## 1. Separate code validation from deployment authority
+
+A pull request is untrusted code until reviewed. It can contain executable providers, modules, and scripts, so even a plan job needs a trust boundary. Run credential-free validation on PRs; generate a deployment plan from the protected main branch after merge. Never use `pull_request_target` to check out and execute untrusted PR code with deployment credentials.
+
+![A PR validation path has no cloud credentials; trusted main creates a plan that passes through review before apply.](/images/lesson-diagrams/delivery.svg)
+
+## 2. Prerequisites outside the workflow
+
+Before adopting this example, configure:
+
+- A protected `main` branch and required code review.
+- A `production` GitHub environment with required reviewers, self-review prevention where available, and main-only deployment rules. Referencing an environment in YAML does not create its protection rules.
+- An S3 backend with native locking; a committed provider lockfile; Terraform code under `environments/prod`.
+- AWS OIDC trust with audience `sts.amazonaws.com`. The plan role trusts only `repo:OWNER/REPO:ref:refs/heads/main`; the apply role trusts only `repo:OWNER/REPO:environment:production`. Replace OWNER/REPO with the actual repository.
+- A plan role scoped to required reads plus backend locking, and a separate apply role scoped to the intended resources. Put their ARNs in repository variables `AWS_PLAN_ROLE_ARN` and `AWS_APPLY_ROLE_ARN`.
+
+State and binary/JSON plans can contain secrets. The artifact example below is appropriate only in a repository with suitable restricted access. For a public infrastructure repository, use a restricted external artifact store or a controlled remote execution service rather than uploading sensitive plans to broadly readable Actions artifacts.
+
+## 3. Example workflow for a restricted deployment repository
+
+Action major-version tags keep the lesson readable. Resolve and pin reviewed full commit SHAs before production use. The Terraform version is an example course baseline; select a supported, tested release for your environment.
+
+```yaml
+name: Reviewed Terraform deployment
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+
+# PR checks do not occupy the production deployment group.
+concurrency:
+  group: terraform-${{ github.event_name == 'push' && 'production' || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: environments/prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.10.5'
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false -lockfile=readonly
+      - run: terraform validate
+
+  plan:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: environments/prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.10.5'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region: us-east-1
+      - run: terraform init -input=false -lockfile=readonly
+      - run: terraform plan -input=false -lock-timeout=5m -out=tfplan
+      - name: Prepare review evidence
+        run: |
+          terraform show -no-color tfplan > plan.txt
+          sha256sum tfplan > tfplan.sha256
+          printf '%s\n' "$GITHUB_SHA" > commit.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-plan-${{ github.sha }}
+          path: |
+            environments/prod/tfplan
+            environments/prod/plan.txt
+            environments/prod/tfplan.sha256
+            environments/prod/commit.txt
+          retention-days: 1
+          if-no-files-found: error
+
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: environments/prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.10.5'
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-plan-${{ github.sha }}
+          path: environments/prod
+      - name: Verify commit and plan integrity
+        run: |
+          test "$(cat commit.txt)" = "$GITHUB_SHA"
+          sha256sum --check tfplan.sha256
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_APPLY_ROLE_ARN }}
+          aws-region: us-east-1
+      - run: terraform init -input=false -lockfile=readonly
+      - run: terraform apply -input=false -lock-timeout=5m tfplan
+```
+
+The reviewer opens `plan.txt` from this run and checks its commit and target before approving the environment job. The checksum detects corruption; it is not a signature and cannot make an untrusted producer trustworthy. Downloading without another run ID scopes retrieval to this workflow run.
+
+The concurrency group serializes this workflow's deployments. S3 locking coordinates other Terraform writers; neither mechanism blocks console edits. If state or intent changes, discard the plan and create a new reviewed run. A saved plan does not imply an application health check, so add workload-specific verification after apply.
+
+## Apply the idea: distinguish two reviews
+
+PR validation reviews code without deployment credentials. After merge, a trusted job plans from that commit against the target state. The deployment reviewer checks that exact plan; the apply job checks out the same commit and consumes the same run artifact. A stale plan must be regenerated and reviewed.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Does id-token: write by itself grant AWS access?</summary>
+<p>No. It allows requesting an OIDC token. AWS role trust must validate the issuer, audience, and allowed subject; role policies define permitted AWS actions. Restrict both the GitHub environment and AWS trust.</p>
+</details>
+
+**Read further:** [Official documentation](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws).
+
+## 3. Summary & Next Steps
+
+OIDC authentication eliminates static secret leakage, and PR comments provide transparent team collaboration. In the next lesson, we will integrate **Security Scanning, Linting (`tflint`), and Policy as Code**.
+
+=================
+
+# Security Scanning, Linting & Policy as Code
+
+# Security Scanning, Linting & Policy as Code
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish formatting, schema checks, misconfiguration scans, and policy.</p></div>
+
+Catching security misconfigurations and policy violations before `terraform apply` executes is known as **Shifting Security Left**.
+
+---
+
+## 1. The 3 Tiers of Infrastructure Security
+
+
+| Gate | What it checks | What it cannot prove |
+| :--- | :--- | :--- |
+| Linting | Provider-aware style and validation rules | Runtime authorization or health |
+| IaC security scan | Known configuration misconfigurations | Installed package vulnerabilities |
+| Policy | Organization-specific plan constraints | Every operational failure mode |
+
+
+---
+
+## 2. Tier 1: Advanced HCL Linting with `tflint`
+
+`tflint` catches provider-specific errors that `terraform validate` misses (such as invalid AWS EC2 instance type names or deprecated parameters):
+
+```bash
+# Install and run tflint
+brew install tflint
+tflint --init
+tflint
+```
+
+```hcl
+# .tflint.hcl
+plugin "aws" {
+  enabled = true
+  version = "0.30.0"
+  source  = "github.com/terraform-linters/tflint-ruleset-aws"
+}
+
+rule "aws_instance_invalid_type" {
+  enabled = true
+}
+```
+
+---
+
+## 3. Tier 2: Static Security Scanning with `Trivy` / `tfsec`
+
+`Trivy` scans your code for common security misconfigurations:
+
+```bash
+trivy config --exit-code 1 --severity HIGH,CRITICAL ./
+```
+
+### Example misconfigurations:
+
+Rule IDs and coverage depend on the installed scanner version. IaC scanning does not scan the packages running inside an instance.
+- S3 bucket without server-side encryption (`AVD-AWS-0088`).
+- Security group allowing `0.0.0.0/0` on SSH port 22 (`AVD-AWS-0107`).
+- EC2 instance with IMDSv1 enabled (vulnerable to SSRF attacks) (`AVD-AWS-0028`).
+
+---
+
+## 4. Tier 3: Guardrail Enforcement with Open Policy Agent (OPA)
+
+With **Policy as Code**, compliance teams write enforceable rules in **Rego**:
+
+This Rego v1 example deliberately scopes the rule to S3 buckets and EC2 instances, which support tags. It requires both tags, skips pure deletions, and treats unknown required tag values as a reason to defer approval. Expand the allowlist with resource-specific tests.
+
+```rego
+# policy/enforce_tags.rego
+package main
+
+import rego.v1
+
+deny contains msg if {
+  resource := input.resource_changes[_]
+  resource.mode == "managed"
+  resource.type in {"aws_s3_bucket", "aws_instance"}
+  resource.change.after != null
+  some key in {"Environment", "Owner"}
+  tags := object.get(resource.change.after, "tags_all", {})
+  not valid_tag(tags, key)
+  msg := sprintf("%s requires a known non-empty %s tag", [resource.address, key])
+}
+
+valid_tag(tags, key) if {
+  value := tags[key]
+  is_string(value)
+  trim_space(value) != ""
+}
+```
+
+### Evaluating Policies with Conftest:
+```bash
+# Convert plan to JSON
+terraform show -json tfplan > plan.json
+
+# Evaluate plan against Rego policies
+conftest test plan.json -p policy/ # package main is the default namespace
+# FAIL - Resource 'aws_s3_bucket.data' is missing mandatory tag: 'Environment'
+```
+
+---
+
+
+## Apply the idea: test a policy as code
+
+A useful policy has passing and failing fixtures. Test a resource with both required tags, one with an absent tag, one with an unknown planned tag, and a deletion. Unknown values require an explicit decision; silently treating them as approved undermines the guardrail.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Will trivy config scan installed packages for CVEs?</summary>
+<p>No. This command scans infrastructure configuration for misconfiguration. Image/filesystem vulnerability scans use other Trivy modes. Each gate proves a different property, and exit status must be configured to block delivery.</p>
+</details>
+
+**Read further:** [Official documentation](https://www.openpolicyagent.org/docs/policy-language).
+
+## 5. Summary & Next Steps
+
+Linters, scanners, and policy checks reduce risk when failures block deployment. Their coverage is limited; they do not replace runtime controls or operational review. In the final lesson, we review the **Course Capstone, Cost Optimization with Infracost, and the Production Readiness Scorecard**.
+
+=================
+
+# Course Capstone, Cost Optimization & Production Checklist
+
+# Course Capstone, Cost Optimization & Production Checklist
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Demonstrate production readiness with evidence rather than checkmarks.</p></div>
+
+Congratulations on completing the 4-day **Infrastructure Automation with Terraform & Ansible** curriculum! Let us synthesize everything you have built into a unified production capstone and review the **Enterprise Production Readiness Scorecard**.
+
+---
+
+## 1. The Capstone Architecture Overview
+
+This is the target design to build and demonstrate. TLS, private networking, KMS, and all delivery gates are capstone extensions; the earlier single-host HTTP lab does not implement them.
+
+
+| Layer | Capstone evidence |
+| :--- | :--- |
+| Delivery | Scoped OIDC, reviewed plan, approval, cost and policy gates. |
+| Provisioning | Network, compute, protected state, recovery procedure. |
+| Configuration | Scoped inventory, verified SSH, TLS, repeatable playbook. |
+
+
+---
+
+## 2. FinOps & Cost Optimization with Infracost
+
+Before merging infrastructure pull requests, evaluate cloud cost implications using **Infracost**:
+
+```bash
+# Install and run Infracost
+brew install infracost
+infracost breakdown --path .
+```
+
+### Illustrative Infracost Output:
+
+These are example numbers, not current pricing or a quote. Run an authenticated Infracost estimate for your region and usage; include public IPv4, traffic, storage, and idle resources. A successful deployment is not evidence that any checklist item below is complete.
+```
+Project: production-workload
+
+Name                                                Monthly Qty  Unit         Monthly Cost
+
+aws_instance.web_cluster[0]
+├─ Instance usage (Linux, on-demand, t3.medium)             730  hours              $30.37
+└─ Root volume (gp3)                                         50  GB                  $4.00
+
+aws_nat_gateway.nat_gw[0]
+├─ NAT gateway usage                                        730  hours              $32.85
+└─ Data processed                                           100  GB                  $4.50
+
+OVERALL TOTAL                                                                       $71.72
+```
+
+---
+
+## 3. The Enterprise Production Readiness Scorecard
+
+Use this 15-point checklist before deploying any Terraform & Ansible workload to production:
+
+| Category | Requirement | Status |
+| :--- | :--- | :--- |
+| **State & Security** | Remote backend in S3 with KMS encryption and versioning enabled | [ ] |
+| **State & Security** | S3 native state locking enabled with `use_lockfile = true` | [ ] |
+| **State & Security** | `.gitignore` excludes `*.tfstate`, `*.tfvars`, and `.terraform/` | [ ] |
+| **Architecture** | Directory-based environment separation for Dev, Staging, and Production | [ ] |
+| **Architecture** | Reusable child modules adhere to single responsibility | [ ] |
+| **Architecture** | All external module sources pin exact Git tags or semantic versions | [ ] |
+| **Code Quality** | `for_each` used for resource collections (avoiding `count` index shift) | [ ] |
+| **Code Quality** | Input variables include explicit types, descriptions, and validation blocks | [ ] |
+| **Lifecycle** | Production stateful databases protected with `prevent_destroy = true` | [ ] |
+| **Lifecycle** | Replacement overlap, health checks, and traffic cutover tested | [ ] |
+| **Configuration** | Ansible playbooks adhere to idempotency (`changed: 0` on repeat runs) | [ ] |
+| **Configuration** | Host inventories dynamically generated or queried via AWS EC2 plugin | [ ] |
+| **CI/CD** | GitHub Actions / GitLab CI uses passwordless AWS OIDC authentication | [ ] |
+| **Compliance** | Automated linting (`tflint`) and security scanning (`Trivy`/`tfsec`) | [ ] |
+| **FinOps** | Pull requests include Infracost budget impact reports | [ ] |
+
+---
+
+
+## Apply the idea: turn the checklist into a review
+
+For each unchecked item, attach evidence and an owner: backend encryption configuration, a blocked concurrent run, a restore drill result, an approval record, or a scoped IAM denial. Estimate idle and usage-driven costs before deploying. Mark an item complete only after its expected behavior is demonstrated.
+
+<details class="knowledge-check">
+<summary>Check your understanding: Can restoring Terraform state restore deleted application data?</summary>
+<p>No. State records infrastructure bindings. Database backups, object versions, replication, restore procedures, and application health checks must establish data recovery separately.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/backend/s3).
+
+## 4. Course Summary: Your 4-Day Journey
+
+- **Day 1: Terraform Foundations, Architecture & Core Workflow**: Mastered IaC history, why Terraform exists, internal engine mechanics, cross-platform installation, HCL block anatomy, and full CLI lifecycle.
+- **Day 2: State Management & Multi-Environment Architecture**: Built S3 native-locking remote backends, state disaster recovery (`state mv`, `refresh-only`), brownfield imports (`import {}`), and multi-account topologies.
+- **Day 3: Reusable Modules & Advanced HCL Expressions**: Created reusable VPC teaching modules, versioned registries, `count` vs `for_each`, dynamic blocks, and lifecycle rules.
+- **Day 4: Ansible Integration, Enterprise CI/CD & Policy as Code**: Integrated Ansible configuration management, built hands-on orchestration pipelines, deployed GitHub Actions with OIDC, and enforced shift-left security.
+
+*You are now fully equipped to design, build, and orchestrate enterprise-grade cloud automation!*
+
+=================
+
+# Live Lab: CI/CD Failure, Recovery & Postmortem
+
+# Live Lab: CI/CD Failure, Recovery & Postmortem
+
+<div class="lesson-goal"><strong>By the end of this lesson</strong><p>Reproduce a failed gate and distinguish stale-state rejection from review validity.</p></div>
+
+<div class="lab-banner"><strong>Scenario:</strong> a pull request passes review but contains an invalid Terraform reference. We will build the smallest useful quality gate, watch it fail, fix it, then analyze a more serious stale-plan incident.</div>
+
+## 1. What a Terraform pipeline must prove
+
+Each stage answers a different question:
+
+| Stage | Question | Needs cloud credentials? |
+| :--- | :--- | :--- |
+| `fmt -check` | Is formatting consistent? | No |
+| `init -backend=false` | Can providers/modules initialize without touching the backend? | Usually no |
+| `validate` | Is the configuration internally valid? | No |
+| Lint/security/policy | Does it meet team rules? | No for static checks |
+| `plan` | What will change in this exact environment? | Usually yes |
+| Approval | Is this reviewed change acceptable now? | Human/control-plane decision |
+| Apply saved plan | Execute exactly what was reviewed | Yes |
+
+`validate` does not prove permissions, quotas, policy acceptance, runtime health, or that a plan is still appropriate.
+
+## 2. Build a local quality gate
+
+```bash
+mkdir pipeline-lab
+cd pipeline-lab
+```
+
+Create `main.tf`:
+
+```hcl
+terraform { required_version = ">= 1.4.0" }
+
+variable "environment" {
+  type    = string
+  default = "dev"
+
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "Choose dev, staging, or prod."
+  }
+}
+
+resource "terraform_data" "release" {
+  input = {
+    application = "checkout"
+    environment = var.environment
+  }
+}
+```
+
+Run the same commands CI will run:
+
+```bash
+terraform fmt -check -recursive
+terraform init -backend=false
+terraform validate
+```
+
+## 3. Break it on purpose
+
+Change `var.environment` inside the resource to `var.enviroment`, then run `terraform validate`.
+
+Read the diagnostic as evidence:
+
+1. The summary identifies an undeclared input variable.
+2. The source range points to the exact expression.
+3. The detail explains which declaration is missing.
+
+Fix the spelling and rerun the gate. A useful gate is fast enough that students and developers run it before pushing.
+
+## 4. Add the GitHub Actions workflow
+
+Create `.github/workflows/terraform-checks.yml`:
+
+```yaml
+name: Terraform checks
+
+on:
+  pull_request:
+    paths:
+      - "**/*.tf"
+      - ".github/workflows/terraform-checks.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.5"
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false
+      - run: terraform validate
+```
+
+Pin actions to full commit SHAs in a hardened production repository. Version tags are kept here for readability during class.
+
+## 5. The stale-plan incident
+
+Imagine this timeline:
+
+1. Pipeline A creates plan A from state serial 40.
+2. Pipeline B creates and applies plan B, producing state serial 41.
+3. A reviewer approves plan A without noticing that the environment changed.
+4. Pipeline A tries to apply its saved plan.
+
+State locking prevents simultaneous writes, but locking alone does not make an old decision current. Terraform will reject some stale state conditions; the delivery system should also expire plans, serialize environment deployments, and require a new plan after relevant changes.
+
+Use GitHub Actions concurrency for one environment:
+
+```yaml
+concurrency:
+  group: terraform-production
+  cancel-in-progress: false
+```
+
+For a full production workflow:
+
+- Generate a binary plan and its human-readable rendering in one trusted job.
+- Store the plan as a short-lived artifact; never accept a plan uploaded from an untrusted fork.
+- Bind approval to the commit SHA and environment.
+- Apply the saved binary plan, not a newly calculated unreviewed plan.
+- Prevent another apply to the same state while the workflow runs.
+- Use short-lived OIDC credentials and minimum permissions.
+
+## 6. Postmortem: wrong change reached production
+
+### Impact
+
+The production deployment used a newly calculated plan rather than the reviewed plan. A security-group rule was removed, causing seven minutes of failed health checks before rollback.
+
+### Root cause
+
+The apply job ran `terraform apply -auto-approve` with no saved plan argument. Approval covered an earlier text plan, not the exact actions executed.
+
+### Contributing conditions
+
+- Plan and apply ran in separate workflows.
+- The environment changed between those workflows.
+- No concurrency group serialized production changes.
+- The approval UI did not display the commit SHA or plan digest.
+
+### Recovery
+
+1. Pause further deployments to the affected state.
+2. Restore service using a reviewed corrective plan.
+3. Verify application health and dependent systems.
+4. Preserve plan, apply, state-backend, and cloud audit logs.
+5. Resume deployments only after the unsafe path is disabled.
+
+### Corrective actions
+
+| Action | Owner | Verification |
+| :--- | :--- | :--- |
+| Apply only a saved binary plan | Platform | Job fails when plan artifact is missing |
+| Bind artifact to commit SHA | Platform | SHA and digest are checked before apply |
+| Add per-environment concurrency | DevOps | Two test runs cannot apply concurrently |
+| Add production environment approval | Security | Approval record identifies reviewer and SHA |
+| Run rollback game day | Service team | Recovery time and gaps are recorded |
+
+“Engineer ran the wrong command” is not a root cause. A mature postmortem asks why the system allowed one command to bypass the reviewed change.
+
+## 7. Clean up
+
+This quality-gate lab only initializes and validates, so it creates no infrastructure. Return to the parent directory with `cd ..`. If you independently applied the provider-free example, initialize normally and destroy those local resources first.
+
+The course endpoint is not “Terraform ran.” It is a delivery system where intent is reviewable, identity is short-lived, changes are reproducible, and recovery has been rehearsed.
+
+
+## Apply the idea: explain the stale-plan timeline
+
+If run B changes state after run A planned, run A may be rejected as stale. That is helpful, but not a universal drift detector: out-of-band changes may not yet be reflected in state. Expire old plans and regenerate after relevant changes instead of treating the lock as approval.
+
+<details class="knowledge-check">
+<summary>Check your understanding: What is a useful corrective action beyond “be more careful”?</summary>
+<p>Require the apply job to consume the saved plan from its own reviewed run and commit, with environment approval and serialized deployment. Verify the control by trying a missing artifact or wrong commit in a sandbox.</p>
+</details>
+
+**Read further:** [Official documentation](https://developer.hashicorp.com/terraform/cli/commands/plan).
