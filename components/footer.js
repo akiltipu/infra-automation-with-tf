@@ -3,7 +3,7 @@ import Gh from "./github";
 import Tw from "./twitter";
 import Li from "./linkedin";
 import Bs from "./bluesky";
-import ThemeIcons from "./themeicons";
+
 
 export default function Footer({ twitter, linkedin, github, bluesky }) {
   return (
@@ -25,14 +25,14 @@ export default function Footer({ twitter, linkedin, github, bluesky }) {
         ) : null}
         {github ? (
           <li className="social">
-            <a href={`https://github.com/${github}`}>
+            <a aria-label="Instructor GitHub profile" href={`https://github.com/${github}`}>
               <Gh />
             </a>
           </li>
         ) : null}
         {linkedin ? (
           <li className="social">
-            <a href={`https://linkedin.com/in/${linkedin}`}>
+            <a aria-label="Instructor LinkedIn profile" href={`https://linkedin.com/in/${linkedin}`}>
               <Li />
             </a>
           </li>
@@ -48,9 +48,7 @@ export default function Footer({ twitter, linkedin, github, bluesky }) {
           </div>
         </li>
       </ul>
-      <div className="theme-icons">
-        <ThemeIcons />
-      </div>
+
     </footer>
   );
 }

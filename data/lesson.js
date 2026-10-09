@@ -17,7 +17,7 @@ const marked = new Marked(
       return hljs.highlight(code, { language }).value;
     },
     langPrefix: "hljs language-",
-  })
+  }),
 );
 
 function getTitle(slug, override) {
@@ -33,7 +33,7 @@ async function getMeta(section) {
   let meta = {};
   try {
     const file = await fs.readFile(
-      path.join(lessonsPath, section, "meta.json")
+      path.join(lessonsPath, section, "meta.json"),
     );
     meta = JSON.parse(file.toString());
   } catch (e) {
@@ -58,7 +58,7 @@ function enhanceLessonHtml(html) {
   return html.replace(
     /<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/g,
     (_, type) =>
-      `<blockquote class="alert alert-${type.toLowerCase()}"><p><strong class="alert-label">${type}</strong>`
+      `<blockquote class="alert alert-${type.toLowerCase()}"><p><strong class="alert-label">${type}</strong>`,
   );
 }
 
@@ -67,10 +67,14 @@ export function addLessonHeadings(html) {
   const headings = [];
   const entities = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
   const enhanced = html.replace(/<h2>([\s\S]*?)<\/h2>/g, (_, content) => {
-    const text = content.replace(/<[^>]*>/g, "").replace(
-      /&(amp|lt|gt|quot|#39);/g, (_, entity) => entities[entity]
-    );
-    const base = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "section";
+    const text = content
+      .replace(/<[^>]*>/g, "")
+      .replace(/&(amp|lt|gt|quot|#39);/g, (_, entity) => entities[entity]);
+    const base =
+      text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "section";
     const count = (used.get(base) || 0) + 1;
     used.set(base, count);
     const id = count === 1 ? base : `${base}-${count}`;
@@ -113,13 +117,25 @@ export async function getLessons() {
 
     let day = meta.day || "";
     if (!day) {
-      if (dirFilename.includes("day-1") || sectionTitle.toLowerCase().includes("day 1")) {
+      if (
+        dirFilename.includes("day-1") ||
+        sectionTitle.toLowerCase().includes("day 1")
+      ) {
         day = "Day 1";
-      } else if (dirFilename.includes("day-2") || sectionTitle.toLowerCase().includes("day 2")) {
+      } else if (
+        dirFilename.includes("day-2") ||
+        sectionTitle.toLowerCase().includes("day 2")
+      ) {
         day = "Day 2";
-      } else if (dirFilename.includes("day-3") || sectionTitle.toLowerCase().includes("day 3")) {
+      } else if (
+        dirFilename.includes("day-3") ||
+        sectionTitle.toLowerCase().includes("day 3")
+      ) {
         day = "Day 3";
-      } else if (dirFilename.includes("day-4") || sectionTitle.toLowerCase().includes("day 4")) {
+      } else if (
+        dirFilename.includes("day-4") ||
+        sectionTitle.toLowerCase().includes("day 4")
+      ) {
         day = "Day 4";
       }
     }
@@ -168,6 +184,26 @@ export async function getLessons() {
   return sections;
 }
 
+export function renderCourseMarkdown(content) {
+  const rendered = addLessonHeadings(enhanceLessonHtml(marked.parse(content)));
+  let html = rendered.html;
+  const base = process.env.BASE_URL || "";
+  html = html.replace(/src="\/images\//g, `src="${base}/images/`);
+  html = html.replace(
+    /href="\/(lessons|downloads)\//g,
+    (_, folder) => `href="${base}/${folder}/`,
+  );
+  html = html.replace(/href="\/guide(?=["#])/g, `href="${base}/guide`);
+  html = html.replace(
+    /<p>\s*(<img[^>]+src="([^"]*\/lesson-diagrams\/[^"]+)"[^>]*>)\s*<\/p>/g,
+    (_, img, src) =>
+      `<figure class="lesson-diagram"><div class="diagram-viewport" role="region" aria-label="Lesson diagram; scroll horizontally on small screens" tabindex="0">${img}</div><figcaption><a href="${src}" target="_blank" rel="noopener noreferrer">Open full-size diagram (new tab)</a></figcaption></figure>`,
+  );
+  html = html.replace(/<pre><code([^>]*)>/g, '<pre><code$1 tabindex="0">');
+  html = html.replace(/<table>/g, '<table tabindex="0">');
+  return { ...rendered, html };
+}
+
 export async function getLesson(targetDir, targetFile) {
   const rawDir = await fs.readdir(lessonsPath);
   const dir = rawDir.sort();
@@ -180,7 +216,9 @@ export async function getLesson(targetDir, targetFile) {
     }
     if (dirPath.endsWith(targetDir)) {
       const rawLessonDir = await fs.readdir(path.join(lessonsPath, dirPath));
-      const lessonDir = rawLessonDir.sort().filter((str) => str.endsWith(".md"));
+      const lessonDir = rawLessonDir
+        .sort()
+        .filter((str) => str.endsWith(".md"));
 
       for (let j = 0; j < lessonDir.length; j++) {
         const slugPath = lessonDir[j];
@@ -188,15 +226,8 @@ export async function getLesson(targetDir, targetFile) {
           const filePath = path.join(lessonsPath, dirPath, slugPath);
           const file = await fs.readFile(filePath);
           const { data, content } = matter(file.toString());
-          const rendered = addLessonHeadings(enhanceLessonHtml(marked.parse(content)));
-          let html = rendered.html;
-          if (process.env.BASE_URL) {
-            html = html.replace(/src="\/images\//g, `src="${process.env.BASE_URL}/images/`);
-            html = html.replace(/href="\/(lessons|downloads)\//g, (_, folder) => `href="${process.env.BASE_URL}/${folder}/`);
-          }
-          html = html.replace(/<p>\s*(<img[^>]+src="([^"]*\/lesson-diagrams\/[^"]+)"[^>]*>)\s*<\/p>/g,
-            (_, img, src) => `<figure class="lesson-diagram"><div class="diagram-viewport" role="region" aria-label="Lesson diagram; scroll horizontally on small screens" tabindex="0">${img}</div><figcaption><a href="${src}" target="_blank" rel="noopener noreferrer">Open full-size diagram (new tab)</a></figcaption></figure>`
-          );
+          const rendered = renderCourseMarkdown(content);
+          const html = rendered.html;
           const title = getTitle(targetFile, data.title);
           const meta = await getMeta(dirPath);
 
@@ -214,18 +245,20 @@ export async function getLesson(targetDir, targetFile) {
           } else if (dir[i + 1]) {
             // has next in next section
             const nextDirStats = await fs.lstat(
-              path.join(lessonsPath, dir[i + 1])
+              path.join(lessonsPath, dir[i + 1]),
             );
             if (!nextDirStats.isDirectory()) {
               nextSlug = null;
             } else {
               const nextDir = (
                 await fs.readdir(path.join(lessonsPath, dir[i + 1]))
-              ).filter((str) => str.endsWith(".md")).sort();
+              )
+                .filter((str) => str.endsWith(".md"))
+                .sort();
               const nextDirSlug = slugify(dir[i + 1]).slug;
               const nextLessonSlug = slugify(nextDir[0]).slug.replace(
                 /\.md$/,
-                ""
+                "",
               );
               nextSlug = `${nextDirSlug}/${nextLessonSlug}`;
             }
@@ -242,17 +275,19 @@ export async function getLesson(targetDir, targetFile) {
           } else if (dir[i - 1]) {
             // has prev in prev section
             const prevDirStats = await fs.lstat(
-              path.join(lessonsPath, dir[i - 1])
+              path.join(lessonsPath, dir[i - 1]),
             );
             if (!prevDirStats.isDirectory()) {
               prevSlug = null;
             } else {
               const prevDir = (
                 await fs.readdir(path.join(lessonsPath, dir[i - 1]))
-              ).filter((str) => str.endsWith(".md")).sort();
+              )
+                .filter((str) => str.endsWith(".md"))
+                .sort();
               const prevDirSlug = slugify(dir[i - 1]).slug;
               const prevLessonSlug = slugify(
-                prevDir[prevDir.length - 1]
+                prevDir[prevDir.length - 1],
               ).slug.replace(/\.md$/, "");
               prevSlug = `${prevDirSlug}/${prevLessonSlug}`;
             }

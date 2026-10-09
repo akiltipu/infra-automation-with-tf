@@ -41,9 +41,9 @@ Submit a short incident report: symptom, evidence, diagnosis, action, verificati
 
 ## Graduated hints
 
-1. Failure is not an all-or-nothing transaction.
-2. Read the variable default and the dependent precondition together.
-3. Try `terraform plan -var=readiness=ready -out=recovery.tfplan`, review it, and then apply that file.
+<details class="assignment-hint"><summary>Hint 1</summary><p>Failure is not an all-or-nothing transaction.</p></details>
+<details class="assignment-hint"><summary>Hint 2</summary><p>Read the variable default and the dependent precondition together.</p></details>
+<details class="assignment-hint"><summary>Hint 3</summary><p>Try <code>terraform plan -var=readiness=ready -out=recovery.tfplan</code>, review it, and then apply that file.</p></details>
 
 Reference reasoning and expected resource actions: `../../instructor/03.md`.
 
@@ -52,3 +52,7 @@ Reference reasoning and expected resource actions: `../../instructor/03.md`.
 [Browse starter files](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/assignments/03) · [Instructor solution — after your attempt](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/03.md) · [Assessment rubric](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/TEACHING-GUIDE.md)
 
 <details class="knowledge-check"><summary>What should I explain before marking this assignment complete?</summary><p>State your prediction, show the evidence that supports or contradicts it, explain one limit of your checks, and record cleanup. Correct an error and retry if an acceptance criterion is unmet.</p></details>
+
+## Return to this idea later
+
+Tomorrow, explain the main decision without looking at the reference. About a week later, change one input or requirement and predict the result. Record what you needed to look up in your learning log; the aim is to identify your next practice step.

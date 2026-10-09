@@ -44,6 +44,16 @@ Read the **Core** concepts, use each **Workshop** during guided practice, then a
 
 Ask yourself before every command: what should change, what evidence will show it, and how will I clean up? Tomorrow, retrieve yesterday's answer from memory before looking at your notes.
 
+## A change has more than one owner
+
+| Requested change | Owner in this project | Evidence |
+| --- | --- | --- |
+| Add a subnet | Terraform | Reviewed subnet and route actions |
+| Change the status message | Ansible | Template diff and HTTP result |
+| Restore lost application data | Application recovery process | A tested backup restore, not a state file |
+
+**Predict:** a teammate edits the page directly over SSH. Which source still describes the intended page? The next Ansible run should converge it to the template. Terraform may report no changes because this page content is outside its ownership. A no-change Terraform plan is therefore not proof that every file on the host matches your intent.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)

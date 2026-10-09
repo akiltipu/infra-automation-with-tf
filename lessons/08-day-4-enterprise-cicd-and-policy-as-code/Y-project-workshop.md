@@ -50,6 +50,18 @@ A local submission must label its limits; an AWS submission must show real healt
 
 Without your notes, explain why Terraform state is not an application backup, why `moved` can avoid replacement, and why approval must refer to the plan actually applied. Then choose one stretch objective and define its acceptance test before adding infrastructure.
 
+## Separate three kinds of confidence
+
+| Evidence | What it establishes | What it leaves open |
+| --- | --- | --- |
+| Passing mock tests | The tested configuration contract | Real cloud API behavior |
+| Approved saved plan | A reviewer accepted specific proposed actions | Application health after those actions |
+| HTTP health check | That endpoint responds under this check | Data correctness and recovery under every failure |
+
+**Worked incident:** Terraform succeeds, but `/healthz` fails. Reapplying the same infrastructure blindly is unlikely to diagnose a bad Nginx configuration. Inspect the configuration and service boundary, preserve evidence, and decide whether to repair or roll back the application change.
+
+Before the capstone, explain a change that each check would miss. This makes the final demonstration a defense of your evidence rather than a collection of green screenshots.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)

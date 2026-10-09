@@ -34,9 +34,9 @@ Submit the template, three sanitized results, and a before/after file comparison
 
 ## Graduated hints
 
-1. Render the same variable names used by the play.
-2. Jinja's `e` filter escapes HTML text.
-3. Handlers respond to changed tasks and normally run at the end of the play; repeated notifications are coalesced.
+<details class="assignment-hint"><summary>Hint 1</summary><p>Render the same variable names used by the play.</p></details>
+<details class="assignment-hint"><summary>Hint 2</summary><p>Jinja&#x27;s <code>e</code> filter escapes HTML text.</p></details>
+<details class="assignment-hint"><summary>Hint 3</summary><p>Handlers respond to changed tasks and normally run at the end of the play; repeated notifications are coalesced.</p></details>
 
 Reference: `reference/`; explanation: `../../instructor/07.md`.
 
@@ -45,3 +45,7 @@ Reference: `reference/`; explanation: `../../instructor/07.md`.
 [Browse starter files](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/assignments/07) · [Instructor solution — after your attempt](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/07.md) · [Assessment rubric](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/TEACHING-GUIDE.md)
 
 <details class="knowledge-check"><summary>What should I explain before marking this assignment complete?</summary><p>State your prediction, show the evidence that supports or contradicts it, explain one limit of your checks, and record cleanup. Correct an error and retry if an acceptance criterion is unmet.</p></details>
+
+## Return to this idea later
+
+Tomorrow, explain the main decision without looking at the reference. About a week later, change one input or requirement and predict the result. Record what you needed to look up in your learning log; the aim is to identify your next practice step.
