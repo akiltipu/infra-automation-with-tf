@@ -8,11 +8,15 @@ keywords:
   - terraform apply
   - terraform destroy
   - terraform lockfile
+kind: concept
+track: core
 ---
 
 # First Deployment & The Complete Terraform Lifecycle
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Initialize, validate, review a saved plan, and clean up a sandbox.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 02</strong><p>Apply this concept in the connected project. <a href="/lessons/day-1-first-deployment-and-core-hcl/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-1-first-deployment-and-core-hcl/mini-assignment">mini assignment</a>.</p></div>
 
 Let us build our first working infrastructure stack while dissecting each command in the standard Terraform workflow lifecycle.
 

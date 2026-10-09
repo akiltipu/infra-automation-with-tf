@@ -7,11 +7,15 @@ keywords:
   - Git Module Source
   - Semantic Versioning
   - Version Pinning
+kind: concept
+track: extension
 ---
 
 # Module Sources, Public Registry & Version Pinning
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish exact module versions from allowed provider ranges.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 05</strong><p>Extension reading: return after the core workshop. <a href="/lessons/day-3-terraform-modules/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-terraform-modules/mini-assignment">mini assignment</a>.</p></div>
 
 Terraform modules can be sourced from local file paths, the official **Terraform Registry**, Git repositories, or private organizational registries.
 

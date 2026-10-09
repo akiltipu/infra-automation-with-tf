@@ -8,11 +8,15 @@ keywords:
   - ignore_changes
   - replace_triggered_by
   - depends_on
+kind: concept
+track: core
 ---
 
 # Resource Lifecycle Management & Meta-Arguments
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain the limits of lifecycle rules before relying on them.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 06</strong><p>Apply this concept in the connected project. <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/mini-assignment">mini assignment</a>.</p></div>
 
 By default, when a resource property requires recreation, Terraform **destroys the existing resource first, then creates the new one**. This causes downtime. With the **`lifecycle` block**, you can fine-tune resource replacement, protect production databases from deletion, and ignore non-critical drift.
 

@@ -8,11 +8,15 @@ keywords:
   - gRPC Protocol
   - DAG Graph Engine
   - State Engine
+kind: concept
+track: extension
 ---
 
 # Terraform Architecture & Core Engine Deep Dive
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain dependency ordering and diagnose a provider failure.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 01</strong><p>Extension reading: return after the core workshop. <a href="/lessons/day-1-foundations-and-architecture/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-1-foundations-and-architecture/mini-assignment">mini assignment</a>.</p></div>
 
 To debug complex infrastructure issues and design scalable Terraform workflows, engineers must understand what happens under the hood when a command like `terraform plan` or `terraform apply` is executed.
 

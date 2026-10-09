@@ -7,7 +7,7 @@
     }
   ],
   "title": "Infrastructure Automation with Terraform",
-  "subtitle": "Mastering Infrastructure as Code from Fundamentals to Enterprise Orchestration",
+  "subtitle": "Build, protect, refactor and deliver one project with Terraform and Ansible",
   "frontendMastersLink": "",
   "social": {
     "linkedin": "akiltipu",
@@ -29,5 +29,17 @@
   ],
   "productionBaseUrl": "/infra-automation-with-tf",
   "csvPath": "./out/lessons.csv",
-  "llmFullTextPath": "./out/llms.txt"
+  "llmFullTextPath": "./out/llms.txt",
+  "project": {
+    "name": "CourseOps",
+    "description": "Build a service-status website across eight milestones, with guided labs and an independent assignment after every section.",
+    "startPath": "/lessons/day-1-foundations-and-architecture/project-workshop",
+    "downloadPath": "/downloads/courseops-labs.zip",
+    "sourceUrl": "https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops",
+    "paths": [
+      "Core concepts + guided workshops",
+      "8 assignments with instructor solutions",
+      "Cloud-free practice or an AWS sandbox"
+    ]
+  }
 }

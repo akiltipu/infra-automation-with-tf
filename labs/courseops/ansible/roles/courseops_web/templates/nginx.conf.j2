@@ -1,0 +1,8 @@
+server {
+    listen {{ courseops_port | int }} default_server;
+    server_name _;
+    root /var/www/html;
+    index index.html;
+    location / { try_files $uri $uri/ =404; }
+    location = /healthz { access_log off; return 200 "ok\n"; }
+}

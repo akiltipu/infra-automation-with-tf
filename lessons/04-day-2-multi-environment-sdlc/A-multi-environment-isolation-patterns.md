@@ -7,11 +7,15 @@ keywords:
   - Directory Structure
   - Blast Radius
   - Multi-Environment SDLC
+kind: concept
+track: core
 ---
 
 # Environment Isolation: Workspaces vs Directory Separation
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Evaluate isolation by state, permissions, and deployment controls.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 04</strong><p>Apply this concept in the connected project. <a href="/lessons/day-2-multi-environment-sdlc/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-multi-environment-sdlc/mini-assignment">mini assignment</a>.</p></div>
 
 Managing multiple environments (**Development**, **Staging**, and **Production**) requires choosing an isolation strategy that prevents accidental cross-environment destruction while maximizing code reuse.
 

@@ -7,11 +7,15 @@ keywords:
   - Incident Game Day
   - Terraform Postmortem
   - Live Lab
+kind: concept
+track: extension
 ---
 
 # Live Lab: Environment Isolation Game Day
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Prove isolation and record a useful incident finding.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 04</strong><p>Extension practice: return after the core workshop. <a href="/lessons/day-2-multi-environment-sdlc/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-multi-environment-sdlc/mini-assignment">mini assignment</a>.</p></div>
 
 <div class="lab-banner"><strong>Scenario:</strong> two environments use the same module. A rushed operator runs a command from the wrong directory. We will add guardrails, recreate the mistake safely with local-only resources, and turn it into a blameless postmortem.</div>
 

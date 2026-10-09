@@ -1,12 +1,12 @@
 # Infrastructure Automation with Terraform and Ansible
 
-A four-day course with 33 lessons, illustrated explanations, self-check questions, and local and AWS sandbox labs.
+A four-day course with 33 existing lessons, 8 guided project workshops and 8 section assignments. Build **CourseOps**, a service-status website, through one connected Terraform and Ansible project.
 
 [Read the course](https://akiltipu.github.io/infra-automation-with-tf/)
 
 ## Run the course site locally
 
-Use Node.js 22 or later and the committed dependency lockfile:
+Use Node.js 22 or later, Python 3.11+ for lab packaging, Git, and the committed dependency lockfile:
 
 ```bash
 npm ci
@@ -20,7 +20,13 @@ npm run check:lessons
 npm run build
 ```
 
-The build exports the site to `out/`, including lesson metadata in `lessons.csv` and full text in `llms.txt`. GitHub Pages deployment runs on changes to `main`; pull requests run content checks and the static build without deploying.
+The build exports the site to `out/`, including lesson metadata in `lessons.csv`, full text in `llms.txt`, and a source-only lab bundle in `downloads/courseops-labs.zip`. GitHub Pages deployment runs on changes to `main`; pull requests run content checks and the static build without deploying.
+
+## Connected project and teaching plan
+
+[Start CourseOps](labs/courseops/README.md) for runnable checkpoints, local alternatives, state migration, module tests, Ansible configuration and cleanup. [Eight assignments](labs/courseops/assignments) include acceptance criteria, graduated hints and separate instructor answers. The [teaching guide](labs/courseops/instructor/TEACHING-GUIDE.md) gives a four-day schedule and feedback rubric; the [capstone](labs/courseops/CAPSTONE.md) defines the final assessment.
+
+Follow Core → Workshop → Assignment in each section. Extension pages are follow-up reading. The capstone is a separate demonstration or take-home assessment, not an extra task squeezed into the final assignment.
 
 ## Learning paths
 
@@ -30,7 +36,7 @@ The build exports the site to `out/`, including lesson metadata in `lessons.csv`
 | AWS sandbox | First network, S3 backend, reusable network module, Terraform + Ansible web host | Scoped AWS identity; possible cloud charges |
 | Delivery design | OIDC roles, protected environment, saved-plan review, policy checks, capstone evidence | Repository/AWS setup described in each lesson |
 
-Local `terraform_data` labs require Terraform 1.4+, import blocks 1.5+, and S3 native locking 1.10+. Some snippets pin Terraform 1.10.5 and AWS provider 5.x as teaching baselines, not claims about the latest release. Check compatibility and select a supported, tested version for your own environment. Read individual prerequisites before running examples. Fragments illustrate one concept and may omit surrounding resources; labs explicitly identify files to create.
+The connected CourseOps bundle requires Terraform >=1.10 and <2 throughout. Older standalone `terraform_data` examples require Terraform 1.4+, import blocks 1.5+, and S3 native locking 1.10+. Some snippets pin Terraform 1.10.5 and AWS provider 5.x as teaching baselines, not claims about the latest release. Check compatibility and select a supported, tested version for your own environment. Read individual prerequisites before running examples. Fragments illustrate one concept and may omit surrounding resources; labs explicitly identify files to create.
 
 AWS resources are not created by building this website. Run cloud labs only in your sandbox, check the caller identity, review plans, and complete cleanup. State, binary/JSON plans, private keys, and secret variable files must stay out of Git.
 
@@ -44,4 +50,4 @@ AWS resources are not created by building this website. Run cloud labs only in y
 - Use `##` headings for the generated page navigator. Native `<details class="knowledge-check">` elements work without a diagram runtime or external script.
 - Link primary documentation and explain version-sensitive behavior.
 
-`npm run check:lessons` verifies heading IDs, navigation order, learning aids, and image paths under the production base path. It does not execute Terraform or deploy cloud infrastructure.
+`npm run check:lessons` verifies heading IDs, navigation order, learning aids, and image paths under the production base path. It does not execute Terraform or deploy cloud infrastructure. The separate PR lab job runs real local Terraform recovery/refactor exercises, AWS provider mocks, policy fixtures, and Ansible template/inventory checks. See [delivery checks](labs/courseops/delivery/README.md) for commands. AWS runtime behavior requires a sandbox integration run and is not verified by mocks.

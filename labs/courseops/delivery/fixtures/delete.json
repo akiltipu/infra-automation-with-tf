@@ -1,0 +1,18 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "aws_instance.web",
+      "mode": "managed",
+      "type": "aws_instance",
+      "name": "web",
+      "change": {
+        "actions": [
+          "delete"
+        ],
+        "after": null,
+        "after_unknown": {}
+      }
+    }
+  ]
+}

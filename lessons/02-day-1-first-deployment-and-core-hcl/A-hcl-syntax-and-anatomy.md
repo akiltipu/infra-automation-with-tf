@@ -8,11 +8,15 @@ keywords:
   - Data Types
   - String Interpolation
   - Heredoc
+kind: concept
+track: core
 ---
 
 # HashiCorp Configuration Language (HCL) Anatomy
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Identify blocks, expressions, and addresses without relying on filenames.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 02</strong><p>Apply this concept in the connected project. <a href="/lessons/day-1-first-deployment-and-core-hcl/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-1-first-deployment-and-core-hcl/mini-assignment">mini assignment</a>.</p></div>
 
 **HCL (HashiCorp Configuration Language)** is a declarative domain-specific language designed to be human-readable and machine-friendly. It combines the readability of YAML with the structural rigor of JSON.
 

@@ -8,11 +8,15 @@ keywords:
   - FinOps
   - Cloud Readiness
   - Course Conclusion
+kind: concept
+track: core
 ---
 
 # Course Capstone, Cost Optimization & Production Checklist
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Demonstrate production readiness with evidence rather than checkmarks.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 08</strong><p>Apply this concept in the connected project. <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/mini-assignment">mini assignment</a>.</p></div>
 
 Congratulations on completing the 4-day **Infrastructure Automation with Terraform & Ansible** curriculum! Let us synthesize everything you have built into a unified production capstone and review the **Enterprise Production Readiness Scorecard**.
 
@@ -107,3 +111,8 @@ For each unchecked item, attach evidence and an owner: backend encryption config
 - **Day 4: Ansible Integration, Enterprise CI/CD & Policy as Code**: Integrated Ansible configuration management, built hands-on orchestration pipelines, deployed GitHub Actions with OIDC, and enforced shift-left security.
 
 *You are now fully equipped to design, build, and orchestrate enterprise-grade cloud automation!*
+
+
+## CourseOps assessment and reference implementation
+
+Use the [CourseOps capstone brief and 100-point rubric](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/CAPSTONE.md) for the connected project. Submit reproducible non-secret code, selected evidence, a recovery explanation and cleanup records. Complete the [section assignment](/lessons/day-4-enterprise-cicd-and-policy-as-code/mini-assignment) before the final demonstration. The [instructor guide](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/TEACHING-GUIDE.md) includes pacing, feedback and local/cloud grading distinctions.

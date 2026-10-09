@@ -7,11 +7,15 @@ keywords:
   - VPC Module
   - cidrsubnet
   - Module Outputs
+kind: concept
+track: core
 ---
 
 # Building a Reusable Networking Module
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain CIDR subdivision and the resources that make a subnet public.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 05</strong><p>Apply this concept in the connected project. <a href="/lessons/day-3-terraform-modules/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-terraform-modules/mini-assignment">mini assignment</a>.</p></div>
 
 Build a **public-network teaching module** with a VPC, public subnets, an internet gateway, and route associations. It does not include private subnets, NAT gateways, flow logs, or a complete production network. Add these only after deciding egress, availability, and cost requirements.
 

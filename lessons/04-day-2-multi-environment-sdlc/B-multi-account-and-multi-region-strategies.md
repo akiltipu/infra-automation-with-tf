@@ -8,11 +8,15 @@ keywords:
   - Cross-Account IAM
   - Multi-Region
   - Provider Configuration
+kind: concept
+track: extension
 ---
 
 # Multi-Account & Multi-Region Cloud Strategies
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Trace the identity and region used by each provider configuration.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 04</strong><p>Extension reading: return after the core workshop. <a href="/lessons/day-2-multi-environment-sdlc/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-multi-environment-sdlc/mini-assignment">mini assignment</a>.</p></div>
 
 Enterprise security best practices dictate that Development, Staging, and Production environments should reside in **separate AWS Accounts** managed under **AWS Organizations**.
 
