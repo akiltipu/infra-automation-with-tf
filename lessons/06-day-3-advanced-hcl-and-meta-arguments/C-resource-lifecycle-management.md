@@ -18,7 +18,7 @@ track: core
 
 <div class="project-connection"><strong>CourseOps · Section 06</strong><p>Apply this concept in the connected project. <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/mini-assignment">mini assignment</a>.</p></div>
 
-By default, when a resource property requires recreation, Terraform **destroys the existing resource first, then creates the new one**. This causes downtime. With the **`lifecycle` block**, you can fine-tune resource replacement, protect production databases from deletion, and ignore non-critical drift.
+By default, when a resource property requires recreation, Terraform **destroys the existing resource first, then creates the new one**. For a single serving instance, that can interrupt service. With the **`lifecycle` block**, you can fine-tune resource replacement, protect production databases from deletion, and ignore non-critical drift.
 
 ---
 
@@ -123,14 +123,6 @@ Creating a replacement before destroying the old object requires two objects to 
 
 **Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle).
 
-## 5. Day 3 Wrap-up & Transition to Day 4
+## Practice before moving to Ansible
 
-You have completed **Day 3: Reusable Modules & Advanced HCL Expressions**:
-- Designed clean root and child module contracts adhering to single responsibility and encapsulation.
-- Built a reusable AWS public-network teaching module with dynamic subnet calculations.
-- Mastered module sources, semantic version pinning, and public/private registries.
-- Explored Flat vs Nested composition patterns and Platform Engineering Golden Paths.
-- Mastered `count` vs `for_each`, built-in functions, comprehension expressions, and `dynamic` blocks.
-- Configured resource lifecycles with `create_before_destroy`, `prevent_destroy`, and `ignore_changes`.
-
-In **Day 4**, we reach the pinnacle of the course: **Introducing Ansible for Configuration Management**, building an **End-to-End Terraform + Ansible Orchestration Lab**, and deploying **Enterprise CI/CD Pipelines and Policy as Code**!
+Complete the stable-address workshop and assignment. Your evidence should show a reviewed move with preserved IDs, followed by a separately reviewed retirement. Extension topics such as dynamic blocks and registry publishing can follow once the core contract is clear.

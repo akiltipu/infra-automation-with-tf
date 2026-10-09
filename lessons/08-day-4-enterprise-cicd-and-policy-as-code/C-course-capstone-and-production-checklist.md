@@ -105,7 +105,7 @@ For each unchecked item, attach evidence and an owner: backend encryption config
 
 ## 4. Course Summary: Your 4-Day Journey
 
-- **Day 1: Terraform Foundations, Architecture & Core Workflow**: Mastered IaC history, why Terraform exists, internal engine mechanics, cross-platform installation, HCL block anatomy, and full CLI lifecycle.
+- **Day 1: Terraform Foundations, Architecture & Core Workflow**: Practiced IaC fundamentals, why Terraform exists, internal engine mechanics, cross-platform installation, HCL block anatomy, and full CLI lifecycle.
 - **Day 2: State Management & Multi-Environment Architecture**: Built S3 native-locking remote backends, state disaster recovery (`state mv`, `refresh-only`), brownfield imports (`import {}`), and multi-account topologies.
 - **Day 3: Reusable Modules & Advanced HCL Expressions**: Created reusable VPC teaching modules, versioned registries, `count` vs `for_each`, dynamic blocks, and lifecycle rules.
 - **Day 4: Ansible Integration, Enterprise CI/CD & Policy as Code**: Integrated Ansible configuration management, built hands-on orchestration pipelines, deployed GitHub Actions with OIDC, and enforced shift-left security.

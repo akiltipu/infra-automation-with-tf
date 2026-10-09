@@ -101,13 +101,6 @@ Passing a secret via TF_VAR avoids hardcoding, but an ordinary resource argument
 
 **Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
-## 4. Day 2 Wrap-up & Transition to Day 3
+## Prove the environment boundary
 
-You have completed **Day 2: State Management & Multi-Environment SDLC Architecture**:
-- Understood state JSON internals, serial counters, and lineage tracking.
-- Built an encrypted, versioned S3 remote backend with native lockfile state locking.
-- Mastered state refactoring with `state mv`, unmanaged resources with `state rm`, and resolved drift with `refresh-only`.
-- Imported brownfield resources with declarative `import {}` blocks and automatic code generation.
-- Designed multi-environment directory layouts, multi-account topologies with `assume_role`, and secure secrets handling.
-
-In **Day 3**, we will dive into **Reusable Modules & Advanced HCL Expressions**!
+Continue to the environment workshop and assignment. Demonstrate separate local states, then explain which account and role boundaries the cloud version would need. A refresh-only operation updates Terraform records; it does not by itself resolve configuration intent.

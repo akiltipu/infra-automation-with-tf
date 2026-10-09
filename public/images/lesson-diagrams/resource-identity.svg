@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" role="img" aria-labelledby="title desc"><title id="title">A new address. The same remote object.</title><desc id="desc">An explicit moved block changes a Terraform address from a root resource to a module resource while preserving the same remote EC2 identifier. Review zero mutation actions and confirm business identity.</desc><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10" fill="#acbddb"/></marker></defs><rect width="1000" height="660" fill="#101a2d" rx="20"/><g font-family="system-ui,sans-serif" fill="#f3f5ff"><text x="40" y="50" font-size="27" font-weight="700">A new address. The same remote object.</text>
+<rect x="40" y="120" width="430" height="150" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="60" y="152" font-size="20" font-weight="650">Before: root address</text>
+<text x="60" y="185" fill="#c9d6eb" font-size="18">aws_instance.web</text>
+<text x="60" y="212" fill="#c9d6eb" font-size="18">State binds this address</text>
+<text x="60" y="239" fill="#c9d6eb" font-size="18">to the existing EC2 instance</text>
+<rect x="530" y="120" width="430" height="150" rx="12" fill="#1c2b43" stroke="#50b7ac" stroke-width="1.5"/><text x="550" y="152" font-size="20" font-weight="650">After: module address</text>
+<text x="550" y="185" fill="#c9d6eb" font-size="18">module.web.aws_instance.web</text>
+<text x="550" y="212" fill="#c9d6eb" font-size="18">State retains the existing binding</text>
+<text x="550" y="239" fill="#c9d6eb" font-size="18">through an explicit moved block</text>
+<path d="M470 195 H530" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<path d="M255 270 V335 H370 V370" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<path d="M745 270 V335 H630 V370" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="240" y="370" width="520" height="130" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="260" y="402" font-size="20" font-weight="650">Existing EC2 instance</text>
+<text x="260" y="435" fill="#c9d6eb" font-size="18">Same AWS instance ID before and after</text>
+<text x="260" y="462" fill="#c9d6eb" font-size="18">No replacement solely to reorganize code</text>
+<text x="40" y="554" font-size="18" fill="#c9d6eb">Review the move mapping and a plan with 0 add / 0 change / 0 destroy.</text>
+<text x="40" y="590" font-size="18" fill="#c9d6eb">Compare IDs by purpose; zero mutations alone do not prove the mapping is correct.</text>
+<text x="40" y="625" font-size="18" fill="#c9d6eb">Keep move history for the upgrade paths your module supports.</text>
+</g></svg>

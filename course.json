@@ -2,8 +2,15 @@
   "authors": [
     {
       "name": "Akil Mahmod Tipu",
-      "company": "Senior DevOps Engineer",
-      "image": "akiltipu-pro.jpg"
+      "company": "Senior DevOps Engineer \u00b7 Team Lead",
+      "image": "akiltipu-pro.jpg",
+      "bio": "I work with AWS infrastructure, delivery pipelines and operational automation. My experience spans ECS and Kubernetes, infrastructure as code, observability and mentoring engineers. In this course, I connect each command to the decision behind it\u2014and the evidence that tells us it worked.",
+      "teachingNote": "We will predict a change, inspect the result, explain a failure and recover deliberately. The aim is to help you make sound engineering decisions when the example changes.",
+      "credentials": [
+        "AWS Solutions Architect \u2013 Associate",
+        "Terraform Associate",
+        "GitHub Foundations"
+      ]
     }
   ],
   "title": "Infrastructure Automation with Terraform",
@@ -41,5 +48,33 @@
       "8 assignments with instructor solutions",
       "Cloud-free practice or an AWS sandbox"
     ]
-  }
+  },
+  "shortTitle": "Terraform + Ansible",
+  "publicUrl": "https://akiltipu.github.io/infra-automation-with-tf",
+  "heroImage": "courseops-hero-v3.webp",
+  "heroEyebrow": "Learn infrastructure by building it",
+  "heroTitle": "From your first plan to a reviewed release.",
+  "heroDescription": "Build CourseOps, a small status-page service, while learning to provision, test, recover and configure infrastructure. One project. Eight milestones. Evidence at every step.",
+  "days": [
+    {
+      "name": "Day 1",
+      "title": "Understand & deploy",
+      "outcome": "Explain the architecture and make your first verified change."
+    },
+    {
+      "name": "Day 2",
+      "title": "Protect & recover",
+      "outcome": "Recover a partial apply and prove environment separation."
+    },
+    {
+      "name": "Day 3",
+      "title": "Reuse & refactor",
+      "outcome": "Test a module contract and preserve resource identities."
+    },
+    {
+      "name": "Day 4",
+      "title": "Configure & review",
+      "outcome": "Render the service, verify repeatability and review a release."
+    }
+  ]
 }

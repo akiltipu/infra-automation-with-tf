@@ -22,6 +22,21 @@ npm run build
 
 The build exports the site to `out/`, including lesson metadata in `lessons.csv`, full text in `llms.txt`, and a source-only lab bundle in `downloads/courseops-labs.zip`. GitHub Pages deployment runs on changes to `main`; pull requests run content checks and the static build without deploying.
 
+## Learning experience
+
+The curriculum supports topic/day search, lesson-type filters, local completion tracking and resume. The [learning guide](content/learning-guide.md) explains prerequisites, plan reading, troubleshooting and key terms. Progress is self-assessed, stored only in the current browser, and has a temporary fallback if storage is blocked.
+
+The [research and design review](docs/course-experience-review.md) records the primary sources, content corrections, accessibility decisions and generated banner provenance. Instructor profile data lives in `course.json` and is shared by the homepage and welcome lesson.
+
+For browser checks after building:
+
+```bash
+npx playwright install chromium
+npm run check:browser
+```
+
+These checks cover desktop/mobile routes, search, storage failures, resume, code copying, hint disclosure, downloads and selected automated accessibility checks in both themes. They do not establish complete WCAG conformance.
+
 ## Connected project and teaching plan
 
 [Start CourseOps](labs/courseops/README.md) for runnable checkpoints, local alternatives, state migration, module tests, Ansible configuration and cleanup. [Eight assignments](labs/courseops/assignments) include acceptance criteria, graduated hints and separate instructor answers. The [teaching guide](labs/courseops/instructor/TEACHING-GUIDE.md) gives a four-day schedule and feedback rubric; the [capstone](labs/courseops/CAPSTONE.md) defines the final assessment.

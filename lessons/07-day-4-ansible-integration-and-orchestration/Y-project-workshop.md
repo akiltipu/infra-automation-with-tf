@@ -43,6 +43,19 @@ For secret templates, prevent output with `no_log: true` and `diff: false` where
 
 From the bundle's `ansible` directory, run `ansible-playbook render-test.yml`. It renders the **same role page** locally and asserts the environment. Assignment 07 then asks you to complete a smaller template, prove escaping, repeat-run behavior and check-mode behavior. These establish templating skills, not Nginx installation or SSH reachability.
 
+## Predict exactly which task changes
+
+![Ansible page and configuration changes take different paths: the page is served directly, while changed configuration is validated and reloaded.](/images/lesson-diagrams/ansible-idempotence.svg)
+
+| Change | Expected task effect | Handler effect |
+| --- | --- | --- |
+| Same inputs, valid apt cache | Existing content already matches | No reload |
+| New status message | Page template changes | No reload needed |
+| New server configuration | Configuration template changes | Validate, then reload |
+| Later task fails | Host's remaining execution may stop | Notified handlers are not guaranteed to run |
+
+Handlers normally run after the relevant play section and execute in definition order, not notification order. Do not assume the page is healthy from a recap. Inspect the configuration and service after a failure, correct the cause and rerun. For production, validate a candidate configuration before replacing the active one where the deployment design supports it.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)
