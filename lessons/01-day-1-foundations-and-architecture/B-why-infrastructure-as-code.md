@@ -8,11 +8,15 @@ keywords:
   - Declarative vs Imperative
   - Idempotency
   - Configuration Drift
+kind: concept
+track: core
 ---
 
 # The Evolution of Cloud Infrastructure & Why IaC Matters
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish desired configuration, recorded state, and actual infrastructure.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 01</strong><p>Apply this concept in the connected project. <a href="/lessons/day-1-foundations-and-architecture/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-1-foundations-and-architecture/mini-assignment">mini assignment</a>.</p></div>
 
 Modern cloud engineering is rooted in software engineering rigor. To understand why tools like **Terraform** dominate the industry, we must first understand how infrastructure management evolved from physical data centers to automated, programmatic cloud provisioning.
 

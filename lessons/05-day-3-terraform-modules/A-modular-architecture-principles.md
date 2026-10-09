@@ -7,11 +7,15 @@ keywords:
   - Child Module
   - Module Contract
   - Encapsulation
+kind: concept
+track: core
 ---
 
 # Modular Architecture Principles & Standard Structure
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Design a module as a typed interface with explicit ownership.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 05</strong><p>Apply this concept in the connected project. <a href="/lessons/day-3-terraform-modules/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-terraform-modules/mini-assignment">mini assignment</a>.</p></div>
 
 In Terraform, any directory containing `.tf` files is technically a **Module**. As architectures grow, structuring infrastructure into reusable, self-contained **Child Modules** prevents code duplication and enforces organizational standards.
 

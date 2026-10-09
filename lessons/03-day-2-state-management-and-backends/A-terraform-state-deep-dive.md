@@ -7,11 +7,15 @@ keywords:
   - Lineage and Serial
   - State Security
   - terraform state list
+kind: concept
+track: core
 ---
 
 # Terraform State Internals & Schema Deep Dive
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain resource identity, state snapshots, and secret exposure.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 03</strong><p>Apply this concept in the connected project. <a href="/lessons/day-2-state-management-and-backends/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-state-management-and-backends/mini-assignment">mini assignment</a>.</p></div>
 
 ![Configuration, state, and observed infrastructure inform the plan](/images/lesson-diagrams/reconcile.svg)
 

@@ -7,11 +7,15 @@ keywords:
   - S3 Lockfile
   - State Locking
   - Backend Migration
+kind: concept
+track: core
 ---
 
 # Remote State with Amazon S3 Native Locking
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Separate state storage, writer coordination, and recovery history.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 03</strong><p>Apply this concept in the connected project. <a href="/lessons/day-2-state-management-and-backends/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-state-management-and-backends/mini-assignment">mini assignment</a>.</p></div>
 
 For team use, Terraform state needs shared storage, controlled access, recovery history, and protection from concurrent writers. The Amazon S3 backend can provide storage and **native state locking** with `use_lockfile = true`.
 

@@ -1,0 +1,29 @@
+---
+- name: Render the actual role template without cloud access or sudo
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    courseops_environment: staging
+    courseops_title: CourseOps status
+    courseops_message: All systems operational
+  tasks:
+    - name: Create an ignored preview directory
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/.preview"
+        state: directory
+        mode: '0700'
+    - name: Render the shared page template
+      ansible.builtin.template:
+        src: roles/courseops_web/templates/index.html.j2
+        dest: "{{ playbook_dir }}/.preview/index.html"
+        mode: '0600'
+    - name: Read the page
+      ansible.builtin.slurp:
+        src: "{{ playbook_dir }}/.preview/index.html"
+      register: courseops_rendered
+    - name: Check the rendered environment
+      ansible.builtin.assert:
+        that:
+          - "'staging environment' in (courseops_rendered.content | b64decode)"
+          - "('{' ~ '{') not in (courseops_rendered.content | b64decode)"

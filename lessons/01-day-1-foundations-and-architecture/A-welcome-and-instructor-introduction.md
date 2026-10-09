@@ -8,13 +8,17 @@ keywords:
   - 4-Day Roadmap
   - Terraform Course
   - DevOps Engineering
+kind: concept
+track: core
 ---
 
 # Welcome & Instructor Introduction
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose a learning path and define evidence of completion.</p></div>
 
-Welcome to **Infrastructure Automation with Terraform & Ansible**! This comprehensive 4-day hands-on masterclass is designed to take you from core Infrastructure as Code fundamentals to enterprise-grade cloud architecture, multi-environment state management, and configuration orchestration.
+<div class="project-connection"><strong>CourseOps · Section 01</strong><p>Apply this concept in the connected project. <a href="/lessons/day-1-foundations-and-architecture/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-1-foundations-and-architecture/mini-assignment">mini assignment</a>.</p></div>
+
+Welcome to **Infrastructure Automation with Terraform & Ansible**! Build **CourseOps**, a small status-page service, across four teaching days. The core path develops Terraform, state, module and Ansible skills; enterprise topics are introduced as reviewed extensions. Each of the eight sections ends with an independent mini assignment and instructor feedback.
 
 ---
 
@@ -72,6 +76,10 @@ This course is structured into four intensive, hands-on learning days:
   </article>
 </div>
 
+### Core, workshop, assignment, extension
+
+Start with the core concepts and the guided project workshop. Attempt the assignment at the end of each section before reading its solution. Extension pages are optional follow-up reading; the capstone is a separate assessment. [Choose a path and get the lab bundle](/lessons/day-1-foundations-and-architecture/project-workshop).
+
 ### The rhythm used in every live lesson
 
 1. **Predict** what Terraform will do before running a command.
@@ -87,7 +95,7 @@ This course is structured into four intensive, hands-on learning days:
 
 To gain the maximum benefit from this course, you should have:
 - Basic familiarity with cloud concepts (Compute instances, VPC networks, DNS, SSH keys).
-- A free-tier or sandbox **Amazon Web Services (AWS)** account.
+- A sandbox **Amazon Web Services (AWS)** account for the cloud path; the cloud-free path needs no account.
 - A terminal with administrator access (macOS, Linux, or Windows WSL2).
 - Git installed and configured.
 

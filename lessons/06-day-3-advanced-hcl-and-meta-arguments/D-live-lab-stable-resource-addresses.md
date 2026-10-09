@@ -7,11 +7,15 @@ keywords:
   - moved block
   - State Refactoring
   - Live Lab
+kind: concept
+track: extension
 ---
 
 # Live Lab: Stable Resource Addresses
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Migrate addresses and prove object identity is preserved.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 06</strong><p>Extension practice: return after the core workshop. <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/mini-assignment">mini assignment</a>.</p></div>
 
 ![Count shifts index identity while for_each preserves named keys](/images/lesson-diagrams/addresses.svg)
 

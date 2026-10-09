@@ -63,7 +63,7 @@ export default function Lessons({ sections }) {
               <p className="hero-eyebrow">4-day live, hands-on course</p>
               <h2>{courseInfo.subtitle}</h2>
               <div className="hero-highlights" aria-label="Course highlights">
-                <span><i className="fas fa-terminal" /> Paste-and-run labs</span>
+                <span><i className="fas fa-terminal" /> Runnable project labs</span>
                 <span><i className="fas fa-triangle-exclamation" /> Failure scenarios</span>
                 <span><i className="fas fa-building-shield" /> Production patterns</span>
               </div>
@@ -99,6 +99,20 @@ export default function Lessons({ sections }) {
           </a>
         ) : null}
         <div className="main-card">
+          {courseInfo.project && (
+            <section className="project-overview" aria-labelledby="project-title">
+              <p className="hero-eyebrow">One project · Eight milestones</p>
+              <h2 id="project-title">Build {courseInfo.project.name}</h2>
+              <p>{courseInfo.project.description}</p>
+              <ul>{courseInfo.project.paths.map(item => <li key={item}>{item}</li>)}</ul>
+              <div className="project-actions">
+                <Link href={courseInfo.project.startPath}>Start the project</Link>
+                <a href={`${process.env.BASE_URL || ""}${courseInfo.project.downloadPath}`} download>Download labs (ZIP)</a>
+                <a href={courseInfo.project.sourceUrl}>Browse source</a>
+              </div>
+              <p className="track-help">Follow Core → Workshop → Assignment in each section. Extension pages are follow-up reading; the capstone is a separate assessment.</p>
+            </section>
+          )}
           <h1 className="lesson-title">Table of Contents</h1>
           <div className="lesson-content">
             {groupedDays.map(({ day, title: dayTitle, outcome, sections: daySections }) => (
@@ -123,6 +137,9 @@ export default function Lessons({ sections }) {
                             {section.lessons.map((lesson) => (
                               <li key={lesson.slug}>
                                 <Link href={lesson.fullSlug}>{lesson.title}</Link>
+                                <span className={`lesson-track track-${lesson.kind === "concept" ? lesson.track : lesson.kind}`}>
+                                  {lesson.kind === "assignment" ? "Assignment" : lesson.kind === "workshop" ? "Workshop" : lesson.track === "extension" ? "Extension" : "Core"}
+                                </span>
                               </li>
                             ))}
                           </ol>

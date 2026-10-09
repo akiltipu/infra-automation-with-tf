@@ -8,11 +8,15 @@ keywords:
   - PR Plan Comments
   - Automated Apply
   - Environment Protection
+kind: concept
+track: core
 ---
 
 # Enterprise CI/CD Pipelines with GitHub Actions
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Bind a reviewed saved plan to a trusted commit and deployment approval.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 08</strong><p>Apply this concept in the connected project. <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/mini-assignment">mini assignment</a>.</p></div>
 
 For shared production infrastructure, a controlled deployment pipeline makes identity, review, and execution auditable. Route normal infrastructure changes through automated **Continuous Integration & Continuous Deployment (CI/CD)** pipelines.
 

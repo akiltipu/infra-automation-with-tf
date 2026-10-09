@@ -8,11 +8,15 @@ keywords:
   - lookup merge flatten
   - try and can
   - Security Group Rules
+kind: concept
+track: extension
 ---
 
 # Advanced Expressions, Built-in Functions & Dynamic Blocks
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Use expressions for values and dynamic blocks for nested configuration.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 06</strong><p>Extension reading: return after the core workshop. <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/mini-assignment">mini assignment</a>.</p></div>
 
 HCL provides a rich suite of built-in functions, list/map comprehension expressions, and dynamic block iterators for handling complex configuration logic.
 

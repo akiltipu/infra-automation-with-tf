@@ -1,0 +1,16 @@
+---
+- name: Configure CourseOps sandbox
+  hosts: courseops
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Wait for the verified SSH connection
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+    - name: Wait for cloud-init to finish
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+    - name: Gather facts after readiness
+      ansible.builtin.setup:
+  roles:
+    - courseops_web

@@ -7,11 +7,15 @@ keywords:
   - Provider Aliases
   - terraform.tfstate
   - Local State Mechanics
+kind: concept
+track: extension
 ---
 
 # Data Sources, Provider Configuration & Local State Mechanics
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain when a data source reads an object without owning it.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 02</strong><p>Extension reading: return after the core workshop. <a href="/lessons/day-1-first-deployment-and-core-hcl/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-1-first-deployment-and-core-hcl/mini-assignment">mini assignment</a>.</p></div>
 
 Real-world cloud architectures rarely exist in a vacuum. You frequently need to reference existing cloud assets (such as official Ubuntu AMIs, standard VPCs, or DNS zones) without managing their lifecycle in your current Terraform code.
 

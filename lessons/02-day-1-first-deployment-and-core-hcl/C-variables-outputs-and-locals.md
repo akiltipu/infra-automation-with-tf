@@ -8,11 +8,15 @@ keywords:
   - Local Values
   - Variable Precedence
   - DRY Terraform
+kind: concept
+track: core
 ---
 
 # Input Variables, Custom Validation Rules, Outputs & Locals
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Trace input precedence and distinguish redaction from secret storage.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 02</strong><p>Apply this concept in the connected project. <a href="/lessons/day-1-first-deployment-and-core-hcl/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-1-first-deployment-and-core-hcl/mini-assignment">mini assignment</a>.</p></div>
 
 Hardcoded values make infrastructure code fragile and non-reusable. To build enterprise-grade configurations, we use **Input Variables**, **Outputs**, and **Local Values**.
 
