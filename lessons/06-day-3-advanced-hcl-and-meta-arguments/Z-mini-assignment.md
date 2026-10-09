@@ -30,12 +30,16 @@ Submit the two plan summaries, migration HCL, and explanation. Keep raw plan/sta
 
 ## Graduated hints
 
-1. Keys should describe a stable identity, not a position.
-2. Existing addresses are `[0]`, `[1]`, and `[2]`.
-3. Map each old address to its original service name before removing any element.
+<details class="assignment-hint"><summary>Hint 1</summary><p>Keys should describe a stable identity, not a position.</p></details>
+<details class="assignment-hint"><summary>Hint 2</summary><p>Existing addresses are <code>[0]</code>, <code>[1]</code>, and <code>[2]</code>.</p></details>
+<details class="assignment-hint"><summary>Hint 3</summary><p>Map each old address to its original service name before removing any element.</p></details>
 
 ## Feedback and reflection
 
 [Browse starter files](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/assignments/06) · [Instructor solution — after your attempt](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/06.md) · [Assessment rubric](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/TEACHING-GUIDE.md)
 
 <details class="knowledge-check"><summary>What should I explain before marking this assignment complete?</summary><p>State your prediction, show the evidence that supports or contradicts it, explain one limit of your checks, and record cleanup. Correct an error and retry if an acceptance criterion is unmet.</p></details>
+
+## Return to this idea later
+
+Tomorrow, explain the main decision without looking at the reference. About a week later, change one input or requirement and predict the result. Record what you needed to look up in your learning log; the aim is to identify your next practice step.

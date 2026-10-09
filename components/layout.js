@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import Footer from "./footer";
+import { ProgressProvider } from "../context/progressContext";
 import Header from "./header";
 import getCourseConfig from "../data/course";
 import { Provider as HeaderProvider } from "../context/headerContext";
@@ -12,18 +13,22 @@ function Layout({ children, className = "" }) {
   return (
     <CourseInfoProvider value={courseInfo}>
       <HeaderProvider value={headerHook}>
-        <div className={`remix-app ${className}`.trim()}>
-          <Header title={courseInfo.title} />
-          <div className="content-container">
-            <div className="main">{children}</div>
+        <ProgressProvider>
+          <div className={`remix-app ${className}`.trim()}>
+            <Header title={courseInfo.title} />
+            <div className="content-container">
+              <main className="main" id="main-content" tabIndex={-1}>
+                {children}
+              </main>
+            </div>
+            <Footer
+              twitter={courseInfo.social.twitter}
+              github={courseInfo.social.github}
+              linkedin={courseInfo.social.linkedin}
+              bluesky={courseInfo.social.bluesky}
+            />
           </div>
-          <Footer
-            twitter={courseInfo.social.twitter}
-            github={courseInfo.social.github}
-            linkedin={courseInfo.social.linkedin}
-            bluesky={courseInfo.social.bluesky}
-          />
-        </div>
+        </ProgressProvider>
       </HeaderProvider>
     </CourseInfoProvider>
   );

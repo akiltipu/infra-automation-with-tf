@@ -22,30 +22,9 @@ Welcome to **Infrastructure Automation with Terraform & Ansible**! Build **Cours
 
 ---
 
-## 1. whoami ?
+<!-- instructor-profile -->
 
-<div class="instructor-card">
-  <img src="/images/akiltipu-pro.jpg" alt="Akil Mahmod Tipu" />
-  <div class="instructor-info">
-    <h2>Akil Mahmod Tipu</h2>
-    <p class="instructor-role">Senior DevOps Engineer & Team Lead</p>
-    <p>
-      Specializing in Cloud Architecture, Large-Scale Infrastructure Automation, Kubernetes Orchestration, and Enterprise CI/CD Pipelines. Passionate about empowering engineering teams to design reliable, secure, and reproducible cloud platforms.
-    </p>
-    <div class="instructor-links">
-      <a href="https://www.linkedin.com/in/akiltipu" target="_blank" rel="noopener noreferrer">
-        <i class="fab fa-linkedin"></i> Connect on LinkedIn
-      </a>
-      <a href="https://github.com/akiltipu" target="_blank" rel="noopener noreferrer">
-        <i class="fab fa-github"></i> Follow on GitHub
-      </a>
-    </div>
-  </div>
-</div>
-
----
-
-## 2. The 4-Day Master Curriculum Roadmap
+## Your four-day learning route
 
 This course is structured into four intensive, hands-on learning days:
 
@@ -91,7 +70,7 @@ Start with the core concepts and the guided project workshop. Attempt the assign
 
 ---
 
-## 3. Prerequisites & Environment Expectations
+## Before you begin
 
 To gain the maximum benefit from this course, you should have:
 - Basic familiarity with cloud concepts (Compute instances, VPC networks, DNS, SSH keys).
@@ -116,6 +95,8 @@ Keep one small Git repository for exercises. Record the command, your prediction
 
 **Read further:** [Official documentation](https://developer.hashicorp.com/terraform/intro).
 
-## 4. Let's Get Started!
+## Start with a question
 
-Click **Next →** below to begin **Day 1: Lesson B — The Evolution of Cloud Infrastructure & Why IaC Matters**!
+Think of a server setting that someone could change manually. How would another engineer discover the change and reproduce it? Carry that question into the next lesson.
+
+Use the [learning guide](/guide) for a prerequisite diagnostic, glossary, troubleshooting order and review schedule.

@@ -39,9 +39,9 @@ Submit your HCL, sanitized output, and three sentences explaining variable → r
 
 ## Graduated hints
 
-1. Use `terraform_data`; Terraform includes its provider.
-2. Use `contains` for allowed environments and `floor` to reject fractional ports.
-3. Return `terraform_data.service.output`; read the ID separately.
+<details class="assignment-hint"><summary>Hint 1</summary><p>Use <code>terraform_data</code>; Terraform includes its provider.</p></details>
+<details class="assignment-hint"><summary>Hint 2</summary><p>Use <code>contains</code> for allowed environments and <code>floor</code> to reject fractional ports.</p></details>
+<details class="assignment-hint"><summary>Hint 3</summary><p>Return <code>terraform_data.service.output</code>; read the ID separately.</p></details>
 
 Reference: `reference/main.tf`. Instructor explanation: `../../instructor/02.md`.
 
@@ -50,3 +50,7 @@ Reference: `reference/main.tf`. Instructor explanation: `../../instructor/02.md`
 [Browse starter files](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/assignments/02) · [Instructor solution — after your attempt](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/02.md) · [Assessment rubric](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/TEACHING-GUIDE.md)
 
 <details class="knowledge-check"><summary>What should I explain before marking this assignment complete?</summary><p>State your prediction, show the evidence that supports or contradicts it, explain one limit of your checks, and record cleanup. Correct an error and retry if an acceptance criterion is unmet.</p></details>
+
+## Return to this idea later
+
+Tomorrow, explain the main decision without looking at the reference. About a week later, change one input or requirement and predict the result. Record what you needed to look up in your learning log; the aim is to identify your next practice step.

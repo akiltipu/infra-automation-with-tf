@@ -53,6 +53,14 @@ HTTP is not configured until the Ansible section, so an HTTP failure now is expe
 
 Predict the private subnet CIDRs if their network numbers become 20 and 21. Verify the calculation without applying the change. Explain why changing a subnet CIDR for an existing deployment is different from changing a tag. Finish with the independent service-contract assignment.
 
+## Read an unknown value correctly
+
+At plan time, an instance ID or public IP may be shown as `(known after apply)`. Terraform can still plan the surrounding graph because the resource's identity in configuration is already known. Do not mistake an unknown result for a missing required input.
+
+**Worked decision:** the subnet is referenced by `aws_subnet.public["a"].id`. That expression gives Terraform a dependency even before AWS assigns the ID. A hardcoded subnet ID carries no equivalent creation dependency in this root. Explain which version you would use when the same configuration creates the subnet.
+
+**Check:** a second no-change plan means this configuration proposes no resource mutations. It does not verify that Nginx is listening or that the user can reach the page.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)

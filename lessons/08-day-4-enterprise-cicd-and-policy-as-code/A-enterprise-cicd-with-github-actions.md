@@ -163,4 +163,4 @@ PR validation reviews code without deployment credentials. After merge, a truste
 
 ## 3. Summary & Next Steps
 
-OIDC authentication eliminates static secret leakage, and PR comments provide transparent team collaboration. In the next lesson, we will integrate **Security Scanning, Linting (`tflint`), and Policy as Code**.
+OIDC removes the need for a long-lived AWS access key in this workflow. Trust conditions, short-lived credential handling and scoped permissions still matter. Share only reviewed, non-secret plan summaries; raw plan artifacts do not belong in public PR comments. In the next lesson, we will integrate **Security Scanning, Linting (`tflint`), and Policy as Code**.

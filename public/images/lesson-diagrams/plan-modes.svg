@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" role="img" aria-labelledby="title desc"><title id="title">Two plan modes, two different questions</title><desc id="desc">Configuration expresses intent. State binds addresses to objects. Provider observations show current remote values. A normal plan proposes changes toward configuration, while refresh-only proposes updates to Terraform records, not remote resources.</desc><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10" fill="#acbddb"/></marker></defs><rect width="1000" height="660" fill="#101a2d" rx="20"/><g font-family="system-ui,sans-serif" fill="#f3f5ff"><text x="40" y="50" font-size="27" font-weight="700">Two plan modes, two different questions</text>
+<rect x="40" y="100" width="280" height="130" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="60" y="132" font-size="20" font-weight="650">Configuration</text>
+<text x="60" y="165" fill="#c9d6eb" font-size="18">Desired values</text>
+<text x="60" y="192" fill="#c9d6eb" font-size="18">Example: tag = dev</text>
+<rect x="360" y="100" width="280" height="130" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="380" y="132" font-size="20" font-weight="650">State</text>
+<text x="380" y="165" fill="#c9d6eb" font-size="18">Address → object ID</text>
+<text x="380" y="192" fill="#c9d6eb" font-size="18">Last recorded values</text>
+<rect x="680" y="100" width="280" height="130" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="700" y="132" font-size="20" font-weight="650">Provider observations</text>
+<text x="700" y="165" fill="#c9d6eb" font-size="18">Current remote values</text>
+<text x="700" y="192" fill="#c9d6eb" font-size="18">Example: tag = staging</text>
+<path d="M180 230 V290 H280 V350" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<path d="M500 230 V270 H280 V350" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<path d="M820 230 V290 H720 V350" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<path d="M500 270 H720 V350" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="40" y="350" width="440" height="145" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="60" y="382" font-size="20" font-weight="650">Normal plan</text>
+<text x="60" y="415" fill="#c9d6eb" font-size="18">Use configuration as intended target</text>
+<text x="60" y="442" fill="#c9d6eb" font-size="18">May propose changing staging → dev</text>
+<text x="60" y="469" fill="#c9d6eb" font-size="18">Review resource actions before apply</text>
+<rect x="520" y="350" width="440" height="145" rx="12" fill="#1c2b43" stroke="#50b7ac" stroke-width="1.5"/><text x="540" y="382" font-size="20" font-weight="650">Refresh-only plan</text>
+<text x="540" y="415" fill="#c9d6eb" font-size="18">Update state / root outputs only</text>
+<text x="540" y="442" fill="#c9d6eb" font-size="18">Does not modify the remote tag</text>
+<text x="540" y="469" fill="#c9d6eb" font-size="18">Does not rewrite configuration</text>
+<text x="40" y="550" font-size="18" fill="#c9d6eb">To accept an intentional console change, update the reviewed configuration too.</text>
+<text x="40" y="588" font-size="18" fill="#c9d6eb">To reverse it, inspect and approve a normal corrective plan.</text>
+<text x="40" y="625" font-size="18" fill="#c9d6eb">A successful plan is not an application health check.</text>
+<path d="M820 230 V310 H280 V350" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+</g></svg>
