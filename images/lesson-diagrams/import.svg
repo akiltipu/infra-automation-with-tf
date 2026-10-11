@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-labelledby="title desc">
+<title id="title">Import adds ownership, not infrastructure</title><desc id="desc">An existing remote object is bound to a Terraform address. Review generated configuration and stop if a plan proposes unintended changes.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>
+<rect width="720" height="400" rx="18" fill="#f8fafc"/>
+<text x="28" y="38" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#172554">Import adds ownership, not infrastructure</text>
+<path d="M180 157 L280 260" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M540 179 L440 260" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<rect x="25" y="80" width="310" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="41" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Existing AWS object</text>
+<text x="41" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">ID: vpc-0123</text>
+<rect x="385" y="80" width="310" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="401" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Import declaration</text>
+<text x="401" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">to = aws_vpc.existing</text>
+<text x="401" y="157" font-family="Arial,sans-serif" font-size="16" fill="#334155">id = &quot;vpc-0123&quot;</text>
+<rect x="170" y="260" width="380" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="186" y="289" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Reviewed import-only plan</text>
+<text x="186" y="315" font-family="Arial,sans-serif" font-size="16" fill="#334155">Record binding in state</text>
+<text x="186" y="337" font-family="Arial,sans-serif" font-size="16" fill="#334155">No unintended create/update/delete</text>
+</svg>

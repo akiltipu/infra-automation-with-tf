@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-labelledby="title desc">
+<title id="title">References determine creation order</title><desc id="desc">The VPC precedes two parallel subnets. The instance depends only on subnet A.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>
+<rect width="720" height="480" rx="18" fill="#f8fafc"/>
+<text x="28" y="38" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#172554">References determine creation order</text>
+<path d="M310 147 L180 220" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M410 147 L540 220" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M180 297 L180 370" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<rect x="230" y="70" width="260" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="246" y="99" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">VPC</text>
+<text x="246" y="125" font-family="Arial,sans-serif" font-size="16" fill="#334155">aws_vpc.main</text>
+<rect x="35" y="220" width="295" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="51" y="249" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Subnet A</text>
+<text x="51" y="275" font-family="Arial,sans-serif" font-size="16" fill="#334155">aws_subnet.a</text>
+<rect x="390" y="220" width="295" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="406" y="249" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Subnet B</text>
+<text x="406" y="275" font-family="Arial,sans-serif" font-size="16" fill="#334155">aws_subnet.b</text>
+<rect x="35" y="370" width="295" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="51" y="399" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">EC2 instance</text>
+<text x="51" y="425" font-family="Arial,sans-serif" font-size="16" fill="#334155">subnet_id = aws_subnet.a.id</text>
+</svg>

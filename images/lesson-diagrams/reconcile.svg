@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-labelledby="title desc">
+<title id="title">Three views, one proposed change</title><desc id="desc">Configuration describes intent; state binds addresses to object IDs; provider refresh observes reality. The plan compares them.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>
+<rect width="720" height="400" rx="18" fill="#f8fafc"/>
+<text x="28" y="38" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#172554">Three views, one proposed change</text>
+<path d="M180 157 L280 255" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M540 179 L440 255" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<rect x="25" y="80" width="310" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="41" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Configuration</text>
+<text x="41" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">Desired size: t3.micro</text>
+<rect x="385" y="80" width="310" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="401" y="109" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">State + provider refresh</text>
+<text x="401" y="135" font-family="Arial,sans-serif" font-size="16" fill="#334155">Binding: web → i-0123</text>
+<text x="401" y="157" font-family="Arial,sans-serif" font-size="16" fill="#334155">Observed size: t3.small</text>
+<rect x="170" y="255" width="380" height="99" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="186" y="284" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Normal plan</text>
+<text x="186" y="310" font-family="Arial,sans-serif" font-size="16" fill="#334155">Propose small → micro</text>
+<text x="186" y="332" font-family="Arial,sans-serif" font-size="16" fill="#334155">Review intent before applying</text>
+</svg>

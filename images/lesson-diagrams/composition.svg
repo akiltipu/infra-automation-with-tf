@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" role="img" aria-labelledby="title desc">
+<title id="title">The root wires module contracts</title><desc id="desc">A network module exports IDs to compute and database modules. Modules in this root share one state.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>
+<rect width="720" height="360" rx="18" fill="#f8fafc"/>
+<text x="28" y="38" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#172554">The root wires module contracts</text>
+<path d="M290 152 L185 235" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<path d="M430 152 L535 235" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+<rect x="200" y="75" width="320" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="216" y="104" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Network module</text>
+<text x="216" y="130" font-family="Arial,sans-serif" font-size="16" fill="#334155">Output: subnet IDs</text>
+<rect x="25" y="235" width="320" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="41" y="264" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Compute module</text>
+<text x="41" y="290" font-family="Arial,sans-serif" font-size="16" fill="#334155">Input: application subnet IDs</text>
+<rect x="375" y="235" width="320" height="77" rx="12" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="391" y="264" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#5b21b6">Database module</text>
+<text x="391" y="290" font-family="Arial,sans-serif" font-size="16" fill="#334155">Input: database subnet IDs</text>
+</svg>
