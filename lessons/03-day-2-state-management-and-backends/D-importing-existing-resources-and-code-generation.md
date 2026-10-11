@@ -7,11 +7,15 @@ keywords:
   - Brownfield Infrastructure
   - generate-config-out
   - Reverse Engineering
+kind: concept
+track: extension
 ---
 
 # Greenfield vs Brownfield: Resource Import & Code Generation
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Adopt an existing object without unintended changes.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 03</strong><p>Extension reading: return after the core workshop. <a href="/lessons/day-2-state-management-and-backends/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-state-management-and-backends/mini-assignment">mini assignment</a>.</p></div>
 
 Not all infrastructure starts from a blank slate (**Greenfield**). Most DevOps engineers inherit pre-existing, manually created cloud infrastructure (**Brownfield**) that must be brought under Terraform management without downtime.
 

@@ -7,11 +7,15 @@ keywords:
   - Service Wrappers
   - Golden Paths
   - Module Anti-Patterns
+kind: concept
+track: core
 ---
 
 # Enterprise Module Composition & Architecture Patterns
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Compose modules through outputs without broad dependency coupling.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 05</strong><p>Apply this concept in the connected project. <a href="/lessons/day-3-terraform-modules/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-terraform-modules/mini-assignment">mini assignment</a>.</p></div>
 
 As cloud systems grow, the question arises: how should multiple modules interact with each other? Let us examine the architectural patterns used by high-performing DevOps organizations.
 

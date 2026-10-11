@@ -1,0 +1,33 @@
+---
+- name: Validate the service contract
+  ansible.builtin.assert:
+    that:
+      - courseops_environment in ['dev', 'staging', 'prod']
+      - courseops_port | int == 80
+    fail_msg: This HTTP sandbox role supports dev/staging/prod on port 80.
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+- name: Install the status page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: www-data
+    group: www-data
+    mode: '0644'
+- name: Install Nginx site configuration
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Validate and reload Nginx
+- name: Ensure Nginx is enabled and running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

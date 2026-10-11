@@ -150,6 +150,8 @@ export async function getLessons() {
         order: `${sectionOrder}${lessonOrder.toUpperCase()}`,
         path: filePath,
         description: data.description ? data.description : "",
+        kind: data.kind || "concept",
+        track: data.track || "core",
       });
     }
 
@@ -190,6 +192,7 @@ export async function getLesson(targetDir, targetFile) {
           let html = rendered.html;
           if (process.env.BASE_URL) {
             html = html.replace(/src="\/images\//g, `src="${process.env.BASE_URL}/images/`);
+            html = html.replace(/href="\/(lessons|downloads)\//g, (_, folder) => `href="${process.env.BASE_URL}/${folder}/`);
           }
           html = html.replace(/<p>\s*(<img[^>]+src="([^"]*\/lesson-diagrams\/[^"]+)"[^>]*>)\s*<\/p>/g,
             (_, img, src) => `<figure class="lesson-diagram"><div class="diagram-viewport" role="region" aria-label="Lesson diagram; scroll horizontally on small screens" tabindex="0">${img}</div><figcaption><a href="${src}" target="_blank" rel="noopener noreferrer">Open full-size diagram (new tab)</a></figcaption></figure>`

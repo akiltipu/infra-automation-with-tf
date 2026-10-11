@@ -8,11 +8,15 @@ keywords:
   - Conditional Creation
   - each.key
   - each.value
+kind: concept
+track: core
 ---
 
 # Advanced Control Flow: `count` vs `for_each` Meta-Arguments
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose durable resource keys and predict index-shift consequences.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 06</strong><p>Apply this concept in the connected project. <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-3-advanced-hcl-and-meta-arguments/mini-assignment">mini assignment</a>.</p></div>
 
 ![Count shifts index identity while for_each preserves named keys](/images/lesson-diagrams/addresses.svg)
 

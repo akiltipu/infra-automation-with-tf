@@ -8,11 +8,15 @@ keywords:
   - Trivy
   - Policy as Code
   - OPA Rego
+kind: concept
+track: core
 ---
 
 # Security Scanning, Linting & Policy as Code
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Distinguish formatting, schema checks, misconfiguration scans, and policy.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 08</strong><p>Apply this concept in the connected project. <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/mini-assignment">mini assignment</a>.</p></div>
 
 Catching security misconfigurations and policy violations before `terraform apply` executes is known as **Shifting Security Left**.
 

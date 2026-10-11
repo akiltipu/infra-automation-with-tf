@@ -8,11 +8,15 @@ keywords:
   - SSM Parameter Store
   - Sensitive Variables
   - Security Best Practices
+kind: concept
+track: core
 ---
 
 # Managing Secrets & Environment Variables Securely
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Keep secrets out of Git and identify where Terraform can persist them.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 04</strong><p>Apply this concept in the connected project. <a href="/lessons/day-2-multi-environment-sdlc/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-multi-environment-sdlc/mini-assignment">mini assignment</a>.</p></div>
 
 Hardcoded secrets in infrastructure code represent one of the most critical security vulnerabilities in cloud engineering. Let us explore how to manage variables and secrets securely across environments.
 

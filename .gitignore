@@ -32,3 +32,6 @@ yarn-error.log*
 *.csv
 
 .env
+
+# Generated source-only project download
+/public/downloads/*.zip

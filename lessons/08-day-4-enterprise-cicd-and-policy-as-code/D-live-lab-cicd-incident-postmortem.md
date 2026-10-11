@@ -7,11 +7,15 @@ keywords:
   - Terraform Validate
   - Incident Postmortem
   - Pipeline Guardrails
+kind: concept
+track: extension
 ---
 
 # Live Lab: CI/CD Failure, Recovery & Postmortem
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Reproduce a failed gate and distinguish stale-state rejection from review validity.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 08</strong><p>Extension reading: return after the core workshop. <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-4-enterprise-cicd-and-policy-as-code/mini-assignment">mini assignment</a>.</p></div>
 
 <div class="lab-banner"><strong>Scenario:</strong> a pull request passes review but contains an invalid Terraform reference. We will build the smallest useful quality gate, watch it fail, fix it, then analyze a more serious stale-plan incident.</div>
 

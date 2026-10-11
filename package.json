@@ -5,12 +5,13 @@
   "license": "(CC-BY-NC-4.0 OR Apache-2.0)",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && npm run csv && npm run llm-text",
+    "build": "npm run labs:package && next build && npm run csv && npm run llm-text",
     "start": "next start",
     "csv": "node csv/index.js",
     "seo": "node summary/index.js",
     "llm-text": "node summary/generateFullText.js",
-    "check:lessons": "node --test tests/lessons.test.js"
+    "check:lessons": "node --test tests/lessons.test.js",
+    "labs:package": "python3 scripts/package-labs.py"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.2.0",

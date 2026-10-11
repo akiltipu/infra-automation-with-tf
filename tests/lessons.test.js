@@ -41,3 +41,32 @@ test('all lessons render reading aids, valid images, and sequential navigation u
     else process.env.BASE_URL = previous;
   }
 });
+
+test('each section ends with one workshop and assignment, and project links resolve under the base path', async () => {
+  const config = JSON.parse(await fs.readFile('course.json', 'utf8'));
+  const previous = process.env.BASE_URL;
+  process.env.BASE_URL = config.productionBaseUrl;
+  try {
+    const sections = await getLessons();
+    const routes = new Set(sections.flatMap(s => s.lessons.map(l => l.fullSlug)));
+    for (const section of sections) {
+      assert.equal(section.lessons.filter(l => l.kind === 'workshop').length, 1);
+      assert.equal(section.lessons.filter(l => l.kind === 'assignment').length, 1);
+      assert.equal(section.lessons.at(-1).kind, 'assignment');
+      assert.equal(section.lessons.at(-2).kind, 'workshop');
+      for (const lesson of section.lessons) {
+        assert.ok(['core', 'extension'].includes(lesson.track));
+        const post = await getLesson(section.slug, lesson.slug);
+        assert.doesNotMatch(post.html, /href="\/(?:lessons|downloads)\//);
+        for (const [, href] of post.html.matchAll(/href="([^"]+)"/g)) {
+          if (href.startsWith(`${config.productionBaseUrl}/lessons/`)) {
+            assert.ok(routes.has(href.slice(config.productionBaseUrl.length).split('#')[0]), href);
+          }
+        }
+      }
+    }
+  } finally {
+    if (previous === undefined) delete process.env.BASE_URL;
+    else process.env.BASE_URL = previous;
+  }
+});

@@ -1,0 +1,15 @@
+---
+- name: Render a status page locally
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    courseops_title: CourseOps status
+    courseops_environment: dev
+    courseops_message: 'Maintenance <scheduled>'
+  tasks:
+    - name: Render the page
+      ansible.builtin.template:
+        src: status.html.j2
+        dest: "{{ playbook_dir }}/status.html"
+        mode: '0600'

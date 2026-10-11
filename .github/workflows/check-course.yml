@@ -15,3 +15,41 @@ jobs:
       - run: npm ci
       - run: npm run check:lessons
       - run: npm run build
+  labs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: labs/courseops
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+          terraform_wrapper: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check HCL formatting
+        run: terraform fmt -check -recursive .
+      - name: Rehearse local assignments and recovery
+        run: python3 scripts/check-local.py
+      - name: Check release-policy fixtures
+        run: python3 -m unittest discover -s delivery -p 'test_*.py'
+      - name: Validate AWS configuration without deploying
+        run: |
+          for root in bootstrap checkpoints/02-first-stack checkpoints/05-modular modules/network modules/web; do
+            terraform -chdir="$root" init -backend=false -input=false
+            terraform -chdir="$root" validate
+          done
+      - name: Run AWS module mock tests without credentials
+        run: |
+          terraform -chdir=modules/network test
+          terraform -chdir=modules/web test
+      - name: Install Ansible in an isolated environment
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -r ansible/requirements.txt
+      - name: Verify inventory, templates and repeat-run behavior
+        run: |
+          export PATH="$PWD/.venv/bin:$PATH"
+          python3 scripts/check-ansible.py

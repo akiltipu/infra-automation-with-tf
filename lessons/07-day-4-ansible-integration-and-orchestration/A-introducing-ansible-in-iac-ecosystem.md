@@ -8,11 +8,15 @@ keywords:
   - Immutable Infrastructure
   - Mutable Infrastructure
   - DevOps Toolchain
+kind: concept
+track: core
 ---
 
 # Introducing Ansible in the Cloud Infrastructure Ecosystem
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Assign provisioning and guest configuration to clear owners.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 07</strong><p>Apply this concept in the connected project. <a href="/lessons/day-4-ansible-integration-and-orchestration/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-4-ansible-integration-and-orchestration/mini-assignment">mini assignment</a>.</p></div>
 
 In modern enterprise cloud engineering, delivering a production application involves two distinct responsibilities: **Provisioning Infrastructure** and **Configuring Software**. 
 

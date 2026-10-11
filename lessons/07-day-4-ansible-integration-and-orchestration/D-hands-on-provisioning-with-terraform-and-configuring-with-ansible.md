@@ -7,11 +7,15 @@ keywords:
   - Nginx Configuration
   - UFW Firewall
   - End-to-End Orchestration
+kind: concept
+track: extension
 ---
 
 # Hands-On Lab: Provisioning with Terraform & Configuring with Ansible
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Provision a sandbox host, verify readiness, configure it, and clean up.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 07</strong><p>Extension practice: return after the core workshop. <a href="/lessons/day-4-ansible-integration-and-orchestration/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-4-ansible-integration-and-orchestration/mini-assignment">mini assignment</a>.</p></div>
 
 ![Verify host identity and readiness before configuration and HTTP checks](/images/lesson-diagrams/readiness.svg)
 

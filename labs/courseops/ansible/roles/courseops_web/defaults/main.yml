@@ -1,0 +1,5 @@
+---
+courseops_title: CourseOps service status
+courseops_environment: dev
+courseops_message: All classroom systems operational
+courseops_port: 80

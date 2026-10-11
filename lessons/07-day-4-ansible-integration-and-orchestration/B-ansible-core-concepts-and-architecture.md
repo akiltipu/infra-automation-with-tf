@@ -8,11 +8,15 @@ keywords:
   - Jinja2 Templates
   - Handlers
   - Idempotency
+kind: concept
+track: core
 ---
 
 # Ansible Architecture & Core Fundamentals
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Explain tasks, handlers, host selection, and repeat-run behavior.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 07</strong><p>Apply this concept in the connected project. <a href="/lessons/day-4-ansible-integration-and-orchestration/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-4-ansible-integration-and-orchestration/mini-assignment">mini assignment</a>.</p></div>
 
 Ansible operates using a straightforward, agentless architecture. Let us break down its core building blocks and write a small Ubuntu teaching playbook.
 

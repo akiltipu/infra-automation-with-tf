@@ -8,11 +8,15 @@ keywords:
   - Drift Detection
   - refresh-only
   - Disaster Recovery
+kind: concept
+track: core
 ---
 
 # Advanced State Operations & Disaster Recovery
 
 <div class="lesson-goal"><strong>By the end of this lesson</strong><p>Choose between address migration, unmanagement, and drift reconciliation.</p></div>
+
+<div class="project-connection"><strong>CourseOps · Section 03</strong><p>Apply this concept in the connected project. <a href="/lessons/day-2-state-management-and-backends/project-workshop">Open the section workshop</a>, then solve the <a href="/lessons/day-2-state-management-and-backends/mini-assignment">mini assignment</a>.</p></div>
 
 As infrastructure scales, you will inevitably need to refactor code, move resources into modules, untrack legacy assets, and recover from stuck state locks or out-of-band configuration drift.
 
