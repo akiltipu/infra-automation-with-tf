@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Generated source-only project download
 /public/downloads/*.zip
+
+/playwright-report/
+/test-results/

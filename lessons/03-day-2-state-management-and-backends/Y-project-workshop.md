@@ -46,6 +46,14 @@ Restoring an older state version changes Terraform's records; it does not rewind
 
 A teammate proposes `terraform state rm` after every apply error. Explain what that command removes, what it leaves in AWS, and why the next plan could try to create duplicate resources. Then attempt the recovery assignment and keep the incident evidence concise.
 
+## Work through a changed tag
+
+![Normal and refresh-only plans compare configuration, state and provider observations for different purposes.](/images/lesson-diagrams/plan-modes.svg)
+
+An operator changes an instance tag from `dev` to `staging` in the console. Your HCL still says `dev`. A refresh-only plan can show the observation; applying it records what exists without editing the tag or the HCL. A later normal plan can still propose returning the tag to `dev`.
+
+Decide whether the console change was intentional. If yes, change the reviewed source too; if no, review a normal corrective plan. Do not describe refresh-only as an automatic approval of the console change. It also cannot recover a deleted application file.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)

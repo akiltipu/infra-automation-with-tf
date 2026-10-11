@@ -1,168 +1,275 @@
 import Head from "next/head";
 import Link from "next/link";
-
+import { useMemo, useState } from "react";
 import { getLessons } from "../data/lesson";
-
-import Corner from "../components/corner";
 import getCourseConfig from "../data/course";
+import { filterLessons } from "../data/progress";
+import { useProgress } from "../context/progressContext";
+import Instructor from "../components/instructor";
 
 export default function Lessons({ sections }) {
-  const courseInfo = getCourseConfig();
-
-  const dayTitles = {
-    "Day 1": "Terraform Foundations, Architecture & Core Workflow",
-    "Day 2": "State Management & Multi-Environment Architecture",
-    "Day 3": "Reusable Modules & Advanced HCL Expressions",
-    "Day 4": "Ansible Integration, Enterprise CI/CD & Policy as Code",
-  };
-
-  const dayOutcomes = {
-    "Day 1": "Read HCL, understand Terraform's engine, and deploy your first stack",
-    "Day 2": "Protect state, recover from incidents, and isolate environments",
-    "Day 3": "Design reusable modules and refactor safely with advanced HCL",
-    "Day 4": "Join Terraform, Ansible, CI/CD, security, and policy into one workflow",
-  };
-
-  const groupedDaysMap = new Map();
-  sections.forEach((section) => {
-    const day = section.day || "Day 1";
-    if (!groupedDaysMap.has(day)) {
-      groupedDaysMap.set(day, []);
-    }
-    groupedDaysMap.get(day).push(section);
-  });
-
-  const groupedDays = Array.from(groupedDaysMap.entries()).map(
-    ([day, daySections]) => ({
-      day,
-      title: dayTitles[day] || day,
-      outcome: dayOutcomes[day] || "Build and verify the day's practical outcome",
-      sections: daySections,
-    })
+  const course = getCourseConfig();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("all");
+  const { progress, persistent, reset } = useProgress();
+  const [confirmReset, setConfirmReset] = useState(false);
+  const all = useMemo(() => sections.flatMap((s) => s.lessons), [sections]);
+  const visible = useMemo(
+    () => filterLessons(sections, query, filter),
+    [sections, query, filter],
   );
-
+  const done = all.filter((l) =>
+    progress.completed.includes(l.fullSlug),
+  ).length;
+  const resume = all.find((l) => l.fullSlug === progress.lastVisited);
+  const resultCount = visible.reduce((n, s) => n + s.lessons.length, 0);
   return (
     <>
       <Head>
-        <title>{courseInfo.title}</title>
-        <meta name="description" content={courseInfo.description}></meta>
-        <meta name="keywords" content={courseInfo.keywords.join(",")}></meta>
-        <meta name="og:description" content={courseInfo.description}></meta>
-        <meta name="og:title" content={courseInfo.title}></meta>
+        <title>{course.title}</title>
+        <meta name="description" content={course.description} />
+        <link rel="canonical" href={`${course.publicUrl}/`} />
+        <meta property="og:title" content={course.title} />
+        <meta property="og:description" content={course.heroDescription} />
         <meta
-          name="og:image"
-          content={`${process.env.BASE_URL}/images/terraform-course-hero-v2.png`}
-        ></meta>
-        <meta name="twitter:card" content="summary_large_image"></meta>
+          property="og:image"
+          content={`${course.publicUrl}/images/${course.heroImage}`}
+        />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
-      <div>
-        <div className="jumbotron">
-          <div className="courseInfo">
-            <div className="courseInfo-inner">
-              <h1>{courseInfo.title}</h1>
-              <p className="hero-eyebrow">4-day live, hands-on course</p>
-              <h2>{courseInfo.subtitle}</h2>
-              <div className="hero-highlights" aria-label="Course highlights">
-                <span><i className="fas fa-terminal" /> Runnable project labs</span>
-                <span><i className="fas fa-triangle-exclamation" /> Failure scenarios</span>
-                <span><i className="fas fa-building-shield" /> Production patterns</span>
-              </div>
-              <div className="authors">
-                {courseInfo.authors.map((author) => (
-                  <div className="author" key={author.name}>
-                    <div className="image">
-                      <img
-                        src={`${process.env.BASE_URL}/images/${author.image}`}
-                        alt={`${author.name} image`}
-                        className="image"
-                      />
-                    </div>
-                    <div className="info">
-                      <div className="name">{author.name}</div>
-                      <div className="company">{author.company}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+      <div className="course-home">
+        <section className="course-hero" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <p className="eyebrow">{course.heroEyebrow}</p>
+            <h1 id="hero-title">{course.heroTitle}</h1>
+            <p className="hero-description">{course.heroDescription}</p>
+            <div className="hero-actions">
+              <Link
+                className="button-primary"
+                href={resume?.fullSlug || all[0].fullSlug}
+              >
+                {resume ? "Resume learning" : "Start learning"}
+                <span aria-hidden="true"> →</span>
+              </Link>
+              <a className="button-secondary" href="#curriculum">
+                Explore the curriculum
+              </a>
             </div>
+            <p className="hero-facts">
+              4 teaching days <span>·</span> 8 assignments <span>·</span> Local
+              or AWS labs
+            </p>
+            <p className="hero-byline">
+              With {course.authors[0].name} · {course.authors[0].company}
+            </p>
           </div>
-          <div className="courseIcon">
+          <div className="hero-art">
             <img
-              src={`${process.env.BASE_URL}/images/terraform-course-hero-v2.png`}
-              alt="Infrastructure blocks connected to cloud, servers, code, and a database"
+              src={`${process.env.BASE_URL || ""}/images/${course.heroImage}`}
+              alt=""
+              width="1536"
+              height="1024"
+              fetchPriority="high"
             />
+            <p>Build it. Understand it. Recover it.</p>
           </div>
-        </div>
-        {courseInfo.frontendMastersLink ? (
-          <a href={courseInfo.frontendMastersLink} className="cta-btn">
-            Watch on Frontend Masters
-          </a>
-        ) : null}
-        <div className="main-card">
-          {courseInfo.project && (
-            <section className="project-overview" aria-labelledby="project-title">
-              <p className="hero-eyebrow">One project · Eight milestones</p>
-              <h2 id="project-title">Build {courseInfo.project.name}</h2>
-              <p>{courseInfo.project.description}</p>
-              <ul>{courseInfo.project.paths.map(item => <li key={item}>{item}</li>)}</ul>
-              <div className="project-actions">
-                <Link href={courseInfo.project.startPath}>Start the project</Link>
-                <a href={`${process.env.BASE_URL || ""}${courseInfo.project.downloadPath}`} download>Download labs (ZIP)</a>
-                <a href={courseInfo.project.sourceUrl}>Browse source</a>
-              </div>
-              <p className="track-help">Follow Core → Workshop → Assignment in each section. Extension pages are follow-up reading; the capstone is a separate assessment.</p>
-            </section>
-          )}
-          <h1 className="lesson-title">Table of Contents</h1>
-          <div className="lesson-content">
-            {groupedDays.map(({ day, title: dayTitle, outcome, sections: daySections }) => (
-              <div key={day} className="day-group">
-                <div className="day-header">
-                  <span className="day-badge">{day}</span>
-                  <div>
-                    <h2 className="day-title">{dayTitle}</h2>
-                    <p className="day-outcome">{outcome}</p>
-                  </div>
-                </div>
-                <ol className="sections-name">
-                  {daySections.map((section) => (
-                    <li key={section.slug}>
-                      <div className="lesson-details">
-                        <div className="lesson-preface">
-                          <i className={`fas fa-${section.icon}`}></i>
-                        </div>
-                        <div className="lesson-text">
-                          <h2 className="lesson-section-title">{section.title}</h2>
-                          <ol>
-                            {section.lessons.map((lesson) => (
-                              <li key={lesson.slug}>
-                                <Link href={lesson.fullSlug}>{lesson.title}</Link>
-                                <span className={`lesson-track track-${lesson.kind === "concept" ? lesson.track : lesson.kind}`}>
-                                  {lesson.kind === "assignment" ? "Assignment" : lesson.kind === "workshop" ? "Workshop" : lesson.track === "extension" ? "Extension" : "Core"}
-                                </span>
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-                        <Corner />
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
+        </section>
+        <div className="home-body">
+          <section className="path-intro" aria-labelledby="path-title">
+            <div>
+              <p className="eyebrow">A practical route through the material</p>
+              <h2 id="path-title">Learn the idea. Use it. Prove it.</h2>
+              <p>
+                Read the core concepts, follow the workshop, then solve the
+                section assignment before opening its solution. Extensions are
+                for a second pass.
+              </p>
+            </div>
+            <div className="resource-actions">
+              <a
+                href={`${process.env.BASE_URL || ""}${course.project.downloadPath}`}
+                download
+              >
+                Download the project ZIP ↗
+              </a>
+              <Link href="/guide">Prerequisites, glossary & study guide →</Link>
+              <a href={course.project.sourceUrl}>Browse the project source ↗</a>
+            </div>
+          </section>
+          <div className="day-roadmap" aria-label="Four-day learning outcomes">
+            {course.days.map((day) => (
+              <article key={day.name}>
+                <span className="eyebrow">{day.name}</span>
+                <h3>{day.title}</h3>
+                <p>{day.outcome}</p>
+              </article>
             ))}
           </div>
+          <section
+            id="curriculum"
+            className="curriculum"
+            aria-labelledby="curriculum-title"
+          >
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">The learning path</p>
+                <h2 id="curriculum-title">Course curriculum</h2>
+              </div>
+              <p>{all.length} lessons · 8 milestones</p>
+            </div>
+            <div className="learning-progress">
+              <div>
+                <strong>
+                  {done} of {all.length} marked complete
+                </strong>
+                <p>
+                  {persistent
+                    ? "Saved in this browser. Completion is your self-assessment, not a grade."
+                    : "Storage is unavailable. Progress lasts for this visit only."}
+                </p>
+              </div>
+              <progress
+                aria-label="Lessons marked complete"
+                value={done}
+                max={all.length}
+              />
+              {done > 0 && (
+                <button onClick={() => setConfirmReset(true)}>
+                  Reset progress
+                </button>
+              )}
+              {confirmReset && (
+                <div className="reset-confirm">
+                  <span>Clear completion and resume history?</span>
+                  <button
+                    onClick={() => {
+                      reset();
+                      setConfirmReset(false);
+                    }}
+                  >
+                    Clear progress
+                  </button>
+                  <button onClick={() => setConfirmReset(false)}>
+                    Keep progress
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="curriculum-controls">
+              <label>
+                Find a lesson
+                <input
+                  type="search"
+                  placeholder="Try state, Ansible, or Day 2"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </label>
+              <label>
+                Show
+                <select
+                  aria-label="Show"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
+                  <option value="all">All lessons</option>
+                  <option value="core">Core path</option>
+                  <option value="workshop">Workshops</option>
+                  <option value="assignment">Assignments</option>
+                  <option value="extension">Extensions</option>
+                </select>
+              </label>
+            </div>
+            <p className="search-status" role="status">
+              {resultCount} {resultCount === 1 ? "lesson" : "lessons"} shown
+            </p>
+            {!visible.length && (
+              <div className="empty-results">
+                <h3>No matching lessons</h3>
+                <p>Try a broader topic or show all lesson types.</p>
+                <button
+                  onClick={() => {
+                    setQuery("");
+                    setFilter("all");
+                  }}
+                >
+                  Clear search and filters
+                </button>
+              </div>
+            )}
+            <div className="curriculum-sections">
+              {visible.map((section) => (
+                <section
+                  className="curriculum-section"
+                  key={section.slug}
+                  aria-labelledby={`section-${section.order}`}
+                >
+                  <div className="milestone-heading">
+                    <span className="milestone-number">{section.order}</span>
+                    <div>
+                      <p className="eyebrow">{section.day}</p>
+                      <h3 id={`section-${section.order}`}>
+                        {section.title.replace(/^Day \d:\s*/, "")}
+                      </h3>
+                    </div>
+                  </div>
+                  <ol>
+                    {section.lessons.map((lesson) => (
+                      <li key={lesson.fullSlug}>
+                        <Link href={lesson.fullSlug}>
+                          <span>
+                            <strong>{lesson.title}</strong>
+                            <small>{lesson.description}</small>
+                          </span>
+                          <span
+                            className={`kind-badge kind-${lesson.track === "extension" ? "extension" : lesson.kind}`}
+                          >
+                            {lesson.track === "extension"
+                              ? "Extension"
+                              : lesson.kind === "concept"
+                                ? "Core"
+                                : lesson.kind === "workshop"
+                                  ? "Workshop"
+                                  : "Assignment"}
+                          </span>
+                          <span
+                            className="lesson-state"
+                            aria-label={
+                              progress.completed.includes(lesson.fullSlug)
+                                ? "Marked complete"
+                                : "Open lesson"
+                            }
+                          >
+                            {progress.completed.includes(lesson.fullSlug)
+                              ? "✓"
+                              : "→"}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+            </div>
+          </section>
+          <Instructor />
+          <section className="course-expectations">
+            <h2>Build confidence through evidence.</h2>
+            <p>
+              The local track needs no AWS account. The cloud track can incur
+              charges and requires a sandbox. Finishing the core project
+              demonstrates specific skills; production readiness requires
+              additional controls and testing.
+            </p>
+            <Link href="/guide#choose-your-path">
+              Choose the path that fits your setup →
+            </Link>
+          </section>
         </div>
       </div>
     </>
   );
 }
-
 export async function getStaticProps() {
-  const sections = await getLessons();
-  return {
-    props: {
-      sections,
-    },
-  };
+  return { props: { sections: await getLessons() } };
 }

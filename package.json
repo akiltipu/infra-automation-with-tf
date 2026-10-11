@@ -10,8 +10,9 @@
     "csv": "node csv/index.js",
     "seo": "node summary/index.js",
     "llm-text": "node summary/generateFullText.js",
-    "check:lessons": "node --test tests/lessons.test.js",
-    "labs:package": "python3 scripts/package-labs.py"
+    "check:lessons": "node --test tests/*.test.js",
+    "labs:package": "python3 scripts/package-labs.py",
+    "check:browser": "playwright test"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.2.0",
@@ -27,6 +28,8 @@
   "devDependencies": {
     "@ai-sdk/anthropic": "^3.0.79",
     "@ai-sdk/openai": "^3.0.65",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.64.0",
     "ai": "^6.0.191",
     "convert-array-to-csv": "^2.0.0",
     "dotenv": "^17.4.2",

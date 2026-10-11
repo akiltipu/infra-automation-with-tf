@@ -41,6 +41,14 @@ Keep the core web module on its public-subnet path for the four-day course. A pr
 
 Finish the stable-address assignment, then use the upgrade guide to propose one controlled extension, its acceptance check and its cleanup plan.
 
+## Predict a list edit before applying it
+
+With `count`, `status`, `billing`, `search` occupy indices 0, 1 and 2. Removing `billing` shifts `search` into index 1. If a replacement-triggering value depends on the list item, the old billing object can be replaced as search and the old index 2 can be destroyed.
+
+With `for_each`, the names are addresses: removing `"billing"` leaves `"status"` and `"search"` stable. Moving existing bindings comes first; selecting `for_each` in an empty directory does not demonstrate migration.
+
+**Transfer:** would a mutable display name be a good key? Usually not if renaming the display should preserve the object. Prefer a durable identifier and model a display name as a value. Review any deliberate key rename with an explicit move.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)

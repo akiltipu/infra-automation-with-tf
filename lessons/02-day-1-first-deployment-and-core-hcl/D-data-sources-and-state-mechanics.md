@@ -145,13 +145,6 @@ A most_recent AMI query can resolve to a new image on a later plan even when you
 
 **Read further:** [Official documentation](https://developer.hashicorp.com/terraform/language/data-sources).
 
-## 4. Day 1 Wrap-up & Transition to Day 2
+## Before moving to state management
 
-You have mastered the foundations of Terraform:
-- The historical evolution of cloud infrastructure and declarative IaC theory.
-- Why Terraform exists, the problems it solves, and its internal architecture.
-- Full local installation, tooling, and AWS credentials configuration.
-- HCL block anatomy, data types, variable validation, outputs, and locals.
-- Core CLI lifecycle commands, data sources, and state mechanics.
-
-In **Day 2**, we will solve the state synchronization dilemma by building a **Remote State Backend with Amazon S3 native locking**, mastering **State Disaster Recovery**, and designing **Multi-Environment SDLC Architecture**!
+Use the section workshop to connect the syntax to CourseOps, then complete the service-contract assignment. Explain the second no-change plan and the difference between a variable, a local value and an output. Reading the reference material alone is not evidence of a completed deployment.

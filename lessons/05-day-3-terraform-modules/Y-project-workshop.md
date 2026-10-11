@@ -50,6 +50,14 @@ Assignment 05 supplies a module that accepts an invalid port and a failing test 
 
 Terraform CLI, providers and modules have different compatibility boundaries. Commit the provider dependency lockfile for runnable roots; a module version is selected in its source/version configuration, not pinned by that file. Follow `runbooks/upgrades.md`: change one layer, inspect its release notes and plan, and rehearse with representative state. Preserve move history for supported upgrade paths.
 
+## A module move is not a second server
+
+![A Terraform resource moves from a root address to a module address while retaining the same remote object ID.](/images/lesson-diagrams/resource-identity.svg)
+
+The original EC2 has an AWS ID. After extraction, its Terraform address gains a module prefix. Without a move, Terraform can interpret the new address as a different binding. With the correct move, the existing object is associated with the new address.
+
+**Worked review:** match the old address, new address and remote ID; then inspect the planned actions. A zero-mutation plan alone does not tell you whether you mapped the correct business object. For collections, stable keys such as `"a"` and `"b"` remain part of that mapping. Keep migration blocks for supported upgrade paths.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)

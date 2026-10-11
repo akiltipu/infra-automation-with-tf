@@ -37,9 +37,9 @@ Submit the prediction table, fixtures/tests, and a release checklist. The simple
 
 ## Graduated hints
 
-1. Replacements include both `delete` and `create` actions; ordering can vary.
-2. Missing, empty, and unknown ownership values should fail closed.
-3. No-op refactoring uses the stricter `scripts/verify-plan.py` gate; ordinary changes use a different policy.
+<details class="assignment-hint"><summary>Hint 1</summary><p>Replacements include both <code>delete</code> and <code>create</code> actions; ordering can vary.</p></details>
+<details class="assignment-hint"><summary>Hint 2</summary><p>Missing, empty, and unknown ownership values should fail closed.</p></details>
+<details class="assignment-hint"><summary>Hint 3</summary><p>No-op refactoring uses the stricter <code>scripts/verify-plan.py</code> gate; ordinary changes use a different policy.</p></details>
 
 Instructor explanation and capstone feedback: `../../instructor/08.md`.
 
@@ -48,3 +48,7 @@ Instructor explanation and capstone feedback: `../../instructor/08.md`.
 [Browse starter files](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/assignments/08) · [Instructor solution — after your attempt](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/08.md) · [Assessment rubric](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/TEACHING-GUIDE.md)
 
 <details class="knowledge-check"><summary>What should I explain before marking this assignment complete?</summary><p>State your prediction, show the evidence that supports or contradicts it, explain one limit of your checks, and record cleanup. Correct an error and retry if an acceptance criterion is unmet.</p></details>
+
+## Return to this idea later
+
+Tomorrow, explain the main decision without looking at the reference. About a week later, change one input or requirement and predict the result. Record what you needed to look up in your learning log; the aim is to identify your next practice step.

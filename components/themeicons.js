@@ -6,20 +6,30 @@ export default function ThemeIcons() {
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    setTheme(storedTheme || (prefersDark ? "dark" : "light"));
+    let selected;
+    try {
+      selected = localStorage.getItem("theme");
+    } catch {
+      /* preference storage is optional */
+    }
+    const next =
+      selected === "dark" || selected === "light"
+        ? selected
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch {
+      /* keep the control usable */
+    }
   };
 
   return (

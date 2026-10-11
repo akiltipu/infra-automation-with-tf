@@ -22,9 +22,9 @@ As infrastructure scales, you will inevitably need to refactor code, move resour
 
 ---
 
-## 1. Refactoring Resources with `terraform state mv`
+## 1. Refactor addresses with a reviewable move
 
-If you rename a resource block in your HCL code, Terraform's default behavior is to **destroy the old resource and create a new one**:
+Without an address migration, a resource rename can appear as a deletion and a creation. The empty blocks below illustrate addresses only; they are not runnable EC2 configuration.
 
 ```hcl
 # Before
@@ -36,7 +36,16 @@ resource "aws_instance" "frontend_server" {}
 > [!WARNING]
 > Without intervention, running `terraform apply` will **terminate the running EC2 server** and create a fresh one!
 
-To rename the logical reference in state **without touching live cloud infrastructure**, use `state mv`:
+Prefer a `moved` block for a migration that should travel with source code and be visible in the plan (Terraform 1.1+):
+
+```hcl
+moved {
+  from = aws_instance.web
+  to   = aws_instance.frontend_server
+}
+```
+
+Review the plan and verify the object ID. `terraform state mv` is an imperative alternative for a coordinated state operation; it changes state immediately rather than leaving migration history in configuration:
 
 ```bash
 # Move resource identifier in state
@@ -91,7 +100,7 @@ terraform force-unlock a1b2c3d4-5678-90ab-cdef-1234567890ab
 
 ---
 
-## 4. Drift Detection & Remediation (`refresh-only`)
+## 4. Observe drift, then choose the intended result
 
 Configuration drift happens when an engineer modifies a resource directly in the AWS Console (e.g., manually changing a Security Group rule).
 
@@ -107,12 +116,16 @@ Terraform queries AWS APIs and reports that AWS has drifted from `terraform.tfst
 
 ### Reconciling Drift:
 ```bash
-# Option A: Record observed cloud changes in the configured backend
-terraform apply -refresh-only
-# Also update HCL if the change is intentional; refresh-only does not edit code.
+# Record observations only, after reviewing the saved refresh-only plan.
+terraform plan -refresh-only -out=observed.tfplan
+terraform show observed.tfplan
+terraform apply observed.tfplan
 
-# Option B: Overwrite the console changes and force AWS back to matching the HCL code
-terraform apply
+# Separately choose intent: edit HCL to accept an intentional change,
+# or retain the original HCL to propose restoring it. Review before apply.
+terraform plan -out=reconcile.tfplan
+terraform show reconcile.tfplan
+# Apply reconcile.tfplan only after its actions are approved.
 ```
 
 ---

@@ -2,6 +2,8 @@
 
 Build a service-status page whose infrastructure is managed by Terraform and whose guest configuration is managed by Ansible. The core deployment is deliberately a single Ubuntu EC2 host, HTTP restricted to your /32, encrypted EBS, and IMDSv2. Two public/private subnet pairs teach routing; private subnets have no internet egress by default. This is a sandbox, not a high-availability production service.
 
+Use [LEARNING-LOG.md](LEARNING-LOG.md) to record predictions, selected evidence and later recall for each milestone.
+
 ## Choose your path
 
 | Path | What you run | What it proves |

@@ -33,9 +33,9 @@ A diagram, the completed decision record, and a 60-second explanation of one fai
 
 ## Hints — open one at a time
 
-1. Start at the browser and identify every route and security rule needed to reach port 80.
-2. State records resource identities; it is not a server disk backup.
-3. Ansible can run again after Terraform without creating a second EC2 instance.
+<details class="assignment-hint"><summary>Hint 1</summary><p>Start at the browser and identify every route and security rule needed to reach port 80.</p></details>
+<details class="assignment-hint"><summary>Hint 2</summary><p>State records resource identities; it is not a server disk backup.</p></details>
+<details class="assignment-hint"><summary>Hint 3</summary><p>Ansible can run again after Terraform without creating a second EC2 instance.</p></details>
 
 After attempting the problem, compare `../../instructor/01.md`.
 
@@ -44,3 +44,7 @@ After attempting the problem, compare `../../instructor/01.md`.
 [Browse starter files](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/assignments/01) · [Instructor solution — after your attempt](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/01.md) · [Assessment rubric](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/instructor/TEACHING-GUIDE.md)
 
 <details class="knowledge-check"><summary>What should I explain before marking this assignment complete?</summary><p>State your prediction, show the evidence that supports or contradicts it, explain one limit of your checks, and record cleanup. Correct an error and retry if an acceptance criterion is unmet.</p></details>
+
+## Return to this idea later
+
+Tomorrow, explain the main decision without looking at the reference. About a week later, change one input or requirement and predict the result. Record what you needed to look up in your learning log; the aim is to identify your next practice step.

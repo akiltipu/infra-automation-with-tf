@@ -51,6 +51,17 @@ The project needs no application password. SSH private keys stay on the operator
 
 Predict what happens if you change only the directory name, leaving `environment = "dev"` inside it. Then predict what happens if two different folders point to the same S3 key. Assignment 04 asks you to build and test two local roots and explain the stronger AWS boundaries you would add.
 
+## Distinguish a secret input from secret storage
+
+| Mechanism | What it changes | Limit |
+| --- | --- | --- |
+| `TF_VAR_` | How Terraform receives a value | Ordinary arguments may still persist it |
+| `sensitive` | Normal display redaction | State, plans and raw/JSON output need protection |
+| `ephemeral` | Omits supported runtime values from plan/state | Terraform 1.10+ and restricted contexts |
+| Write-only argument | Avoids retaining a supported resource argument | Terraform 1.11+ and provider support |
+
+The CourseOps baseline remains 1.10.5; do not paste a write-only example into it and expect compatibility. An ephemeral value cannot be placed in an ordinary persisted resource argument just by adding a flag. This project needs no application password, so the best design is to avoid introducing one.
+
 ## Project files and next problem
 
 [Download all CourseOps labs](/downloads/courseops-labs.zip) · [Browse the project source](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops) · [Read the complete runbook](https://github.com/akiltipu/infra-automation-with-tf/tree/main/labs/courseops/README.md)

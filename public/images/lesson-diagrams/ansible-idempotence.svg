@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" role="img" aria-labelledby="title desc"><title id="title">Ansible: change only what needs changing</title><desc id="desc">An unchanged template needs no work. A changed page is served without a reload. Changed Nginx configuration notifies validation then reload; failed validation stops the reload.</desc><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10" fill="#acbddb"/></marker></defs><rect width="1000" height="660" fill="#101a2d" rx="20"/><g font-family="system-ui,sans-serif" fill="#f3f5ff"><text x="40" y="50" font-size="27" font-weight="700">Ansible: change only what needs changing</text>
+<rect x="40" y="105" width="420" height="115" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="60" y="137" font-size="20" font-weight="650">Page template</text>
+<text x="60" y="170" fill="#c9d6eb" font-size="18">Message changes → file changes</text>
+<text x="60" y="197" fill="#c9d6eb" font-size="18">No server configuration reload needed</text>
+<rect x="540" y="105" width="420" height="115" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="560" y="137" font-size="20" font-weight="650">Nginx configuration template</text>
+<text x="560" y="170" fill="#c9d6eb" font-size="18">Configuration changes → notify</text>
+<text x="560" y="197" fill="#c9d6eb" font-size="18">Unchanged configuration → no handler</text>
+<path d="M750 220 V280" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="540" y="280" width="420" height="100" rx="12" fill="#1c2b43" stroke="#8d7adb" stroke-width="1.5"/><text x="560" y="312" font-size="20" font-weight="650">Validate configuration</text>
+<text x="560" y="345" fill="#c9d6eb" font-size="18">Run nginx -t before reload</text>
+<path d="M650 380 V435 H260 V465" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<path d="M850 380 V465" fill="none" stroke="#acbddb" stroke-width="2.5" marker-end="url(#a)"/>
+<text x="290" y="425" font-size="17" fill="#8bddd0">passes</text><text x="865" y="430" font-size="17" fill="#f3c17d">fails</text>
+<rect x="40" y="465" width="420" height="100" rx="12" fill="#1c2b43" stroke="#50b7ac" stroke-width="1.5"/><text x="60" y="497" font-size="20" font-weight="650">Reload Nginx</text>
+<text x="60" y="530" fill="#c9d6eb" font-size="18">Apply the validated configuration</text>
+<rect x="540" y="465" width="420" height="100" rx="12" fill="#1c2b43" stroke="#daa15e" stroke-width="1.5"/><text x="560" y="497" font-size="20" font-weight="650">Stop and investigate</text>
+<text x="560" y="530" fill="#c9d6eb" font-size="18">Correct the error before retrying</text>
+<text x="40" y="620" font-size="18" fill="#c9d6eb">A later play failure can prevent notified handlers; verify health after recovery.</text>
+</g></svg>

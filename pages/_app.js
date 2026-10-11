@@ -6,6 +6,7 @@ import "highlight.js/styles/a11y-light.css";
 import "../styles/variables.css";
 import "../styles/footer.css";
 import "../styles/courses.css";
+import "../styles/experience.css";
 
 import Layout from "../components/layout";
 
